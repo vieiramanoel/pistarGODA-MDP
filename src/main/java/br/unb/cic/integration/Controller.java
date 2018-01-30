@@ -31,8 +31,9 @@ public class Controller {
         Set<Actor> selectedActors = new HashSet<>();
         Set<Goal> selectedGoals = new HashSet<>();
         transformToTao4meEntities(model, selectedActors, selectedGoals);
-        new PRISMCodeGenerationAction(selectedActors, selectedGoals).run();
         try {
+            cleanDTMCFolder();
+            new PRISMCodeGenerationAction(selectedActors, selectedGoals).run();
             FileOutputStream fos = new FileOutputStream("src/main/webapp/prism.zip");
             ZipOutputStream zos = new ZipOutputStream(fos);
             DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
@@ -43,17 +44,21 @@ public class Controller {
                 zos.closeEntry();
             }
             zos.close();
-            Files.walk(Paths.get("dtmc"), FileVisitOption.FOLLOW_LINKS)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(f -> {
-                        if (f.isFile()) {
-                            f.delete();
-                        }
-                    });
+            cleanDTMCFolder();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    private void cleanDTMCFolder() throws IOException {
+        Files.walk(Paths.get("dtmc"), FileVisitOption.FOLLOW_LINKS)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(f -> {
+                    if (f.isFile()) {
+                        f.delete();
+                    }
+                });
     }
 
     private void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors, Set<Goal> selectedGoals) {
