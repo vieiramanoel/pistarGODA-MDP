@@ -64,13 +64,13 @@ public class PARAMProducer {
             i++;
         }
         pctl.append(") ]");
-        FileUtility.deleteFile(targetFolder + "/AgentRole_" + agentName + "/reachability.pctl", false);
-        FileUtility.writeFile(pctl.toString(), targetFolder + "/AgentRole_" + agentName + "/reachability.pctl");
+        FileUtility.deleteFile(targetFolder + "/reachability.pctl", false);
+        FileUtility.writeFile(pctl.toString(), targetFolder + "/reachability.pctl");
     }
 
     private void printFormula(String nodeForm) throws CodeGenerationException {
         nodeForm = composeFormula(nodeForm);
-        String output = targetFolder + "/" + PathLocation.BASIC_AGENT_PACKAGE_PREFIX + agentName + "/";
+        String output = targetFolder + "/";
         PrintWriter generalFormula = ManageWriter.createFile("result.out", output);
         ManageWriter.printModel(generalFormula, nodeForm);
     }
