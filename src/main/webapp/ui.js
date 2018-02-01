@@ -379,7 +379,7 @@ $('#runPRISMButton').click(function() {
     var model = saveModel();
     $.ajax({
         type: "POST",
-        url: '/prism',
+        url: '/prism-dtmc',
         data: {
             "content": model
         },

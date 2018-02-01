@@ -25,7 +25,7 @@ import java.util.zip.ZipOutputStream;
 @RestController
 public class Controller {
 
-    @RequestMapping(value = "/prism", method = RequestMethod.POST)
+    @RequestMapping(value = "/prism-dtmc", method = RequestMethod.POST)
     public void prism(@RequestParam(value = "content") String content) {
         Gson gson = new GsonBuilder().create();
         PistarModel model = gson.fromJson(content, PistarModel.class);
