@@ -31,6 +31,7 @@
 package br.unb.cic.goda.rtgoretoprism.generator.kl;
 
 import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
+import br.unb.cic.goda.rtgoretoprism.generator.goda.writer.ManageWriter;
 import br.unb.cic.goda.rtgoretoprism.util.FileUtility;
 import br.unb.cic.goda.rtgoretoprism.util.PathLocation;
 
@@ -181,7 +182,7 @@ public class CodeGenerator {
                 continue;
             }
 
-            String file = readFileAsString(curr.getAbsolutePath());
+            String file = ManageWriter.readFileAsString(curr.getAbsolutePath());
 
             //update tags
             file = file.replace(UTIL_PACKAGE_NAME_TAG, utilPkg);
@@ -208,7 +209,7 @@ public class CodeGenerator {
 //		ATCConsole.println( "Generating class " + agentClassNameInputTemplate + 
 //				"for agent " + agentName + " and capapility " + capName );
 
-        String file = readFileAsString(inputFolder + TESTER_AGENT_TEMPLATE_INPUT_NAME);
+        String file = ManageWriter.readFileAsString(inputFolder + TESTER_AGENT_TEMPLATE_INPUT_NAME);
 
         //update tags
         file = file.replace(FSM_NAME_TAG, fsmName);
@@ -236,7 +237,7 @@ public class CodeGenerator {
 
 //		ATCConsole.println("Generating CapabilitiesAgent class "+ classname +" for agent " + agentName );
 
-        String file = readFileAsString(inputFolder + classname);
+        String file = ManageWriter.readFileAsString(inputFolder + classname);
 
         //update tags
         file = file.replace(AGENT_PACKAGE_NAME_TAG, agentPkg);
@@ -244,45 +245,6 @@ public class CodeGenerator {
         file = file.replace(UTIL_PACKAGE_NAME_TAG, utilPkg);
 
         writeFile(file, agentDir + classname);
-    }
-
-
-    /**
-     * Create the capability/FSM file
-     *
-     * @param cap current capability
-     * @param capsDir capability target dir
-     * @param agentName agent name
-     * @param agentPkg agent package
-     * @param capsPkg capability package
-     * @param utilPkg utility package
-     * @param fsmName current FSM name
-     *
-     * @throws CodeGenerationException
-     */
-
-
-    /**
-     * Read the specified file into a String
-     *
-     * @param filePath the path of the file to read
-     *
-     * @return the file content as a String
-     *
-     * @throws CodeGenerationException
-     */
-    private String readFileAsString(String filePath) throws CodeGenerationException {
-        String res = null;
-
-        try {
-            res = FileUtility.readFileAsString(filePath);
-        } catch (IOException e) {
-            String msg = "Error: file " + filePath + " not found.";
-            System.out.println(msg);
-            throw new CodeGenerationException(msg);
-        }
-
-        return res;
     }
 
     /**

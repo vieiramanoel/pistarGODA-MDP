@@ -1,5 +1,9 @@
 package br.unb.cic.goda.rtgoretoprism.generator.goda.producer;
 
+import br.unb.cic.goda.model.Actor;
+import br.unb.cic.goda.model.GeneralEntity;
+import br.unb.cic.goda.model.Goal;
+import br.unb.cic.goda.model.Plan;
 import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.parser.RTParser;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.writer.PrismWriter;
@@ -9,10 +13,6 @@ import br.unb.cic.goda.rtgoretoprism.model.kl.GoalContainer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.PlanContainer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.RTContainer;
 import br.unb.cic.goda.rtgoretoprism.util.kl.TroposNavigator;
-import br.unb.cic.goda.model.Actor;
-import br.unb.cic.goda.model.GeneralEntity;
-import br.unb.cic.goda.model.Goal;
-import br.unb.cic.goda.model.Plan;
 
 import java.io.IOException;
 import java.util.*;
@@ -44,14 +44,15 @@ public class RTGoreProducer {
         this.rtOptGoals = new TreeMap<>();
     }
 
-    public void run() throws CodeGenerationException, IOException {
+    public AgentDefinition run() throws CodeGenerationException, IOException {
         System.out.println("Starting PRISM Model Generation Process (Knowledge Level)");
         System.out.println("\tTemplate Input Folder: " + inputFolder);
         System.out.println("\tOutput Folder: " + outputFolder);
         long startTime = new Date().getTime();
+        AgentDefinition ad = null;
         for (Actor a : allActors) {
             System.out.println("Generating DTMC model for: " + a.getName());
-            AgentDefinition ad = new AgentDefinition(a);
+            ad = new AgentDefinition(a);
             for (Goal rootgoal : tn.getRootGoals(a)) {
                 Const type = Const.ACHIEVE;
                 Const request = Const.NONE;
@@ -65,13 +66,14 @@ public class RTGoreProducer {
             writer.writeModel();
         }
         System.out.println("DTMC model created in " + (new Date().getTime() - startTime) + "ms.");
+        return ad;
     }
 
     private void addGoal(Goal g, GoalContainer gc, final AgentDefinition ad, boolean included) throws IOException {
         included = included || allGoals.isEmpty() || allGoals.contains(g);
         gc.setIncluded(included);
         String rtRegex = gc.getRtRegex();
-        storeRegexResults(gc.getUid(), rtRegex);
+        storeRegexResults(gc.getUid(), rtRegex, gc.getDecomposition());
         List<Goal> declist = g.getDecompositionList();
         sortIntentionalElements(declist);
         if (g.isAndDecomposition())
@@ -143,7 +145,7 @@ public class RTGoreProducer {
     }
 
     private void addPlan(Plan p, PlanContainer pc, final AgentDefinition ad) throws IOException {
-        storeRegexResults(pc.getUid(), pc.getRtRegex());
+        storeRegexResults(pc.getUid(), pc.getRtRegex(), pc.getDecomposition());
         if (p.isAndDecomposition()) {
             List<Plan> decList = p.getEndPlans();
             sortIntentionalElements(decList);
@@ -352,9 +354,9 @@ public class RTGoreProducer {
         }
     }
 
-    private void storeRegexResults(String uid, String rtRegex) throws IOException {
+    private void storeRegexResults(String uid, String rtRegex, Const decType) throws IOException {
         if (rtRegex != null) {
-            Object[] res = RTParser.parseRegex(uid, rtRegex + '\n');
+            Object[] res = RTParser.parseRegex(uid, rtRegex + '\n', decType);
             rtSortedGoals.putAll((Map<String, Boolean[]>) res[0]);
             rtCardGoals.putAll((Map<String, Object[]>) res[1]);
             rtAltGoals.putAll((Map<String, Set<String>>) res[2]);

@@ -2,6 +2,7 @@ package br.unb.cic.integration;
 
 import br.unb.cic.goda.model.*;
 import br.unb.cic.goda.rtgoretoprism.action.PRISMCodeGenerationAction;
+import br.unb.cic.goda.rtgoretoprism.action.RunParamAction;
 import br.unb.cic.pistar.model.PistarActor;
 import br.unb.cic.pistar.model.PistarLink;
 import br.unb.cic.pistar.model.PistarModel;
@@ -24,8 +25,8 @@ import java.util.zip.ZipOutputStream;
 @RestController
 public class Controller {
 
-    @RequestMapping(value = "/goda", method = RequestMethod.POST)
-    public void goda(@RequestParam(value = "content") String content) {
+    @RequestMapping(value = "/prism", method = RequestMethod.POST)
+    public void prism(@RequestParam(value = "content") String content) {
         Gson gson = new GsonBuilder().create();
         PistarModel model = gson.fromJson(content, PistarModel.class);
         Set<Actor> selectedActors = new HashSet<>();
@@ -35,6 +36,32 @@ public class Controller {
             cleanDTMCFolder();
             new PRISMCodeGenerationAction(selectedActors, selectedGoals).run();
             FileOutputStream fos = new FileOutputStream("src/main/webapp/prism.zip");
+            ZipOutputStream zos = new ZipOutputStream(fos);
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
+            for (Path path : directoryStream) {
+                byte[] bytes = Files.readAllBytes(path);
+                zos.putNextEntry(new ZipEntry(path.getFileName().toString()));
+                zos.write(bytes, 0, bytes.length);
+                zos.closeEntry();
+            }
+            zos.close();
+            cleanDTMCFolder();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @RequestMapping(value = "/param", method = RequestMethod.POST)
+    public void param(@RequestParam(value = "content") String content) {
+        Gson gson = new GsonBuilder().create();
+        PistarModel model = gson.fromJson(content, PistarModel.class);
+        Set<Actor> selectedActors = new HashSet<>();
+        Set<Goal> selectedGoals = new HashSet<>();
+        transformToTao4meEntities(model, selectedActors, selectedGoals);
+        try {
+            cleanDTMCFolder();
+            new RunParamAction(selectedActors, selectedGoals).run();
+            FileOutputStream fos = new FileOutputStream("src/main/webapp/param.zip");
             ZipOutputStream zos = new ZipOutputStream(fos);
             DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
             for (Path path : directoryStream) {

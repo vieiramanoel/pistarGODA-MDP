@@ -375,16 +375,31 @@ $('#saveModelButton').click(function() {
     $('#saveModel').show();
 });
 
-$('#runGODAButton').click(function() {
+$('#runPRISMButton').click(function() {
     var model = saveModel();
     $.ajax({
         type: "POST",
-        url: '/goda',
+        url: '/prism',
         data: {
             "content": model
         },
         success: function() {
             window.location.href = 'prism.zip';
+        },
+        error: function(){alert("Error!");}
+    });
+});
+
+$('#runPARAMButton').click(function() {
+    var model = saveModel();
+    $.ajax({
+        type: "POST",
+        url: '/param',
+        data: {
+            "content": model
+        },
+        success: function() {
+            window.location.href = 'param.zip';
         },
         error: function(){alert("Error!");}
     });

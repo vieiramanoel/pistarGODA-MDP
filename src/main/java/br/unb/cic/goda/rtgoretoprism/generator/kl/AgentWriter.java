@@ -41,6 +41,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
+import br.unb.cic.goda.rtgoretoprism.generator.goda.writer.ManageWriter;
 import br.unb.cic.goda.rtgoretoprism.model.kl.Const;
 import br.unb.cic.goda.rtgoretoprism.model.kl.ElementContainer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.GoalContainer;
@@ -162,9 +163,9 @@ public class AgentWriter {
 		String planPkgName = basicAgentPackage + ".plans";
 
 		//read some of the used template
-		header = readFileAsString( planInputFolder + "agentheader.xml" );
-		body = readFileAsString( planInputFolder + "agentbody.xml" );
-		footer = readFileAsString( planInputFolder + "agentfooter.xml" );
+		header = ManageWriter.readFileAsString( planInputFolder + "agentheader.xml" );
+		body = ManageWriter.readFileAsString( planInputFolder + "agentbody.xml" );
+		footer = ManageWriter.readFileAsString( planInputFolder + "agentfooter.xml" );
 
 		//update some template placeholder
 		header = header.replace( NAME_TAG, ad.getAgentName() );
@@ -252,7 +253,7 @@ public class AgentWriter {
 				created = true;
 
 				//the template input skeleton part
-				String fsmSkeleton = readFileAsString( templatedInputFolder + TEMPLATE_CL_BASE_PATH +
+				String fsmSkeleton = ManageWriter.readFileAsString( templatedInputFolder + TEMPLATE_CL_BASE_PATH +
 						capSkeletonName );
 
 				//update tags
@@ -290,7 +291,7 @@ public class AgentWriter {
 				//avoid overwriting
 				if( !curr.exists() ) {
 					//template input skeleton
-					String utilSkeleton = readFileAsString( utilInputFolder + "/" + currName );
+					String utilSkeleton = ManageWriter.readFileAsString( utilInputFolder + "/" + currName );
 					//update tags
 					utilSkeleton = utilSkeleton.replace( CodeGenerator.UTIL_PACKAGE_NAME_TAG, currUtilPkg );
 					//write it
@@ -301,7 +302,7 @@ public class AgentWriter {
 
 			//create the CapabilitiesAgent
 			//template input skeleton
-			String capAgSkeleton = readFileAsString( templateInputFolder + capabilitiesAgentName );
+			String capAgSkeleton = ManageWriter.readFileAsString( templateInputFolder + capabilitiesAgentName );
 			//update tags
 			capAgSkeleton = capAgSkeleton.replace( CodeGenerator.AGENT_PACKAGE_NAME_TAG, currAgentPkg );
 			capAgSkeleton = capAgSkeleton.replace( CodeGenerator.CAPABILITIES_PACKAGE_NAME_TAG, currCapabilityPkg );
@@ -417,21 +418,21 @@ public class AgentWriter {
 	private void writeDefaultJavaFiles( String input, String output, String pkgName,
 			String utilPkgName, String planPkgName ) throws CodeGenerationException {
 		// here only the internal package name changes
-		String dispatchGoalPlan = readFileAsString(input + "DispatchGoalPlan.java");
+		String dispatchGoalPlan = ManageWriter.readFileAsString(input + "DispatchGoalPlan.java");
 		dispatchGoalPlan = dispatchGoalPlan.replace(PACKAGE_TAG, pkgName);
 		dispatchGoalPlan = dispatchGoalPlan.replace(UTIL_PACKAGE_TAG, utilPkgName);
 		dispatchGoalPlan = dispatchGoalPlan.replace(PLAN_PACKAGE_TAG, planPkgName );
 
 		writeFile(dispatchGoalPlan, output + "DispatchGoalPlan.java");
 
-		String goalRequestPlan = readFileAsString(input + "GoalRequestPlan.java");
+		String goalRequestPlan = ManageWriter.readFileAsString(input + "GoalRequestPlan.java");
 		goalRequestPlan = goalRequestPlan.replace(PACKAGE_TAG, pkgName);
 		goalRequestPlan = goalRequestPlan.replace(UTIL_PACKAGE_TAG, utilPkgName);
 		goalRequestPlan = goalRequestPlan.replace(PLAN_PACKAGE_TAG, planPkgName);
 
 		writeFile(goalRequestPlan, output + "GoalRequestPlan.java");
 
-		String informChangePlan = readFileAsString(input + "InformChangePlan.java");
+		String informChangePlan = ManageWriter.readFileAsString(input + "InformChangePlan.java");
 		informChangePlan = informChangePlan.replace(PACKAGE_TAG, pkgName);
 		informChangePlan = informChangePlan.replace(UTIL_PACKAGE_TAG, utilPkgName );
 		informChangePlan = informChangePlan.replace(PLAN_PACKAGE_TAG, planPkgName );
@@ -503,17 +504,17 @@ public class AgentWriter {
 			String planOutputFolder, String pkgName, String utilPkgName, String planPkgName ) throws CodeGenerationException {
 		String bbpattern = "\t\t\t<fact>Components.createGoal(\"" + NAME_TAG + "\",\"" +  DECTYPE_TAG + "\")</fact>\n";
 
-		String goalpattern 			= readFileAsString(input + "pattern_goal.xml");
-		String metagoalpattern 		= readFileAsString(input + "pattern_metagoal.xml");
-		String metaplanpattern 		= readFileAsString(input + "pattern_metaplan.xml");
-		String dispatchplanpattern 	= readFileAsString(input + "pattern_dispatchplan.xml");
-		String dispatchANDpattern 	= readFileAsString(input + "pattern_dispatchANDplan.xml");
-		String requestplanpattern 	= readFileAsString(input + "pattern_requestplan.xml");
-		String eventpattern 		= readFileAsString(input + "pattern_event.xml");
+		String goalpattern 			= ManageWriter.readFileAsString(input + "pattern_goal.xml");
+		String metagoalpattern 		= ManageWriter.readFileAsString(input + "pattern_metagoal.xml");
+		String metaplanpattern 		= ManageWriter.readFileAsString(input + "pattern_metaplan.xml");
+		String dispatchplanpattern 	= ManageWriter.readFileAsString(input + "pattern_dispatchplan.xml");
+		String dispatchANDpattern 	= ManageWriter.readFileAsString(input + "pattern_dispatchANDplan.xml");
+		String requestplanpattern 	= ManageWriter.readFileAsString(input + "pattern_requestplan.xml");
+		String eventpattern 		= ManageWriter.readFileAsString(input + "pattern_event.xml");
 
 		// from this files multiple files associated to goal/plannames have to be written
-		String file_MetaPlan = readFileAsString(input + "MetaPlan_" + TMP_TAG + ".java");
-		String file_ANDGoalPlan = readFileAsString(input + "ANDGoalPlan_" + TMP_TAG + ".java");
+		String file_MetaPlan = ManageWriter.readFileAsString(input + "MetaPlan_" + TMP_TAG + ".java");
+		String file_ANDGoalPlan = ManageWriter.readFileAsString(input + "ANDGoalPlan_" + TMP_TAG + ".java");
 
 		for( GoalContainer goal : gb.values() ) {
 			// write the goal to the beliefbase
@@ -764,9 +765,9 @@ public class AgentWriter {
 	 */
 	private void writePlans( String input, String output, Hashtable<String,PlanContainer> pb, String pkgName,
 			String utilPkg, String planPkg, String agentName ) throws CodeGenerationException {
-		String file_RealPlan = readFileAsString(input + "RealPlan_" + TMP_TAG + ".java");
+		String file_RealPlan = ManageWriter.readFileAsString(input + "RealPlan_" + TMP_TAG + ".java");
 
-		String realplanpattern = readFileAsString(input + "pattern_realplan.xml");
+		String realplanpattern = ManageWriter.readFileAsString(input + "pattern_realplan.xml");
 
 		for (PlanContainer plan : pb.values()) {
 			// retrieve softgoal contributions
@@ -864,7 +865,7 @@ public class AgentWriter {
 				continue;
 			}
 
-			String file = readFileAsString( curr.getAbsolutePath() );
+			String file = ManageWriter.readFileAsString( curr.getAbsolutePath() );
 
 			//update tags
 			file = file.replace( UTIL_PACKAGE_TAG, utilPkgName );
@@ -873,30 +874,6 @@ public class AgentWriter {
 			//save it
 			writeFile( file, output + curr.getName() );
 		}
-	}
-
-
-	/**
-	 * Read the specified file into a String
-	 *
-	 * @param filePath the path of the file to read
-	 *
-	 * @return the file content as a String
-	 *
-	 * @throws CodeGenerationException
-	 */
-	private String readFileAsString( String filePath ) throws CodeGenerationException {
-		String res = null;
-
-		try {
-			res = FileUtility.readFileAsString( filePath );
-		} catch (IOException e) {
-			String msg = "Error: file " + filePath + " not found.";
-			System.out.println( msg );
-			throw new CodeGenerationException( msg );
-		}
-
-		return res;
 	}
 
 	/**
