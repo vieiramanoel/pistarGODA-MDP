@@ -2,7 +2,6 @@
 *.class
 target/*
 dtmc/*
-tools/*
 
 # Log file
 *.log
