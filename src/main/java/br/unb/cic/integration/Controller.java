@@ -51,7 +51,7 @@ public class Controller {
         }
     }
 
-    @RequestMapping(value = "/param", method = RequestMethod.POST)
+    @RequestMapping(value = "/param-dtmc", method = RequestMethod.POST)
     public void param(@RequestParam(value = "content") String content) {
         Gson gson = new GsonBuilder().create();
         PistarModel model = gson.fromJson(content, PistarModel.class);

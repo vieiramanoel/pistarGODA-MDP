@@ -394,7 +394,7 @@ $('#runPARAMButton').click(function() {
     var model = saveModel();
     $.ajax({
         type: "POST",
-        url: '/param',
+        url: '/param-dtmc',
         data: {
             "content": model
         },
