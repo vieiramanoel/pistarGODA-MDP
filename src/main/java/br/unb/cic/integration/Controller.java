@@ -12,7 +12,10 @@ import com.google.gson.GsonBuilder;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +30,6 @@ import java.util.zip.ZipOutputStream;
 @RestController
 public class Controller {
 
-    @CrossOrigin
     @RequestMapping(value = "/prism-dtmc", method = RequestMethod.POST)
     public ResponseEntity<InputStreamResource> prism(@RequestParam(value = "content") String content) throws IOException {
         Gson gson = new GsonBuilder().create();
@@ -56,7 +58,6 @@ public class Controller {
                 .body(resource);
     }
 
-    @CrossOrigin
     @RequestMapping(value = "/param-dtmc", method = RequestMethod.POST)
     public ResponseEntity<InputStreamResource> param(@RequestParam(value = "content") String content) throws IOException {
         Gson gson = new GsonBuilder().create();
