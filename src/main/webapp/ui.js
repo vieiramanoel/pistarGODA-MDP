@@ -382,11 +382,7 @@ $('#runPRISMButton').click(function() {
         url: '/prism-dtmc',
         data: {
             "content": model
-        },
-        success: function() {
-            window.location.href = 'prism.zip';
-        },
-        error: function(){alert("Error!");}
+        }
     });
 });
 
@@ -397,11 +393,7 @@ $('#runPARAMButton').click(function() {
         url: '/param-dtmc',
         data: {
             "content": model
-        },
-        success: function() {
-            window.location.href = 'param.zip';
-        },
-        error: function(){alert("Error!");}
+        }
     });
 });
 
