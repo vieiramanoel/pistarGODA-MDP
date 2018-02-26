@@ -138,16 +138,16 @@ ui.defineInteractions = function() {
                         ui.linkTarget = cellView;
 
                         if ( ui.currentAddingElement.match(/AndRefinementLink|OrRefinementLink|NeededByLink|QualificationLink|ContributionLink|make|help|hurt|break/) ) {
-                                if (ui.currentAddingElement === 'AndRefinementLink') istar.addAndRefinementLink(ui.linkSource.model, ui.linkTarget.model);
-                                else if (ui.currentAddingElement === 'OrRefinementLink') istar.addOrRefinementLink(ui.linkSource.model, ui.linkTarget.model);
-                                else if (ui.currentAddingElement === 'NeededByLink') istar.addNeededByLink(ui.linkSource.model, ui.linkTarget.model);
-                                else if (ui.currentAddingElement === 'QualificationLink') istar.addQualificationLink(ui.linkSource.model, ui.linkTarget.model);
-                                else if (ui.currentAddingElement.match(/make|help|hurt|break/i)) {
-                                    var newLink = istar.addContributionLink(ui.linkSource.model, ui.linkTarget.model, ui.currentAddingElement);
-                                    if (newLink) {
-                                        newLink.on('change:vertices', ui._toggleSmoothness);//do some magic in order to prevent ugly links when there are no vertices
-                                    }
+                            if (ui.currentAddingElement === 'AndRefinementLink') istar.addAndRefinementLink(ui.linkSource.model, ui.linkTarget.model);
+                            else if (ui.currentAddingElement === 'OrRefinementLink') istar.addOrRefinementLink(ui.linkSource.model, ui.linkTarget.model);
+                            else if (ui.currentAddingElement === 'NeededByLink') istar.addNeededByLink(ui.linkSource.model, ui.linkTarget.model);
+                            else if (ui.currentAddingElement === 'QualificationLink') istar.addQualificationLink(ui.linkSource.model, ui.linkTarget.model);
+                            else if (ui.currentAddingElement.match(/make|help|hurt|break/i)) {
+                                var newLink = istar.addContributionLink(ui.linkSource.model, ui.linkTarget.model, ui.currentAddingElement);
+                                if (newLink) {
+                                    newLink.on('change:vertices', ui._toggleSmoothness);//do some magic in order to prevent ugly links when there are no vertices
                                 }
+                            }
                         }
                         else if (ui.dependencyType.match(/DependencyLink/)) {
                             addDependency(ui.linkSource.model, ui.dependencyType, ui.linkTarget.model);
@@ -382,7 +382,11 @@ $('#runPRISMButton').click(function() {
         url: '/prism-dtmc',
         data: {
             "content": model
-        }
+        },
+        success: function() {
+            window.location.href = 'prism.zip';
+        },
+        error: function(){alert("Error!");}
     });
 });
 
@@ -394,11 +398,8 @@ $('#runPARAMButton').click(function() {
         data: {
             "content": model
         },
-        success: function(result) {
-            var iframe = document.createElement("iframe");
-            iframe.setAttribute("src", result.url);
-            iframe.setAttribute("style", "display: none");
-            document.body.appendChild(iframe);
+        success: function() {
+            window.location.href = 'param.zip';
         },
         error: function(){alert("Error!");}
     });
@@ -540,14 +541,14 @@ $('#feedbackArea').on('hide.bs.collapse', function () {
 });
 
 $(document).keyup(function(e) {
-	if (ui.currentElement !== null) {
+    if (ui.currentElement !== null) {
         if (ui.currentState === 'view') {
             if (e.which==46) {  //delete
                 ui.currentElement.remove();
                 deleteRemoveElementButton();
             }
         }
-	}
+    }
 });
 
 ui.changeStateToEdit = function () {
