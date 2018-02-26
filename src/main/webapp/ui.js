@@ -393,7 +393,14 @@ $('#runPARAMButton').click(function() {
         url: '/param-dtmc',
         data: {
             "content": model
-        }
+        },
+        success: function(result) {
+            var iframe = document.createElement("iframe");
+            iframe.setAttribute("src", result.url);
+            iframe.setAttribute("style", "display: none");
+            document.body.appendChild(iframe);
+        },
+        error: function(){alert("Error!");}
     });
 });
 
