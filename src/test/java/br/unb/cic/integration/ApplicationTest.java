@@ -27,6 +27,11 @@ public class ApplicationTest {
     }
 
     @Test
+    public void contextLoad() {
+        Assert.assertTrue(true);
+    }
+
+    @Test
     public void testCase1() throws Exception {
         String content = getContent("Test1.txt");
         try {
