@@ -1,8 +1,10 @@
 package br.unb.cic.integration;
 
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -17,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ApplicationTest {
 
     @Autowired
@@ -27,8 +30,9 @@ public class ApplicationTest {
     }
 
     @Test
-    public void contextLoad() {
-        Assert.assertTrue(true);
+    public void contextLoad() throws Exception {
+        // Test to start the application
+        testCase1();
     }
 
     @Test
