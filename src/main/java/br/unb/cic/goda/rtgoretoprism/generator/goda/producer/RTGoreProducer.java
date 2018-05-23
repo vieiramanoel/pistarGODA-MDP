@@ -146,16 +146,14 @@ public class RTGoreProducer {
 
     private void addPlan(Plan p, PlanContainer pc, final AgentDefinition ad) throws IOException {
         storeRegexResults(pc.getUid(), pc.getRtRegex(), pc.getDecomposition());
-        if (p.isAndDecomposition()) {
-            List<Plan> decList = p.getEndPlans();
-            sortIntentionalElements(decList);
-            if (p.isAndDecomposition())
-                pc.createDecomposition(Const.AND);
-            else
-                pc.createDecomposition(Const.OR);
-            iteratePlans(ad, pc, decList);
-            iterateRts(pc, pc.getDecompPlans());
-        }
+        List<Plan> decList = p.getEndPlans();
+        sortIntentionalElements(decList);
+        if (p.isAndDecomposition())
+        	pc.createDecomposition(Const.AND);
+        else
+        	pc.createDecomposition(Const.OR);
+        iteratePlans(ad, pc, decList);
+        iterateRts(pc, pc.getDecompPlans());
     }
 
     private void iteratePlans(AgentDefinition ad, PlanContainer pc, List<Plan> decList) throws IOException {
