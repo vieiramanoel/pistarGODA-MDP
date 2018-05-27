@@ -1,5 +1,5 @@
 // Generated from br/unb/cic/CtxRegex.g4 by ANTLR 4.3
-package br.unb.cic.goda;
+package br.unb.cic;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;

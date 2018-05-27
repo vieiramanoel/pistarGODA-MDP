@@ -1,7 +1,17 @@
+.DS_Store
+.settings
+.classpath
+.project
+
 # Compiled class file
 *.class
-target/*
 dtmc/*
+
+!target/
+target/*
+!target/generated-sources/
+target/generated-sources/*
+!target/generated-sources/antlr4
 
 # Log file
 *.log
@@ -13,7 +23,6 @@ dtmc/*
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.ear
 *.zip

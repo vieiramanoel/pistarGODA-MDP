@@ -9,7 +9,7 @@
       "nodes": [
         {
           "id": "4b5e3705-5684-4959-b631-ba9fb99e494f",
-          "text": "Objetivo principal: testar erro de padrão [G1;G2]",
+          "text": "Objetivo principal: testar erro de padrão",
           "type": "istar.Goal",
           "x": 221,
           "y": 140,
@@ -19,17 +19,10 @@
         },
         {
           "id": "bcc9025b-e874-40e9-ae6f-dbe93c4cc7ab",
-          "text": "G1: folha um",
-          "type": "istar.Goal",
+          "text": "T1: folha",
+          "type": "istar.Task",
           "x": 138,
           "y": 221
-        },
-        {
-          "id": "1044bf84-498e-4d84-98aa-2cdb839f5ca7",
-          "text": "G2: folha dois",
-          "type": "istar.Goal",
-          "x": 288,
-          "y": 224
         }
       ]
     }
@@ -40,12 +33,6 @@
       "id": "34d9a61f-00f6-4a95-9723-fccce79dc5df",
       "type": "istar.AndRefinementLink",
       "source": "bcc9025b-e874-40e9-ae6f-dbe93c4cc7ab",
-      "target": "4b5e3705-5684-4959-b631-ba9fb99e494f"
-    },
-    {
-      "id": "eda07da2-f5f7-49c2-8ec0-d85dca7730fb",
-      "type": "istar.AndRefinementLink",
-      "source": "1044bf84-498e-4d84-98aa-2cdb839f5ca7",
       "target": "4b5e3705-5684-4959-b631-ba9fb99e494f"
     }
   ],
