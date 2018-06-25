@@ -8,6 +8,7 @@ import br.unb.cic.goda.rtgoretoprism.util.NameUtility;
 
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,6 +81,10 @@ public class AgentDefinition {
 
     public String getAgentName() {
         return agentname;
+    }
+
+    public List<GoalContainer> getRootGoalList() {
+    	return rootlist;
     }
 
     private void setRTAttributes(RTContainer gc) {
