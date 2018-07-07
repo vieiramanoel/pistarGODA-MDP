@@ -69,6 +69,7 @@ public class PrismWriter {
     private String optHeaderPattern;
     private String seqCardPattern;
     private String intlCardPattern;
+    private String rtryCardPattern;
     private String ctxGoalPattern;
     private String ctxTaskPattern;
 
@@ -118,7 +119,8 @@ public class PrismWriter {
         optDecPattern = ManageWriter.readFileAsString(input + "pattern_opt.pm");
         optHeaderPattern = ManageWriter.readFileAsString(input + "pattern_opt_header.pm");
         seqCardPattern = ManageWriter.readFileAsString(input + "pattern_card_seq.pm");
-        intlCardPattern = ManageWriter.readFileAsString(input + "pattern_card_retry.pm");
+        intlCardPattern = ManageWriter.readFileAsString(input + "pattern_card_intl.pm");
+        rtryCardPattern = ManageWriter.readFileAsString(input + "pattern_card_retry.pm");
         ctxGoalPattern = ManageWriter.readFileAsString(input + "pattern_ctx_goal.pm");
         ctxTaskPattern = ManageWriter.readFileAsString(input + "pattern_ctx_task.pm");
         Collections.sort(rootGoals);
@@ -204,8 +206,14 @@ public class PrismWriter {
                     seqRename = seqRename.replace(CARD_N_TAG, i + "");
                     seqRenames.append(seqRename);
                 }
-                intlCardPattern = intlCardPattern.replace("$SEQ_RENAMES$", seqRenames);
-                planModule = intlCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+                
+                if (plan.getCardType() == Const.RTRY) {
+                	rtryCardPattern = rtryCardPattern.replace("$SEQ_RENAMES$", seqRenames);
+                	planModule = rtryCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+                } else {
+                	intlCardPattern = intlCardPattern.replace("$SEQ_RENAMES$", seqRenames);
+                	planModule = intlCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+                }
             }
         } else
             planModule = singlePattern.replace(MODULE_NAME_TAG, plan.getClearElName());
