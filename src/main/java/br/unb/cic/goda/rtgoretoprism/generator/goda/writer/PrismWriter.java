@@ -62,12 +62,14 @@ public class PrismWriter {
 	private String xorDecHeaderPattern;
 	private String xorNotSkippedPattern;
 	private String seqRenamePattern;
+	private String intlRenamePattern;
 	private String trySDecPattern;
 	private String tryFDecPattern;
 	private String optDecPattern;
 	private String optHeaderPattern;
 	private String seqCardPattern;
 	private String intlCardPattern;
+	private String rtryCardPattern;
 	private String ctxGoalPattern;
 	private String ctxTaskPattern;
 
@@ -111,12 +113,14 @@ public class PrismWriter {
 		xorDecHeaderPattern = ManageWriter.readFileAsString(input + "pattern_xor_header.pm");
 		xorNotSkippedPattern = ManageWriter.readFileAsString(input + "pattern_skip_not_xor.pm");
 		seqRenamePattern = ManageWriter.readFileAsString(input + "pattern_seq_rename.pm");
+		intlRenamePattern = ManageWriter.readFileAsString(input + "pattern_intl_rename.pm");
 		trySDecPattern = ManageWriter.readFileAsString(input + "pattern_try_success.pm");
 		tryFDecPattern = ManageWriter.readFileAsString(input + "pattern_try_fail.pm");
 		optDecPattern = ManageWriter.readFileAsString(input + "pattern_opt.pm");
 		optHeaderPattern = ManageWriter.readFileAsString(input + "pattern_opt_header.pm");
 		seqCardPattern = ManageWriter.readFileAsString(input + "pattern_card_seq.pm");
-		intlCardPattern = ManageWriter.readFileAsString(input + "pattern_card_retry.pm");
+		intlCardPattern = ManageWriter.readFileAsString(input + "pattern_card_intl.pm");
+		rtryCardPattern = ManageWriter.readFileAsString(input + "pattern_card_retry.pm");
 		ctxGoalPattern = ManageWriter.readFileAsString(input + "pattern_ctx_goal.pm");
 		ctxTaskPattern = ManageWriter.readFileAsString(input + "pattern_ctx_task.pm");
 		Collections.sort(rootGoals);
@@ -187,23 +191,25 @@ public class PrismWriter {
 		String planModule;
 		StringBuilder planFormula = new StringBuilder();
 		if (plan.getCardNumber() > 1) {
-			StringBuilder seqRenames = new StringBuilder();
+			StringBuilder renames = new StringBuilder();
 			if (plan.getCardType() == Const.SEQ) {
 				for (int i = 2; i <= plan.getCardNumber(); i++) {
 					String seqRename = new String(seqRenamePattern);
 					seqRename = seqRename.replace(CARD_N_TAG, i + "");
-					seqRenames.append(seqRename);
+					renames.append(seqRename);
 				}
-				seqCardPattern = seqCardPattern.replace("$SEQ_RENAMES$", seqRenames);
+				seqCardPattern = seqCardPattern.replace("$SEQ_RENAMES$", renames);
 				planModule = seqCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
-			} else {
+			} else if (plan.getCardType() == Const.INT){
 				for (int i = 2; i <= plan.getCardNumber(); i++) {
-					String seqRename = new String(seqRenamePattern);
-					seqRename = seqRename.replace(CARD_N_TAG, i + "");
-					seqRenames.append(seqRename);
+					String intlRename = new String(intlRenamePattern);
+					intlRename = intlRename.replace(CARD_N_TAG, i + "");
+					renames.append(intlRename);
 				}
-				intlCardPattern = intlCardPattern.replace("$SEQ_RENAMES$", seqRenames);
+				intlCardPattern = intlCardPattern.replace("$SEQ_RENAMES$", renames);
 				planModule = intlCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+			} else {
+				planModule = rtryCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
 			}
 		} else
 			planModule = singlePattern.replace(MODULE_NAME_TAG, plan.getClearElName());
