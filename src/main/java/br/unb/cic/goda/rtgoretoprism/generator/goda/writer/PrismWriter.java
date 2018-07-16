@@ -72,6 +72,7 @@ public class PrismWriter {
 	private String rtryCardPattern;
 	private String ctxGoalPattern;
 	private String ctxTaskPattern;
+	private String prevFailurePattern;
 
 	private AgentDefinition ad;
 	private List<Plan> capabilityPlanList;
@@ -123,6 +124,7 @@ public class PrismWriter {
 		rtryCardPattern = ManageWriter.readFileAsString(input + "pattern_card_retry.pm");
 		ctxGoalPattern = ManageWriter.readFileAsString(input + "pattern_ctx_goal.pm");
 		ctxTaskPattern = ManageWriter.readFileAsString(input + "pattern_ctx_task.pm");
+		prevFailurePattern = ManageWriter.readFileAsString(input + "pattern_prev_failure.pm");
 		Collections.sort(rootGoals);
 		for (GoalContainer root : rootGoals) {
 			writeElement(root, leafGoalPattern, null);
@@ -131,6 +133,7 @@ public class PrismWriter {
 				sbCtxVars.append(constOrParam + " " + ctxVars.get(ctx) + " " + ctx + ";\n");
 			planModules = planModules.append(sbCtxVars.toString());
 		}
+		cleanPlanModules();
 	}
 
 	private String[] writeElement(RTContainer root, String pattern, String prevFormula) throws IOException {
@@ -342,6 +345,9 @@ public class PrismWriter {
 			planModule = planModule.replace(CTX_EFFECT_TAG, "");
 			planModule = planModule.replace(CTX_CONDITION_TAG, "");
 		}
+		//Prev Failure Guard Condition
+		planModule = planModule.replace("$PREV_EFFECT$", buildPrevFailureFormula(prevFormula));
+		//Prev Success Guard Condition
 		planModule = planModule.replace("$PREV_SUCCESS$", buildPrevSuccessFormula(prevFormula, plan));
 		Integer prevTimePath = plan.getPrevTimePath();
 		Integer timePath = plan.getTimePath();
@@ -492,6 +498,12 @@ public class PrismWriter {
 			sb.insert(0, " | (s" + plan.getClearElId() + "=3 & ").append("))");
 		return sb.toString();
 	}
+	
+	private String buildPrevFailureFormula(String prevFormula) {
+		if (prevFormula == null)
+			return "";
+		return new String(this.prevFailurePattern);
+	}
 
 	private String buildPrevSuccessFormula(String prevFormula, PlanContainer plan) {
 		if (prevFormula == null)
@@ -547,5 +559,13 @@ public class PrismWriter {
 		evalBash = evalBash.replace(PARAMS_BASH_TAG, evalFormulaParams);
 		evalBash = evalBash.replace(REPLACE_BASH_TAG, evalFormulaReplace);
 		ManageWriter.printModel(pw, evalBash);
+	}
+	
+	/*Remove multiple line breaks*/
+	private void cleanPlanModules() {
+		String planModule = planModules.toString();
+		planModules = planModules.delete(0, planModules.length()-1);		
+		planModule = planModule.replaceAll("[\t\r\n][\t\r\n]+[\n]+", "\n\n");
+		planModules = planModules.append(planModule);
 	}
 }
