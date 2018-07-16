@@ -5,6 +5,8 @@ import br.unb.cic.RTRegexLexer;
 import br.unb.cic.RTRegexParser;
 import br.unb.cic.RTRegexParser.*;
 import br.unb.cic.goda.rtgoretoprism.model.kl.Const;
+import br.unb.cic.goda.rtgoretoprism.paramformula.SymbolicParamAltGenerator;
+
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -148,30 +150,28 @@ class CustomRTRegexVisitor extends RTRegexBaseVisitor<String> {
     @Override
     public String visitGAlt(GAltContext ctx) {
         String gidAo = visit(ctx.expr(0));
-        String paramFormulaAo = gidAo.replaceAll("\\.", "_");
-        paramFormulaAo = checkNestedRT(paramFormulaAo);
-
         String gidBo = visit(ctx.expr(1));
-        String paramFormulaBo = gidBo.replaceAll("\\.", "_");
-        paramFormulaBo = checkNestedRT(paramFormulaBo);
 
         String[] gidAs = gidAo.split("-");
         String[] gidBs = gidBo.split("-");
+        String [] gids = new String[gidAs.length + gidBs.length];
 
+        int i = 0;
         for (String gidB : gidBs) {
             for (String gidA : gidAs) {
                 if (ctx.op.getType() == RTRegexParser.ALT) {
                     addToAltSet(gidA, gidB);
                     //addToAltSet(gidB, gidA);
                 }
+                gids[i] = gidA.replaceAll("\\.", "_");
+                i++;
             }
+            gids[i] = gidB.replaceAll("\\.", "_");
+            i++;
         }
 
-        String XAo = "OPT_" + gidAo.replaceAll("\\.", "_");
-        String XBo = "OPT_" + gidBo.replaceAll("\\.", "_");
-        paramFormula = "( " + XAo + " * " + paramFormulaAo
-                + " - " + XAo + " * " + XBo + " * " + paramFormulaBo
-                + " + " + XBo + " * " + paramFormulaBo + " )";
+        SymbolicParamAltGenerator param = new SymbolicParamAltGenerator();
+        paramFormula = param.getAlternativeFormula(gids);
 
         return gidAo + '-' + gidBo;
     }

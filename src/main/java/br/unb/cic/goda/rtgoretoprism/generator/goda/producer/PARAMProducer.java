@@ -160,11 +160,11 @@ public class PARAMProducer {
             return uid;
         }
         Object[] res = RTParser.parseRegex(uid, rtAnnot + '\n', decType);
-        checkOptDeclaration((String) res[5]);
+        checkOptXorDeclaration((String) res[5]);
         return (String) res[5];
     }
 
-    private void checkOptDeclaration(String formula) {
+    private void checkOptXorDeclaration (String formula) {
         if (formula.contains("OPT")) {
             String regex = "OPT_(.*?) ";
             Matcher match = Pattern.compile(regex).matcher(formula);
@@ -174,6 +174,16 @@ public class PARAMProducer {
                     this.opts_formula.add(optDeclaration);
                 }
             }
+        }
+        if (formula.contains("XOR")) {
+			String regex = "XOR_(.*?) ";
+			Matcher match = Pattern.compile(regex).matcher(formula);
+			while (match.find()) {
+				String optDeclaration = "XOR_" + match.group(1);
+				if (!this.opts_formula.contains(optDeclaration)) {
+					this.opts_formula.add(optDeclaration);
+				}
+			}
         }
     }
 }
