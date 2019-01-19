@@ -42,7 +42,7 @@ public class AgentDefinition {
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(name);
         if (matcher.find())
-            return matcher.group(1);
+        	return matcher.group(1).replace("_", "");
         else
             return null;
     }
