@@ -1,4 +1,4 @@
-// Generated from br/unb/cic/RTRegex.g4 by ANTLR 4.3
+// Generated from br/unb/cic/CostRegex.g4 by ANTLR 4.3
 package br.unb.cic;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -7,88 +7,62 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
- * This class provides an empty implementation of {@link RTRegexListener},
+ * This class provides an empty implementation of {@link CostRegexListener},
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public class RTRegexBaseListener implements RTRegexListener {
+public class CostRegexBaseListener implements CostRegexListener {
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterGDM(@NotNull RTRegexParser.GDMContext ctx) { }
+	@Override public void enterBlank(@NotNull CostRegexParser.BlankContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitGDM(@NotNull RTRegexParser.GDMContext ctx) { }
+	@Override public void exitBlank(@NotNull CostRegexParser.BlankContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBlank(@NotNull RTRegexParser.BlankContext ctx) { }
+	@Override public void enterGVariable(@NotNull CostRegexParser.GVariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBlank(@NotNull RTRegexParser.BlankContext ctx) { }
+	@Override public void exitGVariable(@NotNull CostRegexParser.GVariableContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterGId(@NotNull RTRegexParser.GIdContext ctx) { }
+	@Override public void enterGFloat(@NotNull CostRegexParser.GFloatContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitGId(@NotNull RTRegexParser.GIdContext ctx) { }
+	@Override public void exitGFloat(@NotNull CostRegexParser.GFloatContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterId(@NotNull RTRegexParser.IdContext ctx) { }
+	@Override public void enterGExpression(@NotNull CostRegexParser.GExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitId(@NotNull RTRegexParser.IdContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterGDecisionMaking(@NotNull RTRegexParser.GDecisionMakingContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitGDecisionMaking(@NotNull RTRegexParser.GDecisionMakingContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPrintExpr(@NotNull RTRegexParser.PrintExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPrintExpr(@NotNull RTRegexParser.PrintExprContext ctx) { }
+	@Override public void exitGExpression(@NotNull CostRegexParser.GExpressionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

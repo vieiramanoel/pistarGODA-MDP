@@ -10,25 +10,20 @@ rt:     expr NEWLINE                            # printExpr
   |     NEWLINE                                 # blank
   ;
 
-expr:   expr op=('+'|'#'|'@') FLOAT				# gCard
-    |	expr op='|' expr						# gAlt
-    |	'opt(' expr ')'							# gOpt
-    |   'try(' expr ')' '?' expr ':' expr		# gTry
-    |	expr op=(';'|'#') expr					# gTime
-    |   SKIPP									# gSkip        
-    |   t=('G'|'T') FLOAT						# gId
-    |   '(' expr ')'							# parens
+expr:   t=('G'|'T') id							# gId
+    |	'DM(' expr ')'							# gDecisionMaking
+    | 	expr op=',' expr						# gDM
     ;
+    
+id:		FLOAT
+	|	FLOAT X
+	|	X
+	;
 
 FLOAT		: DIGIT+'.'?DIGIT* 	;
-SEQ         : ';'				;
-INT			: '#'				;
-C_SEQ		: '+'				;
-C_RTRY		: '@'				;
-ALT			: '|'				;
 TASK		: 'T'				;
 GOAL		: 'G'				;
-SKIPP		: 'skip'			;
+X			: 'X'				;
 NEWLINE 	: [\r\n]+           ;
 WS          : [\t]+ -> skip 	;
 

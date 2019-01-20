@@ -43,5 +43,4 @@ public interface Plan extends GeneralEntity {
     String getInvariantProperty();
 
     String getFulfillmentProperty();
-
 }
