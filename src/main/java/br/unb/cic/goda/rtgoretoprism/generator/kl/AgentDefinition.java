@@ -28,7 +28,8 @@ public class AgentDefinition {
     }
 
     public static String parseElId(String name) {
-        String patternString = "(^[GT]\\d+\\.?\\d*):";
+       // String patternString = "(^[GT]\\d+\\.?\\d*):";
+        String patternString = "(^[GT]\\w+\\.?\\w*):";
         Pattern pattern = Pattern.compile(patternString);
         java.util.regex.Matcher matcher = pattern.matcher(name);
         if (matcher.find())
