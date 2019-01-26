@@ -1,28 +1,29 @@
 package br.unb.cic.goda.rtgoretoprism.generator.goda.producer;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.model.Goal;
 import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
-import br.unb.cic.goda.rtgoretoprism.generator.goda.parser.RTParser;
+import br.unb.cic.goda.rtgoretoprism.generator.goda.parser.CostParser;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.writer.ManageWriter;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.writer.ParamWriter;
 import br.unb.cic.goda.rtgoretoprism.generator.kl.AgentDefinition;
 import br.unb.cic.goda.rtgoretoprism.model.kl.Const;
 import br.unb.cic.goda.rtgoretoprism.model.kl.GoalContainer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.PlanContainer;
-import br.unb.cic.goda.rtgoretoprism.paramwrapper.ParamWrapper;
-import br.unb.cic.goda.rtgoretoprism.util.FileUtility;
-import br.unb.cic.goda.rtgoretoprism.util.PathLocation;
-import br.unb.cic.goda.rtgoretoprism.generator.goda.parser.CostParser;
-import br.unb.cic.goda.rtgoretoprism.generator.goda.producer.RTGoreProducer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.RTContainer;
 import br.unb.cic.goda.rtgoretoprism.paramformula.SymbolicParamAndGenerator;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import br.unb.cic.goda.rtgoretoprism.paramwrapper.ParamWrapper;
 
 public class PARAMProducer {
 
@@ -152,13 +153,10 @@ public class PARAMProducer {
 
 	private String replaceReliabilites(String nodeForm) {
 		if (nodeForm.contains(" R_")) {
-			String[] variables = nodeForm.split(" ");
-			for (String var : variables) {
-				if (var.contains("R_") && !var.contains("XOR")) {
-					String id = var.substring(2, var.length());
-					String reliability = this.reliabilityByNode.get(id);
-					nodeForm = nodeForm.replaceAll(" " + var + " ", " " + reliability + " ");
-				}
+			for (Map.Entry<String, String> entry : this.reliabilityByNode.entrySet()){
+				String reliability = entry.getValue();
+				String id = entry.getKey();
+				nodeForm = nodeForm.replaceAll(" R_" + id + " ", " " + reliability + " ");
 			}
 		}
 		return nodeForm;
@@ -168,12 +166,6 @@ public class PARAMProducer {
 
 		reliabilityForm = composeFormula(reliabilityForm, true);
 		costForm = composeFormula(costForm, false);
-		
-		/** For testing only (comment otherwise)**/
-		//reliabilityForm = reliabilityForm.substring(0, reliabilityForm.indexOf("/"));
-		//costForm = costForm.substring(0, costForm.indexOf("/"));
-		//String output = targetFolder + PathLocation.BASIC_AGENT_PACKAGE_PREFIX + agentName + "/";
-		/*****************************************/
 
 		String output = targetFolder + "/";
 		
