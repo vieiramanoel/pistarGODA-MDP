@@ -19,7 +19,7 @@ public class CostRegexParser extends Parser {
 	public static final int
 		T__1=1, T__0=2, FLOAT=3, VAR=4, NEWLINE=5, WS=6;
 	public static final String[] tokenNames = {
-		"<INVALID>", "'C'", "'='", "FLOAT", "VAR", "NEWLINE", "WS"
+		"<INVALID>", "'W'", "'='", "FLOAT", "VAR", "NEWLINE", "WS"
 	};
 	public static final int
 		RULE_cost = 0;
