@@ -5,12 +5,12 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.model.Goal;
 import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
@@ -66,6 +66,9 @@ public class PARAMProducer {
 		for(Actor actor : allActors){
 
 			long startTime = 0;
+			long endTime = 0;
+			//long totalTime = 0;
+			//List<Long> times = new ArrayList<Long>();
 			
 			if (this.ad == null) {
 				RTGoreProducer producer = new RTGoreProducer(allActors, allGoals, sourceFolder, targetFolder);
@@ -74,20 +77,46 @@ public class PARAMProducer {
 				this.ad = ad;
 				agentName = ad.getAgentName();
 			}
+			
+			String reliabilityForm = new String();
+			String costForm = new String();
+			for (int i=0; i<1; i++) {
+				//totalTime = 0;
+				for (int j=0; j<1; j++) {
+					System.out.println("Generating PARAM formulas for: " + agentName);
 
-			System.out.println("Generating PARAM formulas for: " + agentName);
-
-			// Compose goal formula
-			startTime = new Date().getTime();
-			String reliabilityForm = composeNodeForm(ad.rootlist.getFirst(), true);
-			String costForm = composeNodeForm(ad.rootlist.getFirst(), false);
-
+					// Generation of parametric formulas
+					startTime = new Date().getTime();
+					reliabilityForm = composeNodeForm(ad.rootlist.getFirst(), true);
+					
+					//To verify the generation time of reliability formula, comment the line bellow
+					costForm = composeNodeForm(ad.rootlist.getFirst(), false);
+					endTime = new Date().getTime();
+					
+					System.out.println( "PARAM formulas created in " + (endTime - startTime) + "ms.");					
+					//totalTime += (endTime - startTime);
+				}
+				//times.add(totalTime/100);
+			}
+			/*totalTime = 0;
+			System.out.print("Times: ");
+			for (long var : times) {
+				totalTime += var;
+				System.out.print(var + ", ");
+			}
+			System.out.println("AVERAGE: " + (totalTime/10));*/
+			System.out.println("Start: cleaning reliability formula");
 			reliabilityForm = cleanNodeForm(reliabilityForm, true);
+			System.out.println("End: cleaning reliability formula");
+			System.out.println("Start: cleaning cost formula");
 			costForm = cleanNodeForm(costForm, false);
+			System.out.println("End: cleaning cost formula");
 
 			//Print formula
+			System.out.println("Start: printing formulas");
 			printFormula(reliabilityForm, costForm);
-			System.out.println( "PARAM formulas created in " + (new Date().getTime() - startTime) + "ms.");
+			System.out.println("End: printing formulas");
+
 		}
 	}
 
@@ -95,6 +124,7 @@ public class PARAMProducer {
 		
 		if (!reliability) {
 			nodeForm = replaceReliabilites(nodeForm);
+			//nodeForm = cleanMultipleContexts(nodeForm);
 		}
 		
 		Map<String,String> mapAux = new HashMap<String,String>();

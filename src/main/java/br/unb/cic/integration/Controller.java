@@ -88,7 +88,7 @@ public class Controller {
                 });
     }
 
-    private void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors, Set<Goal> selectedGoals) {
+    public static void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors, Set<Goal> selectedGoals) {
         List<PistarActor> pistarActors = model.getActors();
         pistarActors.forEach(pistarActor -> {
             Actor actor = new ActorImpl(pistarActor);
@@ -125,7 +125,7 @@ public class Controller {
         });
     }
 
-    private Goal fillDecompositionList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal, Goal goal) {
+    private static Goal fillDecompositionList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal, Goal goal) {
         List<PistarLink> linksToGoal = model.getLinks().stream()
                 .filter(d -> d.getTarget().equals(pistarGoal.getId()) && d.getType().contains("Link"))
                 .collect(Collectors.toList());
@@ -149,7 +149,7 @@ public class Controller {
         return goal;
     }
 
-    private void fillMeansToAndEndPlansList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal, Goal goal) {
+    private static void fillMeansToAndEndPlansList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal, Goal goal) {
         List<PistarLink> linksToGoal = model.getLinks().stream()
                 .filter(l -> l.getTarget().equals(pistarGoal.getId()) && l.getType().contains("Link"))
                 .collect(Collectors.toList());
@@ -164,7 +164,7 @@ public class Controller {
         });
     }
 
-    private Plan fillEndPlans(PistarModel model, PistarActor pistarActor, PistarNode pistarPlan, Plan meansToAnEndPlan) {
+    private static Plan fillEndPlans(PistarModel model, PistarActor pistarActor, PistarNode pistarPlan, Plan meansToAnEndPlan) {
         List<PistarLink> linksToPlan = model.getLinks().stream()
                 .filter(l -> l.getTarget().equals(pistarPlan.getId()) && l.getType().contains("Link"))
                 .collect(Collectors.toList());
