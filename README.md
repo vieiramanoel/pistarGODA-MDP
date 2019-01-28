@@ -1,5 +1,5 @@
 # Extension of Goal-Oriented Dependability Analysis (GODA) framework
-This project extends [GODA framework](https://github.com/lesunb/CRGMToPRISM/) into supporting the goal modeling of SAS under multiple sources of uncertainty, and the generation of symbolic parametric formulae with parameterized uncertainties. The following code extends the [piStar tool](http://www.cin.ufpe.br/%7Ejhcp/pistar/#) and provides a modeling and analysing environment in the web for GODA. 
+This project extends [GODA framework](https://github.com/lesunb/CRGMToPRISM/) into supporting the goal modeling of SAS under multiple sources of uncertainty, and the generation of symbolic parametric formulae with parameterized uncertainties. The following code extends the [piStar tool](http://www.cin.ufpe.br/%7Ejhcp/pistar/#) and provides a modeling and analysing environment in the web for GODA. The pistarGODA modeling and analyzing environment is available online at [Heroku](https://seams2019.herokuapp.com/).
 
 ## Modeling Menu
 
@@ -70,7 +70,7 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 * Any non-leaf node (goal or task) that is refined/decomposed into two or more sub-nodes can have a *decision-making annotation* as part of its label. A node with this annotation can be satisfied by any combination of its specified children.
 * *decision-making annotations* must be inside brakets and be placed after *DESCRIPTION*. Ex:
 * G1:Goal description **[DM(G2,G3,G4)]**, meaning that the fulfillment of any combination of G2, G3, G4 will result in the fulfillment of G1.
-* *runtime annotations* must be separated from *DESCRIPTION* with space(s). As long as it is inside the brakets and after *DESCRIPTION*, it will be parsed.
+* *decision-making annotations* must be separated from *DESCRIPTION* with space(s). As long as it is inside the brakets and after *DESCRIPTION*, it will be parsed.
 
 ### *Weigth function*
 
