@@ -7,16 +7,16 @@ This project extends [GODA framework](https://github.com/lesunb/CRGMToPRISM/) in
 Clear the default model > Insert an actor > Insert the model's goals, tasks and their refinements (AND/OR).
 
 ### Load model
-Load existent txt file.
+Load existent txt file. Folder **examples** contains examples of goal models to be loaded.
 
 ### Save file
 Save the model in a txt file for further use.
 
 ### Parametric formula generation
-Once the goal model is finished, generate its reliability and cost parametric formulas (files result.out and cost.out, respectively).
+Once the goal model is finished, generate its reliability and cost parametric formulas (files result.out and cost.out, respectively). Other outputs are: MDP model (.nm) and PCTL properties (.pctl) to be evaluated by a PRISM model checker; and Script eval_fomula.sh to evaluate the verification time of the formulae (run ./eval_formula.sh reliability.out in your terminal to evaluate the reliability formula, for example).
 
 ### Generate PRISM MDP code
-Once the goal model is finished, generate its correspondent MDP model in PRISM language.
+Once the goal model is finished, generate its correspondent MDP model in PRISM language (file.nm).
 
 ## Adding properties
 
