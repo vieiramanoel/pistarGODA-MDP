@@ -1,5 +1,5 @@
 # Extension of Goal-Oriented Dependability Analysis (GODA) framework
-This project extends [GODA framework](https://github.com/lesunb/CRGMToPRISM/) into supporting the goal modeling of SAS under multiple sources of uncertainty, and the generation of symbolic parametric formulae with parameterized uncertainties. The following code extends the [piStar tool](http://www.cin.ufpe.br/%7Ejhcp/pistar/#) and provides a modeling and analysing environment in the web for GODA. 
+This project extends [GODA framework](https://github.com/lesunb/CRGMToPRISM/) into supporting the goal modeling of SAS under multiple sources of uncertainty, and the generation of symbolic parametric formulae with parameterized uncertainties. The following code extends the [piStar tool](http://www.cin.ufpe.br/%7Ejhcp/pistar/#) and provides a modeling and analysing environment in the web for GODA. The pistarGODA modeling and analyzing environment is available online at [Heroku](https://seams2019.herokuapp.com/).
 
 ## Modeling Menu
 
