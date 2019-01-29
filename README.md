@@ -1,37 +1,48 @@
-# Extension of Goal-Oriented Dependability Analysis (GODA) framework
-This project extends [GODA framework](https://github.com/lesunb/CRGMToPRISM/) into supporting the goal modeling of SAS under multiple sources of uncertainty, and the generation of symbolic parametric formulae with parameterized uncertainties. The following code extends the [piStar tool](http://www.cin.ufpe.br/%7Ejhcp/pistar/#) and provides a modeling and analysing environment in the web for GODA. The pistarGODA modeling and analyzing environment is available online at [Heroku](https://seams2019.herokuapp.com/).
+# PistarGODA MDP
+This artifact extends [GODA framework](https://github.com/lesunb/CRGMToPRISM/) into supporting the goal modeling of SAS under multiple classes of uncertainty. From the goal model, the framework automatically generates: (1) reliability and cost parametric formulas parameterized with uncertainty; and (2) a Markov Decision Process (MDP) of the system alongside PCTL properties. The formulas express the modeled system's overall reliability and cost. They are used for runtime verification and to guide the sysnthesis of adaptation policies in SAS (see [submitted article](docs/Taming+Uncertainty+in+the+Assurance+Process+of+Self-Adaptive+Systems+a+Goal-Oriented+Approach.pdf)). The MDP and PCTL files are used for probabilistic model checking (in which we refer to the [PRISM tool](http://www.prismmodelchecker.org)). The source code extends the [piStar tool](http://www.cin.ufpe.br/%7Ejhcp/pistar/#) and provides a modeling and analysing environment in the web for GODA. The pistarGODA modeling and analyzing environment is available online at [Heroku](https://seams2019.herokuapp.com/).
 
-## Modeling Menu
+## Modeling Instructions
+
+### Modeling Menu
+![Modeling Menu](docs/images/Menu.png)
+
+#### Clear
+Clear the current goal model.
+
+#### Load model
+Load existent *.txt* file. Folder [**examples**](docs/examples/) contains examples of goal models to be loaded.
+
+#### Save file
+Save the model as a *.txt* file for future use.
+
+#### Parametric formula generation
+Once the goal model is finished, generate its reliability and cost parametric formulas (*result.out* and *cost.out*, respectively). Other outputs are: MDP model (file *.nm*) and PCTL properties (files *.pctl*) to be evaluated by a PRISM model checker; and Script *eval_fomula.sh* to evaluate the verification time of the formulae.
+
+#### Generate PRISM MDP code
+Once the goal model is finished, generate its correspondent MDP model in PRISM language (file *.nm*).
 
 ### New model 
-Clear the default model > Insert an actor > Insert the model's goals, tasks and their refinements (AND/OR).
+Use the upper menu to insert entities (actor, goals, tasks) and their refinements (AND/OR-Decomposition) into your new goal model. First, insert a new actor. Then, you can create goals/tasks inside your new actor. Double click on the entity to edit its label. We refer to our [submitted article's Background section](docs/Taming+Uncertainty+in+the+Assurance+Process+of+Self-Adaptive+Systems+a+Goal-Oriented+Approach.pdf) for further knowledge on goal modeling.
 
-### Load model
-Load existent txt file. Folder **examples** contains examples of goal models to be loaded.
+![upper menu](docs/images/UpperMenu.png)
 
-### Save file
-Save the model in a txt file for further use.
-
-### Parametric formula generation
-Once the goal model is finished, generate its reliability and cost parametric formulas (files result.out and cost.out, respectively). Other outputs are: MDP model (.nm) and PCTL properties (.pctl) to be evaluated by a PRISM model checker; and Script eval_fomula.sh to evaluate the verification time of the formulae (run ./eval_formula.sh reliability.out in your terminal to evaluate the reliability formula, for example).
-
-### Generate PRISM MDP code
-Once the goal model is finished, generate its correspondent MDP model in PRISM language (file.nm).
-
-## Adding properties
+#### Adding properties
 
 Your root goal should **always** have the "selected true" property:
 * Click on the root goal > Add property > Name: *selected* > Value: *true*
+![selectedProperty](docs/images/SelectedProperty.png):
 
 To add a **context condition** in a **goal**:
 * Click on the specific goal > Add property > Name: *creationProperty* > Value: *assertion condition **context***
+![goal](docs/images/ContextGoal.png):
 
 To add a **context condition** in a **task**:
 * Click on the specific task > Add property > Name: *creationProperty* > Value: *assertion trigger **context***
+![**task**](docs/images/ContextTask.png):
 
-The ***context*** has a specific regex to be followed.
+The ***context*** follows a specific regex.
 
-## Context condition regex
+### Context condition regex
 Context conditions are formed by a proposition of context facts. You must use valid PRISM operators to define your context facts and to compose a valid context annotation. Valid operators are: 
 
 <, <=, >, >=, =, !=, &, |
@@ -44,13 +55,13 @@ Valid context annotation examples are:
 * CONNECTION = true
 * BATTERY >= 50 & CONNECTION = true
 
-## Syntax used to label Goals and Tasks 
+### Syntax used to label Goals and Tasks 
 
 Goals and tasks must have a lable according to the rules bellow. The general form of a lable is:
 
 * *IDENTIFIER*: *DESCRIPTION* *[decision-making annotation]*
 
-### *IDENTIFIER*: *DESCRIPTION*
+#### *IDENTIFIER*: *DESCRIPTION*
 
 * Goals must use a **prefix G** followed by an **unique numeric ID** within the CRGM Goals set followed by a **colon** followed by a **textual description** . Ex: G1: Goal description, G2: Goal description, G3: Goal description
 
@@ -65,14 +76,16 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 		* T1.11: Tsk dsc, T1.12: Tsk dsc (descendantas of T1 -> T1.1) 
 		* T1.111: Tsk dsc, T1.112: Tsk dsc, T1.113: Tsk dsc... (descendants of T1 -> T1.11) and so forward.
 
-### *[Decision-making annotation]*
+#### *[Decision-making annotation]*
 
 * Any non-leaf node (goal or task) that is refined/decomposed into two or more sub-nodes can have a *decision-making annotation* as part of its label. A node with this annotation can be satisfied by any combination of its specified children.
 * *decision-making annotations* must be inside brakets and be placed after *DESCRIPTION*. Ex:
 * G1:Goal description **[DM(G2,G3,G4)]**, meaning that the fulfillment of any combination of G2, G3, G4 will result in the fulfillment of G1.
 * *decision-making annotations* must be separated from *DESCRIPTION* with space(s). As long as it is inside the brakets and after *DESCRIPTION*, it will be parsed.
 
-### *Weigth function*
+#### Incomplete Node
+
+#### *Weigth function*
 
 * Any leaf-task can be annotated with a weigth function that determines the cost/reward of executing such node.
 * The weight function regex is: *W = value*, in which *value* can be either a double, a string variable, or both.
