@@ -1,10 +1,10 @@
 # PistarGODA MDP
-This artifact extends [GODA framework](https://github.com/lesunb/CRGMToPRISM/) into supporting the goal modeling of SAS under multiple classes of uncertainty. From the goal model, the framework automatically generates: (1) reliability and cost parametric formulas parameterized with uncertainty; and (2) a Markov Decision Process (MDP) of the system alongside PCTL properties. The formulas express the modeled system's overall reliability and cost. They are used for runtime verification and to guide the sysnthesis of adaptation policies in SAS (see [submitted article](docs/Taming+Uncertainty+in+the+Assurance+Process+of+Self-Adaptive+Systems+a+Goal-Oriented+Approach.pdf)). The MDP and PCTL files are used for probabilistic model checking (in which we refer to the [PRISM tool](http://www.prismmodelchecker.org)). The source code extends the [piStar tool](http://www.cin.ufpe.br/%7Ejhcp/pistar/#) and provides a modeling and analysing environment in the web for GODA. The pistarGODA modeling and analyzing environment is available online at [Heroku](https://seams2019.herokuapp.com/).
+This artifact extends [GODA framework](https://github.com/lesunb/CRGMToPRISM/) into supporting the goal modeling of SAS under multiple classes of uncertainty (named uncertainty related to the system itself, to system goals, and the environment). From the goal model, the framework automatically generates: (1) reliability and cost parametric formulas parameterized with uncertainty; and (2) a Markov Decision Process (MDP) of the system alongside PCTL properties. The formulas express the modeled system's overall reliability and cost. They are used for runtime verification and to guide the sysnthesis of adaptation policies in SAS (see [article](docs/Taming+Uncertainty+in+the+Assurance+Process+of+Self-Adaptive+Systems+a+Goal-Oriented+Approach.pdf)). The MDP and PCTL files are used for probabilistic model checking (in which we refer to the [PRISM tool](http://www.prismmodelchecker.org)). The source code extends the [piStar tool](http://www.cin.ufpe.br/%7Ejhcp/pistar/#) and provides a modeling and analysing environment in the web for GODA. The pistarGODA modeling and analyzing environment is available online at [Heroku](https://seams2019.herokuapp.com/).
 
 ## Modeling Instructions
 
 ### Modeling Menu
-![Modeling Menu](docs/images/Menu.png)
+<img src="docs/images/Menu.png" width="400">
 
 #### Clear
 Clear the current goal model.
@@ -16,13 +16,13 @@ Load existent *.txt* file. Folder [**examples**](docs/examples/) contains exampl
 Save the model as a *.txt* file for future use.
 
 #### Parametric formula generation
-Once the goal model is finished, generate its reliability and cost parametric formulas (*result.out* and *cost.out*, respectively). Other outputs are: MDP model (file *.nm*) and PCTL properties (files *.pctl*) to be evaluated by a PRISM model checker; and Script *eval_fomula.sh* to evaluate the verification time of the formulae.
+Once the goal model is finished, generate its reliability and cost parametric formulas (*result.out* and *cost.out*, respectively). Other outputs are: MDP model (file *.nm*) and PCTL properties (files *.pctl*) to be evaluated by a PRISM model checker; and Script *eval_fomula.sh* to evaluate the verification time of the formulae. We refer to [Section III.C of the article](docs/Taming+Uncertainty+in+the+Assurance+Process+of+Self-Adaptive+Systems+a+Goal-Oriented+Approach.pdf) to understand the practical use of the formulae. 
 
 #### Generate PRISM MDP code
 Once the goal model is finished, generate its correspondent MDP model in PRISM language (file *.nm*).
 
 ### New model 
-Use the upper menu to insert entities (actor, goals, tasks) and their refinements (AND/OR-Decomposition) into your new goal model. First, insert a new actor. Then, you can create goals/tasks inside your new actor. Double click on the entity to edit its label. We refer to our [submitted article's Background section](docs/Taming+Uncertainty+in+the+Assurance+Process+of+Self-Adaptive+Systems+a+Goal-Oriented+Approach.pdf) for further knowledge on goal modeling.
+Use the upper menu to insert entities (actor, goals, tasks) and their refinements (AND/OR-Decomposition) into your new goal model. First, insert a new actor. Then, you can create goals/tasks inside your new actor. Double click on the entity to edit its label. We refer to our [article's Background section](docs/Taming+Uncertainty+in+the+Assurance+Process+of+Self-Adaptive+Systems+a+Goal-Oriented+Approach.pdf) for further knowledge on goal modeling.
 
 ![upper menu](docs/images/UpperMenu.png)
 
@@ -30,15 +30,15 @@ Use the upper menu to insert entities (actor, goals, tasks) and their refinement
 
 Your root goal should **always** have the "selected true" property:
 * Click on the root goal > Add property > Name: *selected* > Value: *true*
-![selectedProperty](docs/images/SelectedProperty.png):
+![selectedProperty](docs/images/SelectedProperty.png)
 
 To add a **context condition** in a **goal**:
 * Click on the specific goal > Add property > Name: *creationProperty* > Value: *assertion condition **context***
-![goal](docs/images/ContextGoal.png):
+![goal](docs/images/ContextGoal.png)
 
 To add a **context condition** in a **task**:
 * Click on the specific task > Add property > Name: *creationProperty* > Value: *assertion trigger **context***
-![**task**](docs/images/ContextTask.png):
+![**task**](docs/images/ContextTask.png)
 
 The ***context*** follows a specific regex.
 
@@ -93,6 +93,16 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 * The weight function must be separated from *DESCRIPTION* with space(s). As long as it is inside the brakets and after *DESCRIPTION*, it will be parsed.
 
 ## Development
+
+### Installation 
+To run the source code locally:
+* Clone this repo: $ git clone https://github.com/gabrielasolano/Seams2019.git
+* Import it as a *Maven project* in your IDE.
+* Run as *java application*, selecting *Application* from *br.unb.cic.integration*.
+<img src="docs/images/JavaApplication.png" width="500">
+* In your browser: *localhost:8080* to use the framework.
+
+These are the steps when using the Eclipse IDE. Adaptation may be needed when using a different IDE.
 
 ### Updating an ANTLR grammar
 
