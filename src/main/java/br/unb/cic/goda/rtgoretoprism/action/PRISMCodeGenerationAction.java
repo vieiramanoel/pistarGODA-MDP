@@ -23,7 +23,7 @@ public class PRISMCodeGenerationAction {
             return;
         String sourceFolder = "src/main/resources/TemplateInput";
         String targetFolder = "dtmc";
-        RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, sourceFolder, targetFolder);
+        RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, sourceFolder, targetFolder, false);
         try {
             producer.run();
         } catch (CodeGenerationException | IOException e) {

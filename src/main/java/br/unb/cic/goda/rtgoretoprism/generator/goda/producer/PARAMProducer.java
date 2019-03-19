@@ -65,12 +65,12 @@ public class PARAMProducer {
 
 		for(Actor actor : allActors){
 
-			int size=100;
+			int size=20;
 			long startTime=0, endTime=0;
 	    	long[] totalTime = new long[size];
 			
 			if (this.ad == null) {
-				RTGoreProducer producer = new RTGoreProducer(allActors, allGoals, sourceFolder, targetFolder);
+				RTGoreProducer producer = new RTGoreProducer(allActors, allGoals, sourceFolder, targetFolder, true);
 				AgentDefinition ad = producer.run();
 
 				this.ad = ad;
@@ -87,7 +87,7 @@ public class PARAMProducer {
 				reliabilityForm = composeNodeForm(ad.rootlist.getFirst(), true);
 
 				//To verify the generation time of reliability formula, comment the line bellow
-				//costForm = composeNodeForm(ad.rootlist.getFirst(), false);
+				costForm = composeNodeForm(ad.rootlist.getFirst(), false);
 				endTime = new Date().getTime();
 				totalTime[i] = endTime - startTime;
 
@@ -206,8 +206,8 @@ public class PARAMProducer {
 
 	private void printFormula(String reliabilityForm, String costForm) throws CodeGenerationException {
 
-		reliabilityForm = composeFormula(reliabilityForm, true);
-		costForm = composeFormula(costForm, false);
+		//reliabilityForm = composeFormula(reliabilityForm, true);
+		//costForm = composeFormula(costForm, false);
 		
 		String output = targetFolder + "/";
 		

@@ -26,11 +26,12 @@ public class RTGoreProducer {
 	private String outputFolder;
 	private Set<Actor> allActors;
 	private Set<Goal> allGoals;
+	private boolean param;
 
 	/** memory for the parsed RT regex */
 	List<String> rtDMGoals;
 
-	public RTGoreProducer(Set<Actor> allActors, Set<Goal> allGoals, String in, String out) {
+	public RTGoreProducer(Set<Actor> allActors, Set<Goal> allGoals, String in, String out, boolean param) {
 
 		tn = new TroposNavigator();
 
@@ -38,6 +39,7 @@ public class RTGoreProducer {
 		this.outputFolder = out;
 		this.allActors = allActors;
 		this.allGoals = allGoals;
+		this.param = param;
 
 		this.rtDMGoals = new ArrayList<String>();
 	}
@@ -82,11 +84,13 @@ public class RTGoreProducer {
 				}		
 				List<Plan> planList = a.getPlanList();
 
-				PrismWriter writer = new PrismWriter(ad, planList, inputFolder, outputFolder, false);
-				writer.writeModel();
+				if (!param) {
+					PrismWriter writer = new PrismWriter(ad, planList, inputFolder, outputFolder, false);
+					writer.writeModel();
 
-				//Generate pctl formulas
-				generatePctlFormulas(ad);
+					//Generate pctl formulas
+					generatePctlFormulas(ad);
+				}
 			}
 			long endTime = new Date().getTime();
 			totalTime[i] = endTime - startTime;
