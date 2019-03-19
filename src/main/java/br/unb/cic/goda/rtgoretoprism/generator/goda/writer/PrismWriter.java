@@ -244,7 +244,7 @@ public class PrismWriter {
         
         StringBuilder sbHeader = new StringBuilder();
     	StringBuilder sbType = new StringBuilder();
-    	int nextState = 1;
+    	//int nextState = 1;
         
     	
     	String sbHeaderAux = "\n";
@@ -275,23 +275,24 @@ public class PrismWriter {
         	//Build the body of the module
         	String ndBodyPattern = new String(this.ndBodyPattern);
         	ndBodyPattern = ndBodyPattern.replace("$N$", Integer.toString(this.nonDeterminismCtxId));
-        	ndBodyPattern = ndBodyPattern.replace("$NEXT_STATE$", Integer.toString(nextState+1));
+        	//ndBodyPattern = ndBodyPattern.replace("$NEXT_STATE$", Integer.toString(nextState+1));
+        	ndBodyPattern = ndBodyPattern.replace("$CONTEXT_UPDATE$", contextUpdate);
         	
-        	String ndBodyAux = "\t[] s$GID$ = $NEXT_STATE$ -> (s$GID$'=$MAX_ND$)$CONTEXT_UPDATE$;\n";
+        	/*String ndBodyAux = "\t[] s$GID$ = $NEXT_STATE$ -> (s$GID$'=$MAX_ND$)$CONTEXT_UPDATE$;\n";
         	ndBodyAux = ndBodyAux.replace("$CONTEXT_UPDATE$", contextUpdate);
         	ndBodyAux = ndBodyAux.replace("$NEXT_STATE$", Integer.toString(nextState+1));
-        	sbTypeAux = sbTypeAux.concat(ndBodyAux);
+        	sbTypeAux = sbTypeAux.concat(ndBodyAux);*/
         	
         	if (sbType.length() == 0) sbType.append(ndBodyPattern);
         	else sbType.append("\t" + ndBodyPattern);
         	
         	this.nonDeterminismCtxId++;
-        	nextState++;
+        	//nextState++;
         }        
         sbHeader.append(sbHeaderAux);
-        sbTypeAux = sbTypeAux.replace("$MAX_ND$", Integer.toString(nextState+1));
+        //sbTypeAux = sbTypeAux.replace("$MAX_ND$", Integer.toString(nextState+1));
 
-        singlePattern = singlePattern.replace("$MAX_ND$", Integer.toString(nextState+1));
+        //singlePattern = singlePattern.replace("$MAX_ND$", Integer.toString(nextState+1));
         singlePattern = singlePattern.replace("$FINAL_TYPE$", sbTypeAux);
         singlePattern = singlePattern.replace(DEC_HEADER_TAG, sbHeader.toString());
         singlePattern = singlePattern.replace(DEC_TYPE_TAG, sbType.toString());
@@ -616,7 +617,7 @@ public class PrismWriter {
 	private String declareRewardVariable() {
 		StringBuilder variables = new StringBuilder();
 		for (String var : this.rewardVariables) {
-			variables.append("\nconst double " + var + ";");
+			variables.append("\nconst double " + var + "=1;");
 		}
 		return variables.toString();
 	}

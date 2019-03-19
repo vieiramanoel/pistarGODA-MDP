@@ -1,7 +1,9 @@
 package br.unb.cic.goda.rtgoretoprism.generator.goda.producer;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
@@ -9,25 +11,33 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.model.Goal;
-import br.unb.cic.goda.rtgoretoprism.action.RunParamAction;
+import br.unb.cic.goda.rtgoretoprism.action.PRISMCodeGenerationAction;
+import br.unb.cic.goda.rtgoretoprism.paramwrapper.ParamWrapper;
 import br.unb.cic.integration.Controller;
 import br.unb.cic.pistar.model.PistarActor;
 import br.unb.cic.pistar.model.PistarLink;
 import br.unb.cic.pistar.model.PistarModel;
 import br.unb.cic.pistar.model.PistarNode;
 
-public class EvaluateParam {
+
+public class EvaluatePrism {
+	private static final Logger LOGGER = Logger.getLogger(ParamWrapper.class.getName());
 
 	public static void main(String[] args) throws IOException {
+		
+		//Generating goal model
 		Scanner scanner = new Scanner(System.in);
 		System.out.print("Number of leaf-tasks: ");
 		int num = scanner.nextInt();
@@ -39,15 +49,70 @@ public class EvaluateParam {
 		Set<Actor> selectedActors = new HashSet<>();
         Set<Goal> selectedGoals = new HashSet<>();
         Controller.transformToTao4meEntities(model, selectedActors, selectedGoals);
+        
+        //Evaluating PRISM verification time
         try {
-			cleanDTMCFolder();
-			new RunParamAction(selectedActors, selectedGoals).run();
+        	cleanDTMCFolder();
+        	new PRISMCodeGenerationAction(selectedActors, selectedGoals).run();
+        
+        	File resultsFile = File.createTempFile("result", null);
+        	String resultsPath = resultsFile.getAbsolutePath();
+        	String prismPath = "tools/prism";
+        	String modelPath = "dtmc/Test.nm";
+        	String propertyPath = "dtmc/ReachabilityMin.pctl";
+//        	String propertyPath = "dtmc/ReachabilityMax.pctl";
+//       	String propertyPath = "dtmc/CostMin.pctl";
+//        	String propertyPath = "dtmc/CostMax.pctl";
+        	String commandLine = prismPath + " "
+                    + modelPath + " "
+                    + propertyPath + " "
+                    + "-exportresults " + resultsPath;
+        	
+        	evaluatePrism(commandLine, resultsPath);
+
 			System.out.println("Clear dtmc folder? ");
 			String ans = scanner.next();
-			if (ans.equals("y")) cleanDTMCFolder();
+			if (ans.equals("y") || (ans.equals("Y"))) cleanDTMCFolder();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}     
+	}
+
+	private static void evaluatePrism(String commandLine, String resultsPath) throws IOException {
+    	int size=10;
+		long startTime=0, endTime=0;
+    	long[] totalTime = new long[size];
+    	
+    	for (int i=0; i<size; i++) {
+	       	LOGGER.fine(commandLine);
+	    	startTime = new Date().getTime();
+	        Process program = Runtime.getRuntime().exec(commandLine);
+	        int exitCode = 0;
+	        try {
+	            exitCode = program.waitFor();
+	            endTime = new Date().getTime();
+	            totalTime[i] = endTime - startTime;
+	        } catch (InterruptedException e) {
+	            LOGGER.severe("Exit code: " + exitCode);
+	            LOGGER.log(Level.SEVERE, e.toString(), e);
+	        }
+	       //List<String> lines = Files.readAllLines(Paths.get(resultsPath), Charset.forName("UTF-8"));
+	        System.out.println("PRISM model verified in " + (endTime - startTime) + "ms.");
+    	}
+
+        //Mean time
+        double mean = 0;
+        double sum = 0.0;
+        for(double a : totalTime)
+        	sum += a;
+        mean = sum/size;
+        //Standard deviation
+        double temp = 0;
+        for(double a :totalTime)
+        	temp += (a-mean)*(a-mean);
+        double variance = temp/(size-1);
+        double sd = Math.sqrt(variance);
+        System.out.println("\n\nAverage generation time: " + mean + "ms. SD: " + sd + "ms.");
 	}
 
 	private static PistarModel generateDefaultModel(int num, String annot) {

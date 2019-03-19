@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * Façade to a PARAM executable.
@@ -26,7 +27,7 @@ public class ParamWrapper implements ParametricModelChecker {
     private String paramPath;
     private String prismPath;
     private String fileName;
-    private boolean usePrism = false;
+    private boolean usePrism = false; //false when using param
 
     public ParamWrapper(String prismParamPath, String fileName) {
         this.paramPath = prismParamPath + "/param";
@@ -61,6 +62,7 @@ public class ParamWrapper implements ParametricModelChecker {
                 formula = invokeModelChecker(modelFile.getAbsolutePath(),
                         propertyFile.getAbsolutePath(),
                         resultsFile.getAbsolutePath());
+                formula = formula.replaceAll(".*\\{|\\}.*", "");
             } else {
                 formula = invokeParametricModelChecker(modelFile.getAbsolutePath(),
                         propertyFile.getAbsolutePath(),
@@ -86,9 +88,15 @@ public class ParamWrapper implements ParametricModelChecker {
     private String invokeModelChecker(String modelPath,
                                       String propertyPath,
                                       String resultsPath) throws IOException {
+        /*String commandLine = prismPath + " "
+                + modelPath + " "
+                + propertyPath + " "
+                + "-exportresults " + resultsPath;*/
+        
         String commandLine = prismPath + " "
                 + modelPath + " "
                 + propertyPath + " "
+                + "-param R_" + fileName + ",F_" + fileName + " "
                 + "-exportresults " + resultsPath;
         return invokeAndGetResult(commandLine, resultsPath);
     }
@@ -105,6 +113,7 @@ public class ParamWrapper implements ParametricModelChecker {
         }
         List<String> lines = Files.readAllLines(Paths.get(resultsPath), Charset.forName("UTF-8"));
         // Formula
+        if (usePrism) return lines.get(1);
         return lines.get(lines.size() - 1);
     }
 

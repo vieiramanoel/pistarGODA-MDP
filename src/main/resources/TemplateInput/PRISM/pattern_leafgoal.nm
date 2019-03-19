@@ -1,5 +1,5 @@
-$DEC_HEADER$$CONST_PARAM$ double R_$GID$;
-$CONST_PARAM$ double F_$GID$;
+$DEC_HEADER$$CONST_PARAM$ double R_$GID$=0.99;
+$CONST_PARAM$ double F_$GID$=0.99;
 
 module $MODULE_NAME$
 	s$GID$ :[0..4] init 0;

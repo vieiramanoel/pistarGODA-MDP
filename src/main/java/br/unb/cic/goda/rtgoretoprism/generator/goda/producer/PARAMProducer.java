@@ -65,10 +65,9 @@ public class PARAMProducer {
 
 		for(Actor actor : allActors){
 
-			long startTime = 0;
-			long endTime = 0;
-			//long totalTime = 0;
-			//List<Long> times = new ArrayList<Long>();
+			int size=100;
+			long startTime=0, endTime=0;
+	    	long[] totalTime = new long[size];
 			
 			if (this.ad == null) {
 				RTGoreProducer producer = new RTGoreProducer(allActors, allGoals, sourceFolder, targetFolder);
@@ -80,31 +79,21 @@ public class PARAMProducer {
 			
 			String reliabilityForm = new String();
 			String costForm = new String();
-			for (int i=0; i<1; i++) {
-				//totalTime = 0;
-				for (int j=0; j<1; j++) {
-					System.out.println("Generating PARAM formulas for: " + agentName);
+			for (int i=0; i<size; i++) {
+				System.out.println("Generating PARAM formulas for: " + agentName);
 
-					// Generation of parametric formulas
-					startTime = new Date().getTime();
-					reliabilityForm = composeNodeForm(ad.rootlist.getFirst(), true);
-					
-					//To verify the generation time of reliability formula, comment the line bellow
-					costForm = composeNodeForm(ad.rootlist.getFirst(), false);
-					endTime = new Date().getTime();
-					
-					System.out.println( "PARAM formulas created in " + (endTime - startTime) + "ms.");					
-					//totalTime += (endTime - startTime);
-				}
-				//times.add(totalTime/100);
+				// Generation of parametric formulas
+				startTime = new Date().getTime();
+				reliabilityForm = composeNodeForm(ad.rootlist.getFirst(), true);
+
+				//To verify the generation time of reliability formula, comment the line bellow
+				//costForm = composeNodeForm(ad.rootlist.getFirst(), false);
+				endTime = new Date().getTime();
+				totalTime[i] = endTime - startTime;
+
+				System.out.println( "PARAM formulas created in " + (endTime - startTime) + "ms.");					
 			}
-			/*totalTime = 0;
-			System.out.print("Times: ");
-			for (long var : times) {
-				totalTime += var;
-				System.out.print(var + ", ");
-			}
-			System.out.println("AVERAGE: " + (totalTime/10));*/
+	        
 			System.out.println("Start: cleaning reliability formula");
 			reliabilityForm = cleanNodeForm(reliabilityForm, true);
 			System.out.println("End: cleaning reliability formula");
@@ -116,6 +105,20 @@ public class PARAMProducer {
 			System.out.println("Start: printing formulas");
 			printFormula(reliabilityForm, costForm);
 			System.out.println("End: printing formulas");
+			
+			//Mean time
+	        double mean = 0;
+	        double sum = 0.0;
+	        for(double a : totalTime)
+	        	sum += a;
+	        mean = sum/size;
+	        //Standard deviation
+	        double temp = 0;
+	        for(double a :totalTime)
+	        	temp += (a-mean)*(a-mean);
+	        double variance = temp/(size-1);
+	        double sd = Math.sqrt(variance);
+	        System.out.println("\n\nAverage generation time: " + mean + "ms. SD: " + sd + "ms.");
 
 		}
 	}
