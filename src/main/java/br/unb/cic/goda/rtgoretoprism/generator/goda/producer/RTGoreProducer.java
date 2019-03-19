@@ -56,37 +56,64 @@ public class RTGoreProducer {
 		System.out.println("\tTemplate Input Folder: " + inputFolder );
 		System.out.println("\tOutput Folder: " + outputFolder );
 
+		int size = 1;
 		long startTime = new Date().getTime();
+		long[] totalTime = new long[size];
 		AgentDefinition ad = null;
 
-		for( Actor a : allActors ) {
-			System.out.println( "Generating MDP model for: " + a.getName() );
+		for (int i=0; i<size; i++) {
+			startTime = new Date().getTime();
+			for( Actor a : allActors ) {
+				System.out.println( "Generating MDP model for: " + a.getName() );
 
-			//generate the AgentDefinition object for the current actor
-			ad = new AgentDefinition( a );
+				//generate the AgentDefinition object for the current actor
+				ad = new AgentDefinition( a );
 
-			// analyse all root goals
-			for( Goal rootgoal : tn.getRootGoals(a) ) {
-				Const type = Const.ACHIEVE; 
-				Const request = Const.NONE;
-				
-				//create the goalcontainer for this one
-				GoalContainer gc = ad.createGoal(rootgoal, type);
-				gc.setRequest(request);
+				// analyse all root goals
+				for( Goal rootgoal : tn.getRootGoals(a) ) {
+					Const type = Const.ACHIEVE; 
+					Const request = Const.NONE;
+					
+					//create the goalcontainer for this one
+					GoalContainer gc = ad.createGoal(rootgoal, type);
+					gc.setRequest(request);
 
-				//add to the root goal list
-				ad.addRootGoal(gc);
-				addGoal(rootgoal, gc, ad, false);
-			}		
-			List<Plan> planList = a.getPlanList();
+					//add to the root goal list
+					ad.addRootGoal(gc);
+					addGoal(rootgoal, gc, ad, false);
+				}		
+				List<Plan> planList = a.getPlanList();
 
-			PrismWriter writer = new PrismWriter(ad, planList, inputFolder, outputFolder, false);
-			writer.writeModel();
+				PrismWriter writer = new PrismWriter(ad, planList, inputFolder, outputFolder, false);
+				writer.writeModel();
 
-			//Generate pctl formulas
-			generatePctlFormulas(ad);
+				//Generate pctl formulas
+				generatePctlFormulas(ad);
+			}
+			long endTime = new Date().getTime();
+			totalTime[i] = endTime - startTime;
+			System.out.println("MDP model created in " + (endTime - startTime) + "ms.");
 		}
-		System.out.println( "MDP model created in " + (new Date().getTime() - startTime) + "ms.");
+		
+		/**
+		
+		//Mean time
+		double mean = 0;
+		double sum = 0.0;
+		for(double a : totalTime)
+	    	sum += a;
+	    mean = sum/size;
+	    //Standard deviation
+        double temp = 0;
+        for(double a :totalTime)
+            temp += (a-mean)*(a-mean);
+        double variance = temp/(size-1);
+        double sd = Math.sqrt(variance);
+	    System.out.println("\n\nAverage generation time: " + mean + "ms. SD: " + sd + "ms.\n\nPress enter...");
+	    System.in.read();
+	    
+	    */
+	    
 		return ad;
 	}
 

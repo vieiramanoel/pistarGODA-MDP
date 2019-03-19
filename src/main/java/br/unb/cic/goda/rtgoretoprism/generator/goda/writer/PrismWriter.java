@@ -690,7 +690,7 @@ public class PrismWriter {
 	private String declareRewardVariable() {
 		StringBuilder variables = new StringBuilder();
 		for (String var : this.rewardVariables) {
-			variables.append("\nconst double " + var + ";");
+			variables.append("\nconst double " + var + "=1;");
 		}
 		return variables.toString();
 	}

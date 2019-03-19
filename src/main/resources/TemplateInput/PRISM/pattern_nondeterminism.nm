@@ -7,6 +7,6 @@ module NonDeterminism_$GID$
 
 	$DEC_TYPE$
 	[] s$GID$ = 1 -> (s$GID$'=2); //no uncertainty holding
-	 
+
 	[next$TIME_SLOT$] s$GID$ = 2 -> (s$GID$'=2);
 endmodule
