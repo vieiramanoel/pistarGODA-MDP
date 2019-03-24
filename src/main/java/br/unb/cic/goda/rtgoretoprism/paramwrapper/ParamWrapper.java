@@ -111,7 +111,7 @@ public class ParamWrapper implements ParametricModelChecker {
             LOGGER.severe("Exit code: " + exitCode);
             LOGGER.log(Level.SEVERE, e.toString(), e);
         }
-        List<String> lines = Files.readAllLines(Paths.get(resultsPath), Charset.forName("UTF-8"));
+        List<String> lines = Files.readAllLines(Paths.get(commandLine), Charset.forName("UTF-8"));
         // Formula
         if (usePrism) return lines.get(1);
         return lines.get(lines.size() - 1);

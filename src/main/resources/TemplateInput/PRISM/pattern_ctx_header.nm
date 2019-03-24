@@ -1,1 +1,1 @@
-const int CTX_$GID$;
+const int CTX_$GID$=1;
