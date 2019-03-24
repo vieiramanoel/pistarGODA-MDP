@@ -1,7 +1,7 @@
 dtmc
 
-param double R_$PLAN_ID$;
-param double F_$PLAN_ID$;
+const double R_$PLAN_ID$;
+const double F_$PLAN_ID$;
 
 module $PLAN_ID$_Task
 	s$PLAN_ID$ :[0..4] init 0;

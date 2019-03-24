@@ -1,14 +1,17 @@
 package br.unb.cic.goda.rtgoretoprism.generator.goda.producer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -59,15 +62,15 @@ public class EvaluatePrism {
         	String resultsPath = resultsFile.getAbsolutePath();
         	String prismPath = "tools/prism";
         	String modelPath = "dtmc/Test.nm";
-        	String propertyPath = "dtmc/ReachabilityMin.pctl";
-//        	String propertyPath = "dtmc/ReachabilityMax.pctl";
+//        	String propertyPath = "dtmc/ReachabilityMin.pctl";
+        	String propertyPath = "dtmc/ReachabilityMax.pctl";
 //       	String propertyPath = "dtmc/CostMin.pctl";
 //        	String propertyPath = "dtmc/CostMax.pctl";
         	String commandLine = prismPath + " "
                     + modelPath + " "
-                    + propertyPath + " "
-                    + "-exportresults " + resultsPath;
-        	
+                    + propertyPath + " ";
+                    //+ "-exportresults " + resultsPath;
+                    
         	evaluatePrism(commandLine, resultsPath);
 
 			System.out.println("Clear dtmc folder? ");
@@ -79,28 +82,39 @@ public class EvaluatePrism {
 	}
 
 	private static void evaluatePrism(String commandLine, String resultsPath) throws IOException {
-    	int size=10;
-		long startTime=0, endTime=0;
-    	long[] totalTime = new long[size];
+    	int size=30;
+    	double[] totalTime = new double[size];
     	
     	for (int i=0; i<size; i++) {
 	       	LOGGER.fine(commandLine);
-	    	startTime = new Date().getTime();
 	        Process program = Runtime.getRuntime().exec(commandLine);
+	        
+	        BufferedReader stdInput = new BufferedReader(new 
+	        	     InputStreamReader(program.getInputStream()));
+	        	
+	        String s = null;
+	        while ((s = stdInput.readLine()) != null) {
+	        	//System.out.println(s);
+	        	if (s.contains("Time for model checking: ")) {
+	        		System.out.println(s);
+	        		String[] times = s.split(" ");
+	        		String time = times[4];
+	        		totalTime[i] = Double.parseDouble(time);
+	        	}
+	        }
+	        
 	        int exitCode = 0;
 	        try {
 	            exitCode = program.waitFor();
-	            endTime = new Date().getTime();
-	            totalTime[i] = endTime - startTime;
 	        } catch (InterruptedException e) {
 	            LOGGER.severe("Exit code: " + exitCode);
 	            LOGGER.log(Level.SEVERE, e.toString(), e);
 	        }
-	       //List<String> lines = Files.readAllLines(Paths.get(resultsPath), Charset.forName("UTF-8"));
-	        System.out.println("PRISM model verified in " + (endTime - startTime) + "ms.");
+	        //List<String> lines = Files.readAllLines(Paths.get(resultsPath), Charset.forName("UTF-8"));
     	}
 
         //Mean time
+    	DecimalFormat four = new DecimalFormat("#0.0000");
         double mean = 0;
         double sum = 0.0;
         for(double a : totalTime)
@@ -112,7 +126,7 @@ public class EvaluatePrism {
         	temp += (a-mean)*(a-mean);
         double variance = temp/(size-1);
         double sd = Math.sqrt(variance);
-        System.out.println("\n\nAverage generation time: " + mean + "ms. SD: " + sd + "ms.");
+        System.out.println("\n\nAverage generation time: " + four.format(mean) + "ms. SD: " + four.format(sd) + "ms.");
 	}
 
 	private static PistarModel generateDefaultModel(int num, String annot) {
