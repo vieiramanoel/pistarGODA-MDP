@@ -277,6 +277,7 @@ public class PARAMProducer {
 				nodeForm = nodeForm.replaceFirst("1\\*", "");
 				
 				this.varReliabilityInformation.put(nodeId, "//R_" + nodeId + " = reliability of node " + nodeId + "\n");
+
 				if (rootNode.isOptional()) {
 					nodeForm += "*OPT_" + nodeId;
 					this.varReliabilityInformation.put(nodeId, "//OPT_" + nodeId + " = optionality of node " + nodeId + "\n");	
