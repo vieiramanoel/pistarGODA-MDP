@@ -477,6 +477,7 @@ public class PrismWriter {
 		evalFormulaReplace += " -e \"s/W_" + plan.getClearElId() + "/$W_" + plan.getClearElId() + "/g\"";
 		evalFormulaParams += "R_" + plan.getClearElId() + "=\"0.99\";\n";
 		evalFormulaReplace += " -e \"s/R_" + plan.getClearElId() + "/$R_" + plan.getClearElId() + "/g\"";	*/
+
 		//Header
 		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString());
 		//Type
