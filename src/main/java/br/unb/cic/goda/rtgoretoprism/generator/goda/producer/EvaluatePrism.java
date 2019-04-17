@@ -71,7 +71,7 @@ public class EvaluatePrism {
                     + propertyPath + " ";
                     //+ "-exportresults " + resultsPath;
                     
-        	evaluatePrism(commandLine, resultsPath);
+        	//evaluatePrism(commandLine, resultsPath);
 
 			System.out.println("Clear dtmc folder? ");
 			String ans = scanner.next();
