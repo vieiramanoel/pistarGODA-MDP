@@ -413,7 +413,7 @@ public class PrismWriter {
 			sbType.append(optPattern);
 			
 			evalFormulaParams += "OPT_" + plan.getClearElId() + "=\"1\";\n";
-			evalFormulaReplace += " -e \"sOPT_" + plan.getClearElId() + "/$OPT_" + plan.getClearElId() + "/g\"";
+			evalFormulaReplace += " -e \"s/OPT_" + plan.getClearElId() + "/$OPT_" + plan.getClearElId() + "/g\"";
 		}
 		if(contextPresent){
 			String ctxId = getContextId(plan);
@@ -446,8 +446,6 @@ public class PrismWriter {
 		evalFormulaReplace += " -e \"s/W_" + plan.getClearElId() + "/$W_" + plan.getClearElId() + "/g\"";
 		evalFormulaParams += "R_" + plan.getClearElId() + "=\"0.99\";\n";
 		evalFormulaReplace += " -e \"s/R_" + plan.getClearElId() + "/$R_" + plan.getClearElId() + "/g\"";	
-		evalFormulaParams += "F_" + plan.getClearElId() + "=\"0.99\";\n";
-		evalFormulaReplace += " -e \"s/F_" + plan.getClearElId() + "/$F_" + plan.getClearElId() + "/g\"";	
 		//Header
 		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString());
 		//Type
