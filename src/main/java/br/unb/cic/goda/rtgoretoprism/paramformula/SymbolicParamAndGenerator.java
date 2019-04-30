@@ -4,18 +4,25 @@ import java.util.Map;
 
 public class SymbolicParamAndGenerator {
 
-	public String getSequentialAndCost (String[] nodes) {
+	public StringBuilder getSequentialAndCost (String[] nodes, Map<String, String> ctxInformation) {
 		
-		StringBuilder reliability = getReliability(nodes);
+		//StringBuilder reliability = getReliability(nodes);
 		
 		StringBuilder formula = new StringBuilder();
 		formula.append("(");
 		for (String node : nodes) {
-			formula.append(reliability + " " + node + " +");
+			if (ctxInformation.containsKey(node)) {
+				//formula.append(reliability + " CTX_" + node + " * " + node + " +");
+				formula.append(" CTX_" + node + " * " + node + " +");
+			}
+			else {
+				//formula.append(reliability + " " + node + " +");
+				formula.append(" " + node + " +");
+			}
 		}
 		formula.deleteCharAt(formula.length()-1);
 		formula.append(" )");
-		return formula.toString();
+		return formula;
 	}
 
 	public String getParallelAndCost(String[] nodes) {

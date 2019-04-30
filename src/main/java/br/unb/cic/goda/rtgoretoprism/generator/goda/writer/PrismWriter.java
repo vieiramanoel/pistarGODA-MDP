@@ -85,6 +85,7 @@ public class PrismWriter {
 	
 	private int nonDeterminismCtxId = 1;
 	private Map<RTContainer,String> nonDeterminismCtxList = new HashMap<RTContainer,String>();
+	private Map<String,String> contextList = new HashMap<String,String>();
 	/**
 	 * Creates a new AgentWriter instance
 	 * 
@@ -184,6 +185,24 @@ public class PrismWriter {
 		if (root.isDecisionMaking()) {
 			writeNondeterministicModule(root);
 		}
+		
+		/**
+		 * TO-DO: 
+		 * -Generate PRISM model with unique variable for the same context in different nodes
+		 * -Change the variable accordingly in eval_formula and parametric formulae
+		 */
+		
+		//Creating context repository
+		/*if (!root.getFulfillmentConditions().isEmpty()) {
+			StringBuilder rootContext = new StringBuilder();
+			for (String s : root.getFulfillmentConditions()) {
+				rootContext.append(s + "&");
+			}
+			rootContext.deleteCharAt(rootContext.lastIndexOf("&"));
+			if (!this.contextList.containsValue(rootContext.toString())) {
+				this.contextList.put(root.getClearElId(), rootContext.toString());
+			}
+		}*/
 		
 		String operator = root.getDecomposition() == Const.AND ? " & " : " | ";
 		if(!root.getDecompGoals().isEmpty()){
@@ -529,14 +548,40 @@ public class PrismWriter {
 	/*private void processPlanFormula(PlanContainer plan, StringBuilder planFormula, Const decType, boolean nonDeterminismCtx) throws IOException{
 	
 		String op = planFormula.length() == 0 ? "" : " & ";
-		switch(decType){
-		case OR: planFormula.append(buildAndOrSuccessFormula(plan, planFormula, decType, nonDeterminismCtx));break;
-		case AND: planFormula.append(buildAndOrSuccessFormula(plan, planFormula, decType, nonDeterminismCtx));break;				  
-		default: planFormula.append(op + "(s" + plan.getClearElId() + "=2)" + buildContextSuccessFormula(plan, nonDeterminismCtx));
+		
+		if (plan.isOptional()) {
+			String formula = op + "s" + plan.getClearElId() + "=2 | s" + plan.getClearElId() + "=3";
+			planFormula.append(formula);
+			return;
 		}
+		else {
+			planFormula.append(op + "(s" + plan.getClearElId() + "=2)" + buildContextSuccessFormula(decType, plan));
+		}
+			
+		//switch(decType){
+		//case OR: planFormula.append(buildAndOrSuccessFormula(plan, planFormula, decType, nonDeterminismCtx));break;
+		//case AND: planFormula.append(buildAndOrSuccessFormula(plan, planFormula, decType, nonDeterminismCtx));break;				  
+		//default: planFormula.append(op + "(s" + plan.getClearElId() + "=2)" + buildContextSuccessFormula(plan, nonDeterminismCtx));
+		//}
 	}
 	
-	private String buildAndOrSuccessFormula(RTContainer plan, StringBuilder planFormula, Const decType, boolean nonDeterminismCtx) throws IOException{
+	private String buildContextSuccessFormula(Const decType, RTContainer plan) throws IOException{
+		
+		if (plan.getFulfillmentConditions().isEmpty()) return "";
+		
+		//If means-end plan
+		if ((plan instanceof PlanContainer) && (plan.getRoot() instanceof GoalContainer)) { 
+			decType = plan.getRoot().getRoot().getDecomposition();
+		}
+		
+		switch(decType) {
+		case OR: return "";
+		case AND: return " | (s" + plan.getClearElId() + "=3 & CTX_" + getContextId(plan) + "=0)";
+		}
+		return "";
+	}*/
+	
+	/*private String buildAndOrSuccessFormula(RTContainer plan, StringBuilder planFormula, Const decType, boolean nonDeterminismCtx) throws IOException{
 		String op = planFormula.length() == 0 ? "" : " & ";
 		switch(decType){
 		case AND: return op + "(s" + plan.getClearElId() + "=2)" + buildContextSuccessFormula(plan, nonDeterminismCtx);
