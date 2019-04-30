@@ -28,8 +28,8 @@ public class PrismWriter {
 	 * process. */
 
 	private static final String MODULE_NAME_TAG			= "$MODULE_NAME$";
-	private static final String TIME_SLOT_TAG			= "$TIME_SLOT";
-	private static final String PREV_TIME_SLOT_TAG		= "$PREV_TIME_SLOT";
+	private static final String TIME_SLOT_TAG			= "$TIME_SLOT$";
+	private static final String PREV_TIME_SLOT_TAG		= "$PREV_TIME_SLOT$";
 	private static final String GID_TAG					= "$GID$";
 	private static final String GOAL_MODULES_TAG 		= "$GOAL_MODULES$";
 	private static final String DEC_HEADER_TAG	 		= "$DEC_HEADER$";
@@ -159,7 +159,7 @@ public class PrismWriter {
 		optPattern						= ManageWriter.readFileAsString(input + "pattern_opt.nm");
 		optHeaderPattern				= ManageWriter.readFileAsString(input + "pattern_opt_header.nm");
 
-		Collections.sort(rootGoals);
+		//Collections.sort(rootGoals);
 
 		for( GoalContainer root : rootGoals ) {
 			writeElement(
@@ -263,7 +263,7 @@ public class PrismWriter {
         
         StringBuilder sbHeader = new StringBuilder();
     	StringBuilder sbType = new StringBuilder();
-    	int nextState = 1;
+    	//int nextState = 1;
         
     	
     	String sbHeaderAux = "\n";
@@ -294,36 +294,44 @@ public class PrismWriter {
         	//Build the body of the module
         	String ndBodyPattern = new String(this.ndBodyPattern);
         	ndBodyPattern = ndBodyPattern.replace("$N$", Integer.toString(this.nonDeterminismCtxId));
-        	ndBodyPattern = ndBodyPattern.replace("$NEXT_STATE$", Integer.toString(nextState+1));
+        	//ndBodyPattern = ndBodyPattern.replace("$NEXT_STATE$", Integer.toString(nextState+1));
+        	ndBodyPattern = ndBodyPattern.replace("$CONTEXT_UPDATE$", contextUpdate);
         	
-        	String ndBodyAux = "\t[] s$GID$ = $NEXT_STATE$ -> (s$GID$'=$MAX_ND$)$CONTEXT_UPDATE$;\n";
+        	/*String ndBodyAux = "\t[] s$GID$ = $NEXT_STATE$ -> (s$GID$'=$MAX_ND$)$CONTEXT_UPDATE$;\n";
         	ndBodyAux = ndBodyAux.replace("$CONTEXT_UPDATE$", contextUpdate);
         	ndBodyAux = ndBodyAux.replace("$NEXT_STATE$", Integer.toString(nextState+1));
-        	sbTypeAux = sbTypeAux.concat(ndBodyAux);
+        	sbTypeAux = sbTypeAux.concat(ndBodyAux);*/
         	
         	if (sbType.length() == 0) sbType.append(ndBodyPattern);
         	else sbType.append("\t" + ndBodyPattern);
         	
         	this.nonDeterminismCtxId++;
-        	nextState++;
+        	//nextState++;
         }        
         sbHeader.append(sbHeaderAux);
-        sbTypeAux = sbTypeAux.replace("$MAX_ND$", Integer.toString(nextState+1));
+        //sbTypeAux = sbTypeAux.replace("$MAX_ND$", Integer.toString(nextState+1));
 
-        singlePattern = singlePattern.replace("$MAX_ND$", Integer.toString(nextState+1));
+        //singlePattern = singlePattern.replace("$MAX_ND$", Integer.toString(nextState+1));
         singlePattern = singlePattern.replace("$FINAL_TYPE$", sbTypeAux);
         singlePattern = singlePattern.replace(DEC_HEADER_TAG, sbHeader.toString());
         singlePattern = singlePattern.replace(DEC_TYPE_TAG, sbType.toString());
         singlePattern = singlePattern.replace(GID_TAG, root.getClearElId());
         
     	//Time
-    	Integer timeSlot = root.getTimeSlot()-1;
-    	if(root.getCardType().equals(Const.SEQ))
+    	//Integer timeSlot = root.getTimeSlot()-1;
+    	Integer timeSlot = root.getTimeSlot();
+    	Integer prevTimeSlot = root.getPrevTimeSlot();
+    	
+    	singlePattern = singlePattern.replace(PREV_TIME_SLOT_TAG, "_" + prevTimeSlot + "");
+		singlePattern = singlePattern.replace(TIME_SLOT_TAG, "_" + timeSlot + "");
+		
+    	/*if(root.getCardType().equals(Const.SEQ))
     		timeSlot -= root.getCardNumber() - 1; 
     	for(int i = root.getCardNumber(); i >= 0; i--){
+    		while ((timeSlot - 1 + i) < 0) timeSlot++;
     		singlePattern = singlePattern.replace(PREV_TIME_SLOT_TAG + (i > 1 ? "_N" + i : "") + "$", "_" + (timeSlot - 1 + i) + "");
     		singlePattern = singlePattern.replace(TIME_SLOT_TAG + (i > 1 ? "_N" + i : "") + "$", "_" + (timeSlot + i) + "");
-    	}
+    	}*/
         
         planModules = planModules.append(singlePattern+"\n");
 	}
@@ -411,9 +419,13 @@ public class PrismWriter {
 					goalContext = true; 
 			}*/
 			
-			String ctx = getContextsInfo(plan).toString();
-			RTContainer node = getKeyRTContainer(this.nonDeterminismCtxList,ctx);
-			if (this.nonDeterminismCtxList.containsValue(ctx) && (node.equals(plan) || equalsRoot(node, plan))) {
+			/*String ctx = getContextsInfo(plan).toString();
+			/RTContainer node = getKeyRTContainer(this.nonDeterminismCtxList, plan);
+			if (this.nonDeterminismCtxList.containsKey(node) && (node.equals(plan) || equalsRoot(node, plan))) {
+				nonDeterminismCtx = true;
+			}*/
+			
+			if (this.nonDeterminismCtxList.containsKey(plan) || ndCtxListContainsARoot(plan) != null) {
 				nonDeterminismCtx = true;
 			}
 		}
@@ -471,11 +483,15 @@ public class PrismWriter {
 		planModule = planModule.replace(DEC_TYPE_TAG, sbType.toString());
 	
 		//Time
-		Integer timeSlot = plan.getTimeSlot(); 
-		for(int i = plan.getCardNumber(); i >= 0; i--){
+		Integer timeSlot = plan.getTimeSlot();
+    	Integer prevTimeSlot = plan.getPrevTimeSlot();
+    	
+    	planModule = planModule.replace(PREV_TIME_SLOT_TAG, "_" + prevTimeSlot + "");
+    	planModule = planModule.replace(TIME_SLOT_TAG, "_" + timeSlot + "");
+		/*for(int i = plan.getCardNumber(); i >= 0; i--){
 			planModule = planModule.replace(PREV_TIME_SLOT_TAG + (i > 1 ? "_N" + i : "") + "$", "_" + (timeSlot -1 + i) + "");
 			planModule = planModule.replace(TIME_SLOT_TAG + (i > 1 ? "_N" + i : "") + "$", "_" + (timeSlot + i) + "");
-		}
+		}*/
 	
 		//GID
 		planModule = planModule.replace(GID_TAG, plan.getClearElId());
@@ -483,6 +499,15 @@ public class PrismWriter {
 		planModule = planModule.replace(CONST_PARAM_TAG, constOrParam);
 		planModules = planModules.append(planModule+"\n");				
 		return new String[]{plan.getClearElId(), planFormula.toString()};
+	}
+
+	private RTContainer ndCtxListContainsARoot(RTContainer plan) {
+		RTContainer root = plan.getRoot();
+		while (root != null && !this.nonDeterminismCtxList.containsKey(root)) {
+			root = root.getRoot();
+		}
+		if (root == null) return null;
+		return root;
 	}
 
 	private RTContainer getKeyRTContainer(Map<RTContainer, String> list, String ctx) {
@@ -608,10 +633,16 @@ public class PrismWriter {
 	}*/
 	
 	private String getContextId(RTContainer plan) throws ParseCancellationException, IOException {
-		String ctx = getContextsInfo(plan).toString();
+		/*String ctx = getContextsInfo(plan).toString();
 		RTContainer node = getKeyRTContainer(this.nonDeterminismCtxList,ctx);
 		
 		if (this.nonDeterminismCtxList.containsValue(ctx) && (equalsRoot(node, plan))) {
+			return node.getClearElId();
+		}
+		return plan.getClearElId();*/
+
+		RTContainer node = ndCtxListContainsARoot(plan);
+		if (node != null) {
 			return node.getClearElId();
 		}
 		return plan.getClearElId();
