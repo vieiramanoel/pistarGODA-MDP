@@ -285,8 +285,8 @@ public class PARAMProducer {
 				String removeFromFormula = new String();
 				String sumCost = new String();
 				if (!reliability) {
-					formula = replaceAll(formula, " " + childrenNodes.get(0) + " ", "R_" + childrenNodes.get(0));
-					formula = replaceAll(formula, " " + childrenNodes.get(1) + " ", "R_" + childrenNodes.get(1));
+					formula = replaceAll(formula, " " + childrenNodes.get(0) + " ", " R_" + childrenNodes.get(0) + " ");
+					formula = replaceAll(formula, " " + childrenNodes.get(1) + " ", " R_" + childrenNodes.get(1) + " ");
 					
 					if (this.ctxInformation.containsKey(childrenNodes.get(0)) && this.ctxInformation.containsKey(childrenNodes.get(1))) {
 						removeFromFormula = " - CTX_" + childrenNodes.get(0) + " * " + "R_" + childrenNodes.get(0) + " * CTX_" + childrenNodes.get(1)+ " * " + childrenNodes.get(1);
@@ -317,13 +317,16 @@ public class PARAMProducer {
 							sumCost += " + " + childrenNodes.get(i);
 						}
 					}
+					String currentFormula = formula.toString();
 					if (this.ctxInformation.containsKey(childrenNodes.get(i))) {
-						formula.append("( - " + formula.toString() + " * CTX_" + childrenNodes.get(i) 
-						+ " * " + childrenNodes.get(i) + " + " + formula.toString() + " + CTX_" 
+						formula.insert(0, "( - ");
+						formula.append(currentFormula + " * CTX_" + childrenNodes.get(i) 
+						+ " * " + childrenNodes.get(i) + " + " + currentFormula + " + CTX_" 
 								+ childrenNodes.get(i) + " * " + childrenNodes.get(i) + " ) ");
 					}
 					else {
-						formula.append("( - " + formula.toString() + " * " + childrenNodes.get(i) + " + " + formula.toString() + " + " + childrenNodes.get(i) + " ) ");
+						formula.insert(0, "( - ");
+						formula.append(currentFormula + " * " + childrenNodes.get(i) + " + " + currentFormula + " + " + childrenNodes.get(i) + " ) ");
 					}
 					if (!reliability) formula = replaceAll(formula, " " + childrenNodes.get(i) + " ", "R_" + childrenNodes.get(i));
 				}
@@ -360,8 +363,8 @@ public class PARAMProducer {
 				String removeFromFormula = new String();
 				String sumCost = new String();
 				if (!reliability) {
-					formula = replaceAll(formula, " " + childrenNodes.get(0) + " ", "R_" + childrenNodes.get(0));
-					formula = replaceAll(formula, " " + childrenNodes.get(1) + " ", "R_" + childrenNodes.get(1));
+					formula = replaceAll(formula, " " + childrenNodes.get(0) + " ", " R_" + childrenNodes.get(0) + " ");
+					formula = replaceAll(formula, " " + childrenNodes.get(1) + " ", " R_" + childrenNodes.get(1) + " ");
 					removeFromFormula = " - CTX_" + childrenNodes.get(0) + " * R_" + childrenNodes.get(0) + " * CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1);
 					sumCost = " CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) + " + CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1);
 				}
@@ -375,8 +378,10 @@ public class PARAMProducer {
 						removeFromFormula += " - " + formula.toString() + " * CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i);
 						sumCost += " + " + childrenNodes.get(i);
 					}
-					formula.append("( - " + formula.toString() + " * CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i) 
-						+ " + " + formula.toString() + " + CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i) + " ) ");
+					String currentFormula = formula.toString();
+					formula.insert(0, "( - ");
+					formula.append(" * CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i) 
+						+ " + " + currentFormula + " + CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i) + " ) ");
 					if (!reliability) formula = replaceAll(formula, " " + childrenNodes.get(i) + " ", "R_" + childrenNodes.get(i));
 				}
 				if (!reliability) {
