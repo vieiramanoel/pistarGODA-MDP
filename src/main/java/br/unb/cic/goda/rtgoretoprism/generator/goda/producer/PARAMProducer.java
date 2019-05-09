@@ -37,8 +37,8 @@ public class PARAMProducer {
 	private String agentName;
 	private List<String> leavesId = new ArrayList<String>();
 	private Map<String,String> ctxInformation = new HashMap<String,String>();
-	private List<String> varReliabilityInformation = new ArrayList<String>();
-	private List<String> varCostInformation = new ArrayList<String>();
+	private Map<String,String> varReliabilityInformation = new HashMap<String,String>();
+	private Map<String,String> varCostInformation = new HashMap<String,String>();
 	private Map<String,String> reliabilityByNode = new HashMap<String,String>();
 
 	public PARAMProducer(Set<Actor> allActors, Set<Goal> allGoals, String in, String out, String tools) {
@@ -126,14 +126,50 @@ public class PARAMProducer {
 
 		reliabilityForm = composeFormula(reliabilityForm, true);
 		costForm = composeFormula(costForm, false);
+		
+		String evalForm = composeEvalFormula();
 
 		String output = targetFolder + "/";
 		
 		PrintWriter reliabiltyFormula = ManageWriter.createFile("reliability.out", output);
 		PrintWriter costFormula = ManageWriter.createFile("cost.out", output);
+		PrintWriter evalBashFile = ManageWriter.createFile("eval_formula.sh", output);
 		
 		ManageWriter.printModel(reliabiltyFormula, reliabilityForm);
 		ManageWriter.printModel(costFormula, costForm);
+		ManageWriter.printModel(evalBashFile, evalForm);
+		
+	}
+
+	private String composeEvalFormula() throws CodeGenerationException {
+		String evalFormulaParams = new String();
+		String evalFormulaReplace = new String();
+		for (String ctxKey : this.ctxInformation.keySet()) {
+			evalFormulaParams += "CTX_" + ctxKey + "=\"1\";\n";
+			evalFormulaReplace += " -e \"s/CTX_" + ctxKey + "/$CTX_" + ctxKey + "/g\"";
+		}
+		for (String var : this.varReliabilityInformation.keySet()) {
+			String value = this.varReliabilityInformation.get(var);
+			if (value.contains("OPT_")) {
+				evalFormulaParams += "OPT_" + var + "=\"1\";\n";
+				evalFormulaReplace += " -e \"s/OPT_" + var + "/$OPT_" + var + "/g\"";
+			}
+			else {
+				evalFormulaParams += "R_" + var + "=\"0.99\";\n";
+				evalFormulaReplace += " -e \"s/R_" + var + "/$R_" + var + "/g\"";
+			}
+		}
+		for (String var : this.varCostInformation.keySet()) {
+			evalFormulaParams += "W_" + var + "=\"1\";\n";
+			evalFormulaReplace += " -e \"s/W_" + var + "/$W_" + var + "/g\"";
+		}
+
+		String evalBash = ManageWriter.readFileAsString(sourceFolder + "/PARAM/" + "eval_formula.sh");
+		
+		evalBash = evalBash.replace("$PARAMS_BASH$", evalFormulaParams);
+		evalBash = evalBash.replace("$REPLACE_BASH$", evalFormulaReplace);
+		
+		return evalBash;
 	}
 
 	private String composeFormula(String nodeForm, boolean isReliability) throws CodeGenerationException {
@@ -142,12 +178,12 @@ public class PARAMProducer {
 		for (String ctxKey : ctxInformation.keySet()) {
 			body = body + "//CTX_" + ctxKey + " = " + ctxInformation.get(ctxKey) + "\n";
 		}
-		for (String var : this.varReliabilityInformation) {
-			body = body + var;
+		for (String var : this.varReliabilityInformation.keySet()) {
+			body = body + this.varReliabilityInformation.get(var);
 		}
 		if (!isReliability) {
-			for (String var : this.varCostInformation) {
-				body = body + var;
+			for (String var : this.varCostInformation.keySet()) {
+				body = body + this.varCostInformation.get(var);
 			}
 		}
 
@@ -207,16 +243,16 @@ public class PARAMProducer {
 				nodeForm = paramWrapper.getFormula(model);
 				nodeForm = nodeForm.replaceFirst("1\\*", "");
 				
-				this.varReliabilityInformation.add("//R_" + nodeId + " = reliability of node " + nodeId + "\n");
+				this.varReliabilityInformation.put(nodeId, "//R_" + nodeId + " = reliability of node " + nodeId + "\n");
 				if (rootNode.isOptional()) {
 					nodeForm += "*OPT_" + nodeId;
-					this.varReliabilityInformation.add("//OPT_" + nodeId + " = optionality of node " + nodeId + "\n");	
+					this.varReliabilityInformation.put(nodeId, "//OPT_" + nodeId + " = optionality of node " + nodeId + "\n");	
 				}
 			}
 			else {
 				//Cost
 				nodeForm = getCostFormula(rootNode);
-				this.varCostInformation.add("//" + nodeForm + " = cost of node " + nodeId + "\n");
+				this.varCostInformation.put(nodeId, "//" + nodeForm + " = cost of node " + nodeId + "\n");
 			}
 		}
 		if (reliability) this.reliabilityByNode.put(nodeId, nodeForm);
