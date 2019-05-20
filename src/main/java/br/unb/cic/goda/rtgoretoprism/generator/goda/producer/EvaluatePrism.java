@@ -2,11 +2,8 @@ package br.unb.cic.goda.rtgoretoprism.generator.goda.producer;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +11,6 @@ import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +19,9 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.model.Goal;
@@ -40,15 +39,38 @@ public class EvaluatePrism {
 
 	public static void main(String[] args) throws IOException {
 		
+		PistarModel model = new PistarModel();
 		//Generating goal model
 		Scanner scanner = new Scanner(System.in);
-		System.out.print("Number of leaf-tasks: ");
-		int num = scanner.nextInt();
-		
-		System.out.print("Decomposition/Annotation: ");
-		String annot = scanner.next();
-		
-		PistarModel model = generateDefaultModel(num, annot);
+		System.out.print("Paste json file? ");
+		String ans = scanner.nextLine();
+		if (ans.equals("y") || (ans.equals("Y"))) {
+			
+			String content = new String();
+			String line = new String();
+			
+			System.out.print("Json file: ");
+			
+			while (scanner.hasNextLine()) {
+			    line = scanner.nextLine();
+			    if (line.isEmpty()) {
+			        break;
+			    }
+			    content += line + "\n";
+			}
+			
+			Gson gson = new GsonBuilder().create();
+	        model = gson.fromJson(content, PistarModel.class);
+		}
+		else {
+			System.out.print("Number of leaf-tasks: ");
+			int num = scanner.nextInt();
+			
+			System.out.print("Decomposition/Annotation: ");
+			String annot = scanner.next();
+			
+			model = generateDefaultModel(num, annot);
+		}
 		Set<Actor> selectedActors = new HashSet<>();
         Set<Goal> selectedGoals = new HashSet<>();
         Controller.transformToTao4meEntities(model, selectedActors, selectedGoals);
@@ -74,7 +96,7 @@ public class EvaluatePrism {
         	//evaluatePrism(commandLine, resultsPath);
 
 			System.out.println("Clear dtmc folder? ");
-			String ans = scanner.next();
+			ans = scanner.next();
 			if (ans.equals("y") || (ans.equals("Y"))) cleanDTMCFolder();
 		} catch (IOException e) {
 			e.printStackTrace();
