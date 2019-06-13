@@ -312,15 +312,40 @@ public class RTGoreProducer {
 			}*/
 			
 			//deccont.addFulfillmentConditions(pc.getFulfillmentConditions());
+			
+			if (newplan){
+				addPlan(dec, deccont, ad);
+				if (pc.isDecisionMaking()) {
+					if (deccont.getDecompPlans().isEmpty()) {
+						this.prevMax = (deccont.getPrevTimeSlot()+1)>this.prevMax?deccont.getPrevTimeSlot()+1:this.prevMax;
+						this.timeSlotMax = (deccont.getTimeSlot()+1)>this.timeSlotMax?deccont.getTimeSlot()+1:this.timeSlotMax;
+					}
+					else {
+						this.prevMax = (deccont.getPrevTimeSlot())>this.prevMax?deccont.getPrevTimeSlot():this.prevMax;
+						this.timeSlotMax = (deccont.getTimeSlot())>this.timeSlotMax?deccont.getTimeSlot():this.timeSlotMax;	
+					}
+					
+					//this.prevMax = deccont.getPrevTimeSlot()+1;
+					//this.timeSlotMax = deccont.getTimeSlot()+1;
+				}
+				else if (deccont.getDecompPlans().isEmpty()) {
+					pc.setPrevTimeSlot(deccont.getPrevTimeSlot()+1);
+					pc.setTimeSlot(deccont.getTimeSlot()+1);
+				}
+				else {
+					pc.setPrevTimeSlot(deccont.getPrevTimeSlot());
+					pc.setTimeSlot(deccont.getTimeSlot());
+				}
+			}
 
-			if (pc.isDecisionMaking()) {
+			/*if (pc.isDecisionMaking()) {
 				this.prevMax = deccont.getPrevTimeSlot()+1;
 				this.timeSlotMax = deccont.getTimeSlot()+1;
 			}
 			else {
 				pc.setTimeSlot(deccont.getTimeSlot());
 				pc.setPrevTimeSlot(deccont.getPrevTimeSlot());
-			}
+			}*/
 		}
 	}
 
