@@ -1,1 +1,2 @@
-[next$PREV_TIME_SLOT$] s$GID$ = 0 -> $CTX_GID$ : (s$GID$'=1) + (1 - $CTX_GID$) : (s$GID$'=3); //init to running or skip
+[next$PREV_TIME_SLOT$] $PREV_SUCCESS$s$GID$ = 0 -> $CTX_GID$ : (s$GID$'=1) + (1 - $CTX_GID$) : (s$GID$'=3); //init to running or skip
+	$PREV_EFFECT$

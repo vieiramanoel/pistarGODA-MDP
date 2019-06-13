@@ -408,6 +408,14 @@ public abstract class RTContainer extends ElementContainer /*implements Comparab
 	public void setPrevTimeSlot(Integer prevTimeSlot) {
 		this.prevTimeSlot = prevTimeSlot;
 	}
+	
+	public GoalContainer getParentGoal() {
+		RTContainer root = this.getRoot();
+		while (root != null && root instanceof PlanContainer) {
+			root = root.getRoot();
+		}
+		return (GoalContainer) root;
+	}
 
 	/*@Override
 	public int compareTo(RTContainer gc) {
