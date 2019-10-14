@@ -29,7 +29,10 @@ public class RunParamAction {
             producer.run();
         } catch (CodeGenerationException | IOException e) {
             e.printStackTrace();
-        }
+        } catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 }

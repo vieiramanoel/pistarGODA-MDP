@@ -1,1 +1,2 @@
-[next$PREV_TIME_SLOT$] s$GID$ = 0 -> F_$GID$ : (s$GID$'=1) + (1 - F_$GID$) : (s$GID$'=3); //init to running or skip
+[next$PREV_TIME_SLOT$] $PREV_SUCCESS$s$GID$ = 0 -> (s$GID$'=1);//init to running
+	$PREV_EFFECT$
