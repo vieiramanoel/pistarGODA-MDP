@@ -37,6 +37,8 @@ public class PrismWriter {
 	private static final String REWARD_TAG				= "$REWARD_STRUCTURE$";
 	private static final String COST_VALUE_TAG			= "$COST$";
 	private static final String CONST_PARAM_TAG			= "$CONST_PARAM$";
+	private static final String MAX_TRIES_TAG			= "$MAX_TRIES$";
+	private static final String MAX_RETRIES_TAG 		= "$MAX_RETRIES$";
 	/*private static final String PARAMS_BASH_TAG	 		= "$PARAMS_BASH$";
 	private static final String REPLACE_BASH_TAG	 	= "$REPLACE_BASH$";*/
 
@@ -76,6 +78,7 @@ public class PrismWriter {
 	private String ndHeaderPattern;
 	private String ndBodyPattern;
 	private String prevFailurePattern;
+	private String rtryCardPattern;
 
 	/** Has all the informations about the agent. */ 
 	private AgentDefinition ad;
@@ -160,6 +163,7 @@ public class PrismWriter {
 		optPattern						= ManageWriter.readFileAsString(input + "pattern_opt.nm");
 		optHeaderPattern				= ManageWriter.readFileAsString(input + "pattern_opt_header.nm");
 		prevFailurePattern 				= ManageWriter.readFileAsString(input + "pattern_prev_failure.nm");
+		rtryCardPattern 				= ManageWriter.readFileAsString(input + "pattern_retry.nm");
 
 		//Collections.sort(rootGoals);
 
@@ -426,7 +430,10 @@ public class PrismWriter {
 			}
 		}
 	
-		planModule = singlePattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+		if (plan.getCardType() == Const.RTRY) {
+			planModule = rtryCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+		} else
+			planModule = singlePattern.replace(MODULE_NAME_TAG, plan.getClearElName());
 	
 		StringBuilder sbHeader = new StringBuilder();
 		StringBuilder sbType = new StringBuilder();
@@ -467,7 +474,7 @@ public class PrismWriter {
 		else if (!plan.isOptional()){
 			sbType.append(andDecPattern);
 		}
-		processPlanFormula(plan, planFormula, plan.getRoot().getDecomposition(), nonDeterminismCtx);
+		processPlanFormula(plan, planFormula, plan.getRoot().getDecomposition());
 	
 		/*evalFormulaParams += "W_" + plan.getClearElId() + "=\"1\";\n";
 		evalFormulaReplace += " -e \"s/W_" + plan.getClearElId() + "/$W_" + plan.getClearElId() + "/g\"";
@@ -499,6 +506,8 @@ public class PrismWriter {
 		planModule = planModule.replace(GID_TAG, plan.getClearElId());
 		//CONST OR PARAM
 		planModule = planModule.replace(CONST_PARAM_TAG, constOrParam);
+		planModule = planModule.replace(MAX_TRIES_TAG, plan.getCardNumber() + 1 + "");
+		planModule = planModule.replace(MAX_RETRIES_TAG, plan.getCardNumber() + "");
 		planModules = planModules.append(planModule+"\n");				
 		return new String[]{plan.getClearElId(), planFormula.toString()};
 	}
@@ -564,13 +573,35 @@ public class PrismWriter {
 		return false;
 	}
 	
-	private void processPlanFormula(PlanContainer plan, StringBuilder planFormula, Const decType, boolean nonDeterminismCtx) throws IOException{
-		
+	private void processPlanFormula(PlanContainer plan, StringBuilder planFormula, Const decType) throws IOException {
+		String op = planFormula.length() == 0 ? "" : " & ";
+		switch (decType) {
+		case OR:
+			planFormula.append(buildAndOrSuccessFormula(plan, planFormula));
+			break;
+		case AND:
+			planFormula.append(buildAndOrSuccessFormula(plan, planFormula));
+			break;
+		default:
+			planFormula.append(op + "(s" + plan.getClearElId() + "=2)");
+		}
+	}
+	
+	private String buildAndOrSuccessFormula(RTContainer plan, StringBuilder planFormula) {
 		String op = planFormula.length() == 0 ? "" : " & ";
 		String formula = op + "s" + plan.getClearElId() + "=2";
 		if (plan.isOptional()) formula += " | s" + plan.getClearElId() + "=3";
-		planFormula.append(formula);
+		
+		return formula;
 	}
+	
+//	private void processPlanFormula(PlanContainer plan, StringBuilder planFormula, Const decType, boolean nonDeterminismCtx) throws IOException{
+//		
+//		String op = planFormula.length() == 0 ? "" : " & ";
+//		String formula = op + "s" + plan.getClearElId() + "=2";
+//		if (plan.isOptional()) formula += " | s" + plan.getClearElId() + "=3";
+//		planFormula.append(formula);
+//	}
 	
 	private String buildPrevFailureFormula(String prevFormula) {
 		if (prevFormula == null)

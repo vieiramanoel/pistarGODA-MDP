@@ -36,6 +36,14 @@ public interface RTRegexVisitor<T> extends ParseTreeVisitor<T> {
 	T visitGId(@NotNull RTRegexParser.GIdContext ctx);
 
 	/**
+	 * Visit a parse tree produced by the {@code gRetry}
+	 * labeled alternative in {@link RTRegexParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGRetry(@NotNull RTRegexParser.GRetryContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link RTRegexParser#id}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

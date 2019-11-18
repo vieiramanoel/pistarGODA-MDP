@@ -17,7 +17,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RTParser {
 
@@ -60,7 +62,8 @@ public class RTParser {
 
 		return new Object [] 	{rtRegexVisitor.reliabilityFormula,
 				rtRegexVisitor.costFormula,
-				rtRegexVisitor.decisionMemory};
+				rtRegexVisitor.decisionMemory,
+				rtRegexVisitor.retryMemory};
     }
 }
 
@@ -72,7 +75,8 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	String reliabilityFormula = new String();
 	String costFormula = new String();	
 	List<String> decisionMemory = new ArrayList<String>();
-
+	Map<String, Object[]> retryMemory = new HashMap<String, Object[]>();
+	
 	public CustomRTRegexVisitor(String uid, Const decType, boolean param) {
 		this.decType = decType;
 		this.param = param;
@@ -123,4 +127,15 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		}
 		return gidAo + '-' + gidBo;
 	}
+
+	@Override
+	public String visitGRetry(GRetryContext ctx) {
+		String gid = visit(ctx.expr());
+		String k = ctx.FLOAT().getText();
+		
+		retryMemory.put(gid, new Object[]{Const.RTRY, Integer.parseInt(ctx.FLOAT().getText())});
+        k = String.valueOf(Integer.valueOf(k) + 1);
+		
+		return gid;
+	}	
 }

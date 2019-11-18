@@ -56,6 +56,19 @@ public class RTRegexBaseListener implements RTRegexListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterGRetry(@NotNull RTRegexParser.GRetryContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGRetry(@NotNull RTRegexParser.GRetryContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterId(@NotNull RTRegexParser.IdContext ctx) { }
 	/**
 	 * {@inheritDoc}

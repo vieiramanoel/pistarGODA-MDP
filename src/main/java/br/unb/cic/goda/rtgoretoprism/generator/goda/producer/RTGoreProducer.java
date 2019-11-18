@@ -31,6 +31,7 @@ public class RTGoreProducer {
 
 	/** memory for the parsed RT regex */
 	List<String> rtDMGoals;
+	private Map<String, Object[]> rtRetryGoals;
 
 	public RTGoreProducer(Set<Actor> allActors, Set<Goal> allGoals, String in, String out) {
 
@@ -42,6 +43,7 @@ public class RTGoreProducer {
 		this.allGoals = allGoals;
 
 		this.rtDMGoals = new ArrayList<String>();
+		this.rtRetryGoals = new TreeMap<>();
 	}
 
 	/**
@@ -97,11 +99,6 @@ public class RTGoreProducer {
 		StringBuilder rmax = new StringBuilder("R{\"cost\"}max=? [ F \"success\" ]");
 		StringBuilder rmin = new StringBuilder("R{\"cost\"}min=? [ F \"success\" ]");
 
-//		FileUtility.deleteFile(outputFolder + "/AgentRole_" + ad.getAgentName() + "/ReachabilityMax.pctl", false);
-//		FileUtility.deleteFile(outputFolder + "/AgentRole_" + ad.getAgentName() + "/ReachabilityMin.pctl", false);
-//		FileUtility.deleteFile(outputFolder + "/AgentRole_" + ad.getAgentName() + "/CostMax.pctl", false);
-//		FileUtility.deleteFile(outputFolder + "/AgentRole_" + ad.getAgentName() + "/CostMin.pctl", false);
-
 		FileUtility.writeFile(pmax.toString(), outputFolder + "/ReachabilityMax.pctl");
 		FileUtility.writeFile(pmin.toString(), outputFolder + "/ReachabilityMin.pctl");
 		FileUtility.writeFile(rmax.toString(), outputFolder + "/CostMax.pctl");
@@ -126,9 +123,11 @@ public class RTGoreProducer {
 
 		if (dmRT) gc.setDecisionMaking(this.rtDMGoals);
 
-		iterateGoals(ad, gc, declist, included);
-		iterateMeansEnds(g, gc, ad, included);
-
+        iterateGoals(ad, gc, declist, included);
+        iterateRts(gc, gc.getDecompGoals());
+        iterateMeansEnds(g, gc, ad, included);
+        iterateRts(gc, gc.getDecompPlans());
+		
 		if (gc.isDecisionMaking()) {
 			storeDecisionMakingNodes(gc);
 			if (gc.getRoot() != null) {
@@ -199,6 +198,12 @@ public class RTGoreProducer {
 				}
 			}*/
 			
+            if (rtRetryGoals.containsKey(deccont.getElId())) {
+                Object[] retry = rtRetryGoals.get(deccont.getElId());
+                Const cardType = (Const) retry[0];
+                deccont.setCardType(cardType);
+            }
+			
 			//deccont.addFulfillmentConditions(gc.getFulfillmentConditions());
 			if (newgoal){
 				addGoal(dec, deccont, ad, include);	
@@ -242,6 +247,7 @@ public class RTGoreProducer {
 		if (dmRT) pc.setDecisionMaking(this.rtDMGoals);
 
         iteratePlans(ad, pc, decList);
+        iterateRts(pc, pc.getDecompPlans());
 		if (pc.isDecisionMaking()) {
 			storeDecisionMakingNodes(pc);
 			if (pc.getRoot() != null) {
@@ -251,6 +257,23 @@ public class RTGoreProducer {
 		}
 
 		if (pc.getClearElId().contains("X")) pc.setOptional(true);
+	}
+
+	private void iterateRts(RTContainer gc, List<? extends RTContainer> rts) {
+		for (RTContainer dec : rts) {
+			String elId = dec.getElId();
+			LinkedList<RTContainer> decPlans = RTContainer.fowardMeansEnd(dec, new LinkedList<>());
+
+			if (rtRetryGoals.containsKey(elId)) {
+				Object[] card = rtRetryGoals.get(elId);
+				Const cardType = (Const) card[0];
+				Integer cardNumber = (Integer) card[1];
+				for (RTContainer decPlan : decPlans) {
+					decPlan.setCardType(cardType);
+					decPlan.setCardNumber(cardNumber);
+				}
+			}
+		}
 	}
 
 	private void storeDecisionMakingNodes(RTContainer pc) {
@@ -311,6 +334,12 @@ public class RTGoreProducer {
 				}
 			}*/
 			
+			if (rtRetryGoals.containsKey(deccont.getElId())) {
+                Object[] retry = rtRetryGoals.get(deccont.getElId());
+                Const cardType = (Const) retry[0];
+                deccont.setCardType(cardType);
+            }
+			
 			//deccont.addFulfillmentConditions(pc.getFulfillmentConditions());
 			
 			if (newplan){
@@ -369,8 +398,13 @@ public class RTGoreProducer {
 				pc.setPrevTimeSlot(gc.getPrevTimeSlot());
 				pc.setTimeSlot(gc.getTimeSlot());
 
+				if (rtRetryGoals.containsKey(pc.getElId())) {
+	                Object[] retry = rtRetryGoals.get(pc.getElId());
+	                Const cardType = (Const) retry[0];
+	                pc.setCardType(cardType);
+	            }
 				//pc.addFulfillmentConditions(gc.getFulfillmentConditions());
-
+				
 				if (newplan){
 					addPlan(p, pc, ad);					
 					/*gc.setFutTimePath(Math.max(pc.getTimeSlot(), pc.getFutTimePath()));*/
@@ -407,6 +441,7 @@ public class RTGoreProducer {
 		if(rtRegex != null){
 			Object [] res = RTParser.parseRegex(uid, rtRegex + '\n', decType, false);
 			rtDMGoals.addAll((List<String>) res [2]);
+			rtRetryGoals.putAll((Map<String, Object[]>) res[3]);
 
 			List<String> dmList = (List<String>) res[2];
 			if (!dmList.isEmpty()) return true;

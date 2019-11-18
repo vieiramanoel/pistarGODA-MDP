@@ -13,6 +13,7 @@ rt:     expr NEWLINE                            # printExpr
 expr:   t=('G'|'T') id							# gId
     |	'DM(' expr ')'							# gDecisionMaking
     | 	expr op=',' expr						# gDM
+    |	expr op='@' FLOAT						# gRetry
     ;
     
 id:		FLOAT

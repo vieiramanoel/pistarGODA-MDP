@@ -21,7 +21,7 @@ public abstract class RTContainer extends ElementContainer /*implements Comparab
 	/*private Integer timePath = 0;
 	private Integer prevTimePath = 0;
 	private Integer futTimePath = 0;*/
-	/*private Integer cardNumber = 0;*/ //Nunca é alterado. É sempre zero.
+	private Integer cardNumber = 0;
 	private Const cardType = Const.SEQ;
 	private Map <RTContainer, LinkedList<RTContainer>> alternatives;
 	private List<String> decisionMaking;
@@ -343,13 +343,13 @@ public abstract class RTContainer extends ElementContainer /*implements Comparab
 		this.optional = optional;
 	}
 	
-	/*public Integer getCardNumber() {
+	public Integer getCardNumber() {
 		return cardNumber;
 	}
 
 	public void setCardNumber(Integer cardNumber) {
 		this.cardNumber = cardNumber;
-	}*/
+	}
 
 	public Const getCardType() {
 		return cardType;

@@ -48,6 +48,19 @@ public interface RTRegexListener extends ParseTreeListener {
 	void exitGId(@NotNull RTRegexParser.GIdContext ctx);
 
 	/**
+	 * Enter a parse tree produced by the {@code gRetry}
+	 * labeled alternative in {@link RTRegexParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterGRetry(@NotNull RTRegexParser.GRetryContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code gRetry}
+	 * labeled alternative in {@link RTRegexParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitGRetry(@NotNull RTRegexParser.GRetryContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link RTRegexParser#id}.
 	 * @param ctx the parse tree
 	 */
