@@ -31,9 +31,11 @@ public class PrismWriter {
 	private static final String TIME_SLOT_TAG			= "$TIME_SLOT$";
 	private static final String PREV_TIME_SLOT_TAG		= "$PREV_TIME_SLOT$";
 	private static final String GID_TAG					= "$GID$";
+	private static final String PREV_GID_TAG 			= "$PREV_GID$";
 	private static final String GOAL_MODULES_TAG 		= "$GOAL_MODULES$";
 	private static final String DEC_HEADER_TAG	 		= "$DEC_HEADER$";
 	private static final String DEC_TYPE_TAG	 		= "$DEC_TYPE$";
+	private static final String DEC_TYPE_TRY_TAG	 	= "$DEC_TYPE_TRY$";
 	private static final String REWARD_TAG				= "$REWARD_STRUCTURE$";
 	private static final String COST_VALUE_TAG			= "$COST$";
 	private static final String CONST_PARAM_TAG			= "$CONST_PARAM$";
@@ -43,6 +45,8 @@ public class PrismWriter {
 	private static final String REPLACE_BASH_TAG	 	= "$REPLACE_BASH$";*/
 
 	private final String constOrParam;
+	private static final String DEC_TRY_CTX = "$CTX_GID$ : (s$GID$'=1) + (1 - $CTX_GID$) : (s$GID$'=3); //init to running or skip";
+	private static final String DEC_TRY_NO_CTX = "(s$GID$'=1);//init to running";
 	
 	/** where to find PRISM related template base section, inside the template folder */
 	private final String TEMPLATE_PRISM_BASE_PATH = "PRISM/";
@@ -79,6 +83,9 @@ public class PrismWriter {
 	private String ndBodyPattern;
 	private String prevFailurePattern;
 	private String rtryCardPattern;
+	private String trySucessPattern;
+	private String tryFailPattern;
+	private String tryOriginalPattern;
 
 	/** Has all the informations about the agent. */ 
 	private AgentDefinition ad;
@@ -164,6 +171,10 @@ public class PrismWriter {
 		optHeaderPattern				= ManageWriter.readFileAsString(input + "pattern_opt_header.nm");
 		prevFailurePattern 				= ManageWriter.readFileAsString(input + "pattern_prev_failure.nm");
 		rtryCardPattern 				= ManageWriter.readFileAsString(input + "pattern_retry.nm");
+		trySucessPattern				= ManageWriter.readFileAsString(input + "pattern_try_success.nm");
+		tryFailPattern 					= ManageWriter.readFileAsString(input + "pattern_try_fail.nm");
+		tryOriginalPattern 				= ManageWriter.readFileAsString(input + "pattern_try_original.nm");
+		
 
 		//Collections.sort(rootGoals);
 
@@ -396,12 +407,16 @@ public class PrismWriter {
 		String andDecPattern = new String(this.andDecPattern),
 				ctxSkipPattern = new String(this.ctxSkipPattern),
 				optPattern = new String(this.optPattern),
-				optHeaderPattern = new String(this.optHeaderPattern);
+				optHeaderPattern = new String(this.optHeaderPattern),
+				trySuccessPattern = new String(this.trySucessPattern),
+				tryFailPattern = new String(this.tryFailPattern),
+				tryOriginalPattern = new String(this.tryOriginalPattern);
 				//ctxFailPattern = new String(this.ctxFailPattern);
 	
 		PlanContainer plan = (PlanContainer) root;
 		String planModule;
 		StringBuilder planFormula = new StringBuilder();
+		String ctxId = getContextId(plan);
 	
 		boolean contextPresent = false;
 		//boolean goalContext = false;
@@ -432,9 +447,12 @@ public class PrismWriter {
 	
 		if (plan.getCardType() == Const.RTRY) {
 			planModule = rtryCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
-		} else
+		} else if (plan.isTry()) {
+			planModule = tryOriginalPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+		} else {
 			planModule = singlePattern.replace(MODULE_NAME_TAG, plan.getClearElName());
-	
+		}
+		
 		StringBuilder sbHeader = new StringBuilder();
 		StringBuilder sbType = new StringBuilder();
 		
@@ -445,45 +463,46 @@ public class PrismWriter {
 			optPattern = optPattern.replace("$IF_CTX$", "");
 			sbHeader.append(optHeaderPattern);
 			sbType.append(optPattern);
-			
-			/*evalFormulaParams += "OPT_" + plan.getClearElId() + "=\"1\";\n";
-			evalFormulaReplace += " -e \"s/OPT_" + plan.getClearElId() + "/$OPT_" + plan.getClearElId() + "/g\"";*/
 		}
-		if(contextPresent){
-			String ctxId = getContextId(plan);
-			
-			/*if (!evalFormulaContexts.toString().contains("CTX_" + ctxId + "=\"1\";\n")) {
-				evalFormulaContexts.append("CTX_" + ctxId + "=\"1\";\n");
-				evalFormulaParams += "CTX_" + ctxId + "=\"1\";\n";
-				evalFormulaReplace += " -e \"s/CTX_" + ctxId + "/$CTX_" + ctxId + "/g\"";
-			}*/
-			
-			if (!plan.isOptional()) sbType.append(ctxSkipPattern.replace("$CTX_GID$", "CTX_" + ctxId));	
-			if (!nonDeterminismCtx) sbHeader.append(getContextHeader(plan));
-			
-			/*if (nonDeterminismCtx) {
-				sbType.append(ctxSkipPattern.replace("$CTX_GID$", "CTX_" + ctxId));	
+		else if (plan.getTryOriginal() != null || plan.getTrySuccess() != null || plan.getTryFailure() != null) {
+			if (plan.getTrySuccess() != null || plan.getTryFailure() != null) {
+				processPlanFormula(plan, planFormula, Const.TRY);
+			} else if (plan.isSuccessTry()) {
+				PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
+				trySuccessPattern = trySuccessPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
+				sbType.append(trySuccessPattern);
+				processPlanFormula(plan, planFormula, Const.TRY_S);
+			} else {
+				PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
+				tryFailPattern = tryFailPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
+				sbType.append(tryFailPattern);
+				processPlanFormula(plan, planFormula, Const.TRY_F);
 			}
-			else {
-				sbHeader.append(getContextHeader(plan));
-				
-				if (goalContext) sbType.append(ctxSkipPattern.replace("$CTX_GID$", "CTX_" + ctxId));
-				else sbType.append(ctxFailPattern);
-			}*/
 		}
-		else if (!plan.isOptional()){
+		else {
+			processPlanFormula(plan, planFormula, plan.getRoot().getDecomposition());
+		}
+		
+		if(contextPresent){
+			if (!plan.isOptional() && !plan.isTryFailure() && !plan.isTrySuccess()) sbType.append(ctxSkipPattern.replace("$CTX_GID$", "CTX_" + ctxId));	
+			if (!nonDeterminismCtx) sbHeader.append(getContextHeader(plan));
+		}
+		else if (!plan.isOptional() && !plan.isTrySuccess() && !plan.isTryFailure()){
 			sbType.append(andDecPattern);
 		}
-		processPlanFormula(plan, planFormula, plan.getRoot().getDecomposition());
-	
-		/*evalFormulaParams += "W_" + plan.getClearElId() + "=\"1\";\n";
-		evalFormulaReplace += " -e \"s/W_" + plan.getClearElId() + "/$W_" + plan.getClearElId() + "/g\"";
-		evalFormulaParams += "R_" + plan.getClearElId() + "=\"0.99\";\n";
-		evalFormulaReplace += " -e \"s/R_" + plan.getClearElId() + "/$R_" + plan.getClearElId() + "/g\"";	*/
+		
 		//Header
 		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString());
 		//Type
 		planModule = planModule.replace(DEC_TYPE_TAG, sbType.toString());
+		
+		if (contextPresent && (plan.isTryFailure() || plan.isTrySuccess())) {
+			planModule = planModule.replace(DEC_TYPE_TRY_TAG, DEC_TRY_CTX);
+			planModule = planModule.replace("$CTX_GID$", "CTX_" + ctxId);
+		}
+		else {
+			planModule = planModule.replace(DEC_TYPE_TRY_TAG, DEC_TRY_NO_CTX);
+		}
 		
 		planModule = planModule.replace("$PREV_EFFECT$", buildPrevFailureFormula(prevFormula));
 		//Prev Success Guard Condition
@@ -582,9 +601,32 @@ public class PrismWriter {
 		case AND:
 			planFormula.append(buildAndOrSuccessFormula(plan, planFormula));
 			break;
+		case TRY:
+			planFormula.append(buildTryOriginalFormula(plan, planFormula));
+			break;
+		case TRY_S:
+			break;
+		case TRY_F:
+			break;
 		default:
 			planFormula.append(op + "(s" + plan.getClearElId() + "=2)");
 		}
+	}
+	
+	private String buildTryOriginalFormula(RTContainer plan, StringBuilder planFormula) throws IOException {
+		String op = planFormula.length() == 0 ? "" : " & ";
+		return op
+		+ "(s" + plan.getClearElId() + "=2 & "
+		+ buildTrySuccessFailureFormula(plan.getTrySuccess())
+		+ ") | "
+		+ "(s" + plan.getClearElId() + "=4 & "
+		+ buildTrySuccessFailureFormula(plan.getTryFailure())
+		+ ")";
+	}
+
+	private String buildTrySuccessFailureFormula(RTContainer plan) throws IOException {
+		
+		return plan != null ? "s" + plan.getClearElId() + "=2" : "true";
 	}
 	
 	private String buildAndOrSuccessFormula(RTContainer plan, StringBuilder planFormula) {

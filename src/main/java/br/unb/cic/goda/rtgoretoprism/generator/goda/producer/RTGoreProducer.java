@@ -28,10 +28,14 @@ public class RTGoreProducer {
 	private Set<Goal> allGoals;
 	private Integer prevMax = 0;
 	private Integer timeSlotMax = 1;
-
+	private List<String> successTry;
+	
 	/** memory for the parsed RT regex */
-	List<String> rtDMGoals;
+	private List<String> rtDMGoals;
 	private Map<String, Object[]> rtRetryGoals;
+	private Map<String, String[]> rtTryGoals;
+	private Map<String, Boolean[]> rtSortedGoals;
+	
 
 	public RTGoreProducer(Set<Actor> allActors, Set<Goal> allGoals, String in, String out) {
 
@@ -42,8 +46,11 @@ public class RTGoreProducer {
 		this.allActors = allActors;
 		this.allGoals = allGoals;
 
+		this.successTry = new ArrayList<String>();
 		this.rtDMGoals = new ArrayList<String>();
 		this.rtRetryGoals = new TreeMap<>();
+		this.rtSortedGoals = new TreeMap<>();
+        this.rtTryGoals = new TreeMap<>();
 	}
 
 	/**
@@ -273,6 +280,31 @@ public class RTGoreProducer {
 					decPlan.setCardNumber(cardNumber);
 				}
 			}
+			if (rtTryGoals.get(elId) != null) {
+                String[] tryGoals = rtTryGoals.get(elId);
+                if (tryGoals[0] != null) {
+                    RTContainer successPlan = gc.getDecompElement(tryGoals[0]);
+                    LinkedList<RTContainer> decSucessPlans = RTContainer.fowardMeansEnd(successPlan, new LinkedList<>());
+                    for (RTContainer decPlan : decPlans) {
+                        decPlan.setTrySuccess(successPlan);
+                    }
+                    for (RTContainer decSucessPlan : decSucessPlans) {
+                        decSucessPlan.setTryOriginal(dec);
+                        decSucessPlan.setSuccessTry(true);
+                    }
+                }
+                if (tryGoals[1] != null) {
+                    RTContainer failurePlan = gc.getDecompElement(tryGoals[1]);
+                    LinkedList<RTContainer> decFailurePlans = RTContainer.fowardMeansEnd(failurePlan, new LinkedList<>());
+                    for (RTContainer decPlan : decPlans) {
+                        decPlan.setTryFailure(failurePlan);
+                    }
+                    for (RTContainer decFailurePlan : decFailurePlans) {
+                        decFailurePlan.setTryOriginal(dec);
+                        decFailurePlan.setSuccessTry(false);
+                    }
+                }
+            }
 		}
 	}
 
@@ -358,8 +390,22 @@ public class RTGoreProducer {
 					//this.timeSlotMax = deccont.getTimeSlot()+1;
 				}
 				else if (deccont.getDecompPlans().isEmpty()) {
-					pc.setPrevTimeSlot(deccont.getPrevTimeSlot()+1);
-					pc.setTimeSlot(deccont.getTimeSlot()+1);
+					String id = deccont.getElId();
+					if (rtTryGoals.containsKey(id)) {
+						Object[] rtTry = rtTryGoals.get(id);
+						this.successTry.add((String) rtTry[0]);
+						
+						pc.setPrevTimeSlot(deccont.getPrevTimeSlot());
+						pc.setTimeSlot(deccont.getTimeSlot());
+					}
+					else if (this.successTry.contains(id)) {
+						pc.setPrevTimeSlot(deccont.getPrevTimeSlot());
+						pc.setTimeSlot(deccont.getTimeSlot());
+					}
+					else {
+						pc.setPrevTimeSlot(deccont.getPrevTimeSlot()+1);
+						pc.setTimeSlot(deccont.getTimeSlot()+1);	
+					}
 				}
 				else {
 					pc.setPrevTimeSlot(deccont.getPrevTimeSlot());
@@ -442,6 +488,8 @@ public class RTGoreProducer {
 			Object [] res = RTParser.parseRegex(uid, rtRegex + '\n', decType, false);
 			rtDMGoals.addAll((List<String>) res [2]);
 			rtRetryGoals.putAll((Map<String, Object[]>) res[3]);
+			rtTryGoals.putAll((Map<String, String[]>) res[4]);
+			rtSortedGoals.putAll((Map<String, Boolean[]>) res[4]);
 
 			List<String> dmList = (List<String>) res[2];
 			if (!dmList.isEmpty()) return true;
