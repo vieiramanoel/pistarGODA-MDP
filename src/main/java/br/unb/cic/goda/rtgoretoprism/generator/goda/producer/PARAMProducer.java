@@ -33,6 +33,7 @@ public class PARAMProducer {
 	private Set<Actor> allActors;
 	private Set<Goal> allGoals;
 	private AgentDefinition ad;
+	private boolean isParam;
 
 	private String agentName;
 	private List<String> leavesId = new ArrayList<String>();
@@ -41,13 +42,14 @@ public class PARAMProducer {
 	private Map<String,String> varCostInformation = new HashMap<String,String>();
 	private Map<String,String> reliabilityByNode = new HashMap<String,String>();
 
-	public PARAMProducer(Set<Actor> allActors, Set<Goal> allGoals, String in, String out, String tools) {
+	public PARAMProducer(Set<Actor> allActors, Set<Goal> allGoals, boolean isParam, String in, String out, String tools) {
 
 		this.sourceFolder = in;
 		this.targetFolder = out;
 		this.toolsFolder = tools;
 		this.allActors = allActors;
 		this.allGoals = allGoals;
+		this.isParam = isParam;
 	}
 
 	public PARAMProducer(AgentDefinition ad, Set<Actor> selectedActors, Set<Goal> selectedGoals,
@@ -75,7 +77,7 @@ public class PARAMProducer {
 				agentName = ad.getAgentName();
 			}
 
-			System.out.println("Generating PARAM formulas for: " + agentName);
+			System.out.println("Generating parametric formulas for: " + agentName);
 
 			// Compose goal formula
 			startTime = new Date().getTime();
@@ -87,7 +89,7 @@ public class PARAMProducer {
 
 			//Print formula
 			printFormula(reliabilityForm, costForm);
-			System.out.println( "PARAM formulas created in " + (new Date().getTime() - startTime) + "ms.");
+			System.out.println( "Parametric formulas created in " + (new Date().getTime() - startTime) + "ms.");
 		}
 	}
 

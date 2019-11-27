@@ -60,8 +60,34 @@ public class Controller {
         transformToTao4meEntities(model, selectedActors, selectedGoals);
         try {
             cleanDTMCFolder();
-            new RunParamAction(selectedActors, selectedGoals).run();
+            new RunParamAction(selectedActors, selectedGoals, false).run();
             FileOutputStream fos = new FileOutputStream("src/main/webapp/param.zip");
+            ZipOutputStream zos = new ZipOutputStream(fos);
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
+            for (Path path : directoryStream) {
+                byte[] bytes = Files.readAllBytes(path);
+                zos.putNextEntry(new ZipEntry(path.getFileName().toString()));
+                zos.write(bytes, 0, bytes.length);
+                zos.closeEntry();
+            }
+            zos.close();
+            cleanDTMCFolder();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    @RequestMapping(value = "/epmc-dtmc", method = RequestMethod.POST)
+    public void epmc(@RequestParam(value = "content") String content) {
+        Gson gson = new GsonBuilder().create();
+        PistarModel model = gson.fromJson(content, PistarModel.class);
+        Set<Actor> selectedActors = new HashSet<>();
+        Set<Goal> selectedGoals = new HashSet<>();
+        transformToTao4meEntities(model, selectedActors, selectedGoals);
+        try {
+            cleanDTMCFolder();
+            new RunParamAction(selectedActors, selectedGoals, true).run();
+            FileOutputStream fos = new FileOutputStream("src/main/webapp/epmc.zip");
             ZipOutputStream zos = new ZipOutputStream(fos);
             DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
             for (Path path : directoryStream) {

@@ -405,6 +405,21 @@ $('#runPARAMButton').click(function() {
     });
 });
 
+$('#runEPMCButton').click(function() {
+    var model = saveModel();
+    $.ajax({
+        type: "POST",
+        url: '/epmc-dtmc',
+        data: {
+            "content": model
+        },
+        success: function() {
+            window.location.href = 'epmc.zip';
+        },
+        error: function(){alert("Error!");}
+    });
+});
+
 $('#saveImage, a').click(function() {
     $('#saveImage').hide(200);
 });
