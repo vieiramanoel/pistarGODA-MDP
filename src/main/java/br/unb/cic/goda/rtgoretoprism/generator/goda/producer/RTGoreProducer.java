@@ -166,6 +166,7 @@ public class RTGoreProducer {
 
 		for (Goal dec : decList) {
 			boolean newgoal = !ad.containsGoal(dec);
+			boolean parDec = false;
 
 			/*boolean first = false;
 			if (gc.getDecompGoals().isEmpty()) first = true;*/
@@ -180,6 +181,14 @@ public class RTGoreProducer {
 			else {
 				deccont.setPrevTimeSlot(gc.getPrevTimeSlot());
 				deccont.setTimeSlot(gc.getTimeSlot());
+				if (rtSortedGoals.containsKey(deccont.getElId())) {
+                    Boolean[] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());
+                    if (decDeltaPathTime[0]) {
+                    	 parDec = true;
+                    	 deccont.setPrevTimeSlot(gc.getPrevTimeSlot()-1);
+                    	 deccont.setTimeSlot(gc.getTimeSlot()-1);
+                    }
+				}
 			}
 
 			/*if (this.rtDMGoals.contains(deccont.getElId())) {
@@ -224,7 +233,7 @@ public class RTGoreProducer {
 					gc.setTimeSlot(this.timeSlotMax);
 					gc.setPrevTimeSlot(this.prevMax);
 				}
-				else {
+				else if (!parDec) {
 					gc.setTimeSlot(deccont.getTimeSlot());
 					gc.setPrevTimeSlot(deccont.getPrevTimeSlot());
 				}
@@ -327,7 +336,8 @@ public class RTGoreProducer {
 		
 		for (Plan dec : decList) {
 			boolean newplan = !ad.containsPlan(dec);
-
+			boolean parDec = false;
+			
 			/*boolean first = false;
 			if (pc.getDecompPlans().isEmpty()) first = true;*/
 
@@ -341,6 +351,14 @@ public class RTGoreProducer {
 			else {
 				deccont.setPrevTimeSlot(pc.getPrevTimeSlot());
 				deccont.setTimeSlot(pc.getTimeSlot());
+				if (rtSortedGoals.containsKey(deccont.getElId())) {
+                    Boolean[] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());
+                    if (decDeltaPathTime[0]) {
+                    	 parDec = true;
+                    	 deccont.setPrevTimeSlot(pc.getPrevTimeSlot()-1);
+                    	 deccont.setTimeSlot(pc.getTimeSlot()-1);
+                    }
+				}
 			}
 
 			/*if (this.rtDMGoals.contains(deccont.getElId())) {
@@ -407,7 +425,7 @@ public class RTGoreProducer {
 						pc.setTimeSlot(deccont.getTimeSlot()+1);	
 					}
 				}
-				else {
+				else if (!parDec){
 					pc.setPrevTimeSlot(deccont.getPrevTimeSlot());
 					pc.setTimeSlot(deccont.getTimeSlot());
 				}
@@ -433,7 +451,8 @@ public class RTGoreProducer {
 			
 			for (Plan p : melist) {
 				boolean newplan = !ad.containsPlan(p);
-
+				boolean parDec = false;
+				
 				PlanContainer pc = ad.createPlan(p);
 				gc.addMERealPlan(pc);
 
@@ -443,6 +462,15 @@ public class RTGoreProducer {
 				pc.setTimeSlot(gc.getPrevTimePath()+1);*/
 				pc.setPrevTimeSlot(gc.getPrevTimeSlot());
 				pc.setTimeSlot(gc.getTimeSlot());
+				
+				if (rtSortedGoals.containsKey(pc.getElId())) {
+                    Boolean[] decDeltaPathTime = rtSortedGoals.get(pc.getElId());
+                    if (decDeltaPathTime[0]) {
+                    	 parDec = true;
+                    	 pc.setPrevTimeSlot(gc.getPrevTimeSlot()-1);
+                    	 pc.setTimeSlot(gc.getTimeSlot()-1);
+                    }
+				}
 
 				if (rtRetryGoals.containsKey(pc.getElId())) {
 	                Object[] retry = rtRetryGoals.get(pc.getElId());
@@ -462,7 +490,7 @@ public class RTGoreProducer {
 						gc.setPrevTimeSlot(this.prevMax);
 						gc.setTimeSlot(this.timeSlotMax);
 					}
-					else {
+					else if (!parDec){
 						gc.setPrevTimeSlot(pc.getPrevTimeSlot());
 						gc.setTimeSlot(pc.getTimeSlot());
 					}
@@ -489,7 +517,7 @@ public class RTGoreProducer {
 			rtDMGoals.addAll((List<String>) res [2]);
 			rtRetryGoals.putAll((Map<String, Object[]>) res[3]);
 			rtTryGoals.putAll((Map<String, String[]>) res[4]);
-			rtSortedGoals.putAll((Map<String, Boolean[]>) res[4]);
+			rtSortedGoals.putAll((Map<String, Boolean[]>) res[5]);
 
 			List<String> dmList = (List<String>) res[2];
 			if (!dmList.isEmpty()) return true;
