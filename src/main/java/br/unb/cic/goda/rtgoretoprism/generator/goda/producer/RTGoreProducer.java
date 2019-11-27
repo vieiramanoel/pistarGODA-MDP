@@ -149,9 +149,6 @@ public class RTGoreProducer {
 			unknownPlan.setElId("TX");
 			unknownPlan.setTimeSlot(gc.getTimeSlot());
 			unknownPlan.setPrevTimeSlot(gc.getPrevTimeSlot());
-			/*unknownPlan.setTimePath(gc.getTimePath());
-			unknownPlan.setPrevTimePath(gc.getPrevTimePath());
-			unknownPlan.setFutTimePath(gc.getFutTimePath());*/
 			unknownPlan.setOptional(true);
 			gc.addMERealPlan(unknownPlan);
 		}
@@ -159,17 +156,11 @@ public class RTGoreProducer {
 
 	private void iterateGoals(AgentDefinition ad, GoalContainer gc, List<Goal> decList, boolean include) throws IOException{
 
-		/*Integer prevPath = gc.getPrevTimePath();
-		Integer rootFutPath = gc.getFutTimePath();
-		Integer rootPath = gc.getTimePath();*/
 		gc.setRootTimeSlot(gc.getTimeSlot());
 
 		for (Goal dec : decList) {
 			boolean newgoal = !ad.containsGoal(dec);
 			boolean parDec = false;
-
-			/*boolean first = false;
-			if (gc.getDecompGoals().isEmpty()) first = true;*/
 
 			GoalContainer deccont = ad.createGoal(dec, Const.ACHIEVE);
 			gc.addDecomp(deccont);
@@ -190,29 +181,6 @@ public class RTGoreProducer {
                     }
 				}
 			}
-
-			/*if (this.rtDMGoals.contains(deccont.getElId())) {
-				deccont.setPrevTimePath(gc.getPrevTimePath()+1);
-				deccont.setFutTimePath(gc.getFutTimePath()+1);
-				deccont.setTimePath(rootPath+1);
-				deccont.setTimeSlot(deccont.getPrevTimePath() + 1);	
-
-				if (!first) deccont.setFutTimePath(rootPath+1);
-			}
-			else {
-				if (!first) {
-					deccont.setPrevTimePath(gc.getFutTimePath());
-					deccont.setFutTimePath(gc.getFutTimePath()+1);
-					deccont.setTimePath(rootPath);
-					deccont.setTimeSlot(deccont.getPrevTimePath() + 1);
-				}
-				else{ 
-					deccont.setPrevTimePath(prevPath);
-					deccont.setFutTimePath(rootFutPath);
-					deccont.setTimePath(rootPath);
-					deccont.setTimeSlot(gc.getPrevTimePath()+1);
-				}
-			}*/
 			
             if (rtRetryGoals.containsKey(deccont.getElId())) {
                 Object[] retry = rtRetryGoals.get(deccont.getElId());
@@ -223,7 +191,6 @@ public class RTGoreProducer {
 			//deccont.addFulfillmentConditions(gc.getFulfillmentConditions());
 			if (newgoal){
 				addGoal(dec, deccont, ad, include);	
-				//gc.setFutTimePath(Math.max(deccont.getTimeSlot(), deccont.getFutTimePath()));
 				
 				if (gc.isDecisionMaking()) {
 					this.prevMax = deccont.getPrevTimeSlot()+1;
@@ -330,17 +297,10 @@ public class RTGoreProducer {
 
 	private void iteratePlans(AgentDefinition ad, PlanContainer pc, List<Plan> decList) throws IOException{
 
-		/*Integer prevPath = pc.getPrevTimePath();
-		Integer rootFutPath = pc.getFutTimePath();
-		Integer rootPath = pc.getTimePath();*/
-		
 		for (Plan dec : decList) {
 			boolean newplan = !ad.containsPlan(dec);
 			boolean parDec = false;
 			
-			/*boolean first = false;
-			if (pc.getDecompPlans().isEmpty()) first = true;*/
-
 			PlanContainer deccont = ad.createPlan(dec);
 			pc.addDecomp(deccont);
 			
@@ -361,29 +321,6 @@ public class RTGoreProducer {
 				}
 			}
 
-			/*if (this.rtDMGoals.contains(deccont.getElId())) {
-				deccont.setPrevTimePath(pc.getPrevTimePath()+1);
-				deccont.setFutTimePath(pc.getFutTimePath()+1);
-				deccont.setTimePath(rootPath+1);
-				deccont.setTimeSlot(deccont.getPrevTimePath() + 1);	
-
-				if (!first) deccont.setFutTimePath(rootPath+1);
-
-			}
-			else { 
-				if (!first) {
-					deccont.setPrevTimePath(pc.getFutTimePath());
-					deccont.setFutTimePath(pc.getFutTimePath()+1);
-					deccont.setTimePath(rootPath);
-					deccont.setTimeSlot(deccont.getPrevTimePath() + 1);
-				}else{
-					deccont.setPrevTimePath(prevPath);
-					deccont.setFutTimePath(rootFutPath);
-					deccont.setTimePath(rootPath);
-					deccont.setTimeSlot(prevPath+1);
-				}
-			}*/
-			
 			if (rtRetryGoals.containsKey(deccont.getElId())) {
                 Object[] retry = rtRetryGoals.get(deccont.getElId());
                 Const cardType = (Const) retry[0];
@@ -391,7 +328,6 @@ public class RTGoreProducer {
             }
 			
 			//deccont.addFulfillmentConditions(pc.getFulfillmentConditions());
-			
 			if (newplan){
 				addPlan(dec, deccont, ad);
 				if (pc.isDecisionMaking()) {
@@ -403,9 +339,6 @@ public class RTGoreProducer {
 						this.prevMax = (deccont.getPrevTimeSlot())>this.prevMax?deccont.getPrevTimeSlot():this.prevMax;
 						this.timeSlotMax = (deccont.getTimeSlot())>this.timeSlotMax?deccont.getTimeSlot():this.timeSlotMax;	
 					}
-					
-					//this.prevMax = deccont.getPrevTimeSlot()+1;
-					//this.timeSlotMax = deccont.getTimeSlot()+1;
 				}
 				else if (deccont.getDecompPlans().isEmpty()) {
 					String id = deccont.getElId();
@@ -430,15 +363,6 @@ public class RTGoreProducer {
 					pc.setTimeSlot(deccont.getTimeSlot());
 				}
 			}
-
-			/*if (pc.isDecisionMaking()) {
-				this.prevMax = deccont.getPrevTimeSlot()+1;
-				this.timeSlotMax = deccont.getTimeSlot()+1;
-			}
-			else {
-				pc.setTimeSlot(deccont.getTimeSlot());
-				pc.setPrevTimeSlot(deccont.getPrevTimeSlot());
-			}*/
 		}
 	}
 
@@ -456,10 +380,6 @@ public class RTGoreProducer {
 				PlanContainer pc = ad.createPlan(p);
 				gc.addMERealPlan(pc);
 
-				/*pc.setPrevTimePath(gc.getPrevTimePath());
-				pc.setFutTimePath(gc.getFutTimePath());
-				pc.setTimePath(gc.getTimePath());
-				pc.setTimeSlot(gc.getPrevTimePath()+1);*/
 				pc.setPrevTimeSlot(gc.getPrevTimeSlot());
 				pc.setTimeSlot(gc.getTimeSlot());
 				
@@ -481,7 +401,6 @@ public class RTGoreProducer {
 				
 				if (newplan){
 					addPlan(p, pc, ad);					
-					/*gc.setFutTimePath(Math.max(pc.getTimeSlot(), pc.getFutTimePath()));*/
 					if (pc.getDecompPlans().isEmpty()) {
 						gc.setPrevTimeSlot(pc.getPrevTimeSlot()+1);
 						gc.setTimeSlot(pc.getTimeSlot()+1);
@@ -496,17 +415,6 @@ public class RTGoreProducer {
 					}
 				}
 			}			
-
-//			List<Goal> megoallist = tn.getMeansEndMeanGoals(g);
-//
-//			for (Goal go : megoallist) {
-//				boolean newgoal = !ad.containsGoal(go);
-//
-//				GoalContainer pc = ad.createGoal(go, Const.ACHIEVE);
-//				gc.addDecomp(pc);
-//				if (newgoal)
-//					addGoal(go, pc, ad, true);
-//			}
 		}
 	}
 
