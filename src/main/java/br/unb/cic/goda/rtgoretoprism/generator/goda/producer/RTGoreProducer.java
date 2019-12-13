@@ -147,6 +147,7 @@ public class RTGoreProducer {
 			gc.setOptional(true);
 			PlanContainer unknownPlan = new PlanContainer((Plan) gc);
 			unknownPlan.setElId("TX");
+			unknownPlan.setId("TX");
 			unknownPlan.setTimeSlot(gc.getTimeSlot());
 			unknownPlan.setPrevTimeSlot(gc.getPrevTimeSlot());
 			unknownPlan.setOptional(true);

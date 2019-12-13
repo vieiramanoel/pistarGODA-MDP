@@ -60,7 +60,7 @@ public class Controller {
         transformToTao4meEntities(model, selectedActors, selectedGoals);
         try {
             cleanDTMCFolder();
-            new RunParamAction(selectedActors, selectedGoals, false).run();
+            new RunParamAction(selectedActors, selectedGoals, true).run();
             FileOutputStream fos = new FileOutputStream("src/main/webapp/param.zip");
             ZipOutputStream zos = new ZipOutputStream(fos);
             DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
@@ -86,7 +86,7 @@ public class Controller {
         transformToTao4meEntities(model, selectedActors, selectedGoals);
         try {
             cleanDTMCFolder();
-            new RunParamAction(selectedActors, selectedGoals, true).run();
+            new RunParamAction(selectedActors, selectedGoals, false).run();
             FileOutputStream fos = new FileOutputStream("src/main/webapp/epmc.zip");
             ZipOutputStream zos = new ZipOutputStream(fos);
             DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));

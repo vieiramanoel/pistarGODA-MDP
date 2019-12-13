@@ -14,6 +14,7 @@ public abstract class RTContainer extends ElementContainer /*implements Comparab
 	private RTContainer root;
 	private String uid = "";
 	private String elId;
+	private String id = "";
 	private String rtRegex;
 	private Integer timeSlot = 1;
 	private Integer prevTimeSlot = 0;
@@ -416,6 +417,15 @@ public abstract class RTContainer extends ElementContainer /*implements Comparab
 		}
 		return (GoalContainer) root;
 	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 
 	/*@Override
 	public int compareTo(RTContainer gc) {

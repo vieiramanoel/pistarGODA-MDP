@@ -90,6 +90,7 @@ public class AgentDefinition {
 
     private void setRTAttributes(RTContainer gc) {
         gc.setElId(parseElId(gc.getName()));
+        gc.setId(parseElId(gc.getName()));
         gc.setRtRegex(parseRTRegex(gc.getName()));
     }
 }
