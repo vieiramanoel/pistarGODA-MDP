@@ -277,8 +277,7 @@ public class PARAMProducer {
 			
 		}
 		else if (rtAnnot.contains(";")) {
-			String[] ids = rtAnnot.split(";");
-			ids = getChildrenId(ids, rootNode);
+			String[] ids = getChildrenId(rootNode);
 
 			if (reliability) { //Reliability formula
 				if (decType.equals(Const.AND)) { //Sequential AND
@@ -300,8 +299,7 @@ public class PARAMProducer {
 			return formula.toString();
 		}
 		else if (rtAnnot.contains("#")) {
-			String[] ids = rtAnnot.split("#");
-			ids = getChildrenId(ids, rootNode);
+			String[] ids = getChildrenId(rootNode);
 			
 			if (reliability) { //Reliability formula
 				if (decType.equals(Const.AND)) { //Parallel AND
@@ -316,14 +314,23 @@ public class PARAMProducer {
 					formula = symbolic.getParallelAndCost(ids, nodeId, this.ctxInformation, this.isParam);
 				}
 				else { //Parallel OR
-				
+					formula = symbolic.getParallelOrCost(ids, nodeId, this.ctxInformation, this.isParam);
 				}
 			}
 
 			return formula.toString();
 		}
 		else if (rtAnnot.contains("@")) {
+			String[] ids = getChildrenId(rootNode);
+			int retryNum = Integer.parseInt(rtAnnot.substring(rtAnnot.indexOf("@")+1)) + 1;
 			
+			if (reliability) {
+				formula = symbolic.getRetryReliability(ids, nodeId, this.ctxInformation, this.isParam, retryNum);
+			}
+			else {
+				formula = symbolic.getRetryCost(ids, nodeId, this.ctxInformation, this.isParam, retryNum);
+			}
+			return formula.toString();
 		}
 		else if (rtAnnot.contains("try")) {
 			
@@ -602,18 +609,17 @@ public class PARAMProducer {
 		return " " + subNodeString + " ";
 	}
 
-	private String[] getChildrenId(String[] ids, RTContainer rootNode) {
-		List<String> childrenId = Arrays.asList(ids);
-		List<String> aux = new ArrayList<String>();
+	private String[] getChildrenId(RTContainer rootNode) {
+		List<String> childrenId = new ArrayList<String>();
 		LinkedList<RTContainer> children = rootNode.getDecompElements();
 		
 		if (children.isEmpty()) return null;
 		
 		for (RTContainer child : children) {
-			if(child instanceof GoalContainer && childrenId.contains(child.getId())) aux.add(child.getClearUId());
-			else if (child instanceof PlanContainer && childrenId.contains(child.getId())) aux.add(child.getClearElId());
+			if(child instanceof GoalContainer) childrenId.add(child.getClearUId());
+			else if (child instanceof PlanContainer) childrenId.add(child.getClearElId());
 		}
 		
-		return aux.toArray(new String[0]);
+		return childrenId.toArray(new String[0]);
 	}
 }

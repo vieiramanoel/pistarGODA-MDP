@@ -25,13 +25,13 @@ public class SymbolicParamGenerator {
 		return formula;
 	}
 
-	public StringBuilder getSequentialAndCost (String[] nodes, String rootId, Map<String, String> ctxInformation, boolean isParam) {
+	public StringBuilder getSequentialAndCost (String[] ids, String rootId, Map<String, String> ctxInformation, boolean isParam) {
 		
 		StringBuilder formula = new StringBuilder();
 		
 		if (isParam) {
 			formula.append("(");
-			for (String id : nodes) {
+			for (String id : ids) {
 				if (ctxInformation.containsKey(id)) {
 					formula.append(" CTX_" + id + " * " + id + " +");
 				}
@@ -45,8 +45,8 @@ public class SymbolicParamGenerator {
 		else {
 			formula.append("(");
 			StringBuilder reliability = new StringBuilder();
-			for (String id : nodes) {
-				if (ctxInformation.containsKey(nodes)) {
+			for (String id : ids) {
+				if (ctxInformation.containsKey(id)) {
 					if (reliability.length() == 0) {
 						reliability.append("R_" + id);
 						formula.append(" CTX_" + id + " * " + id + " + ");
@@ -74,13 +74,13 @@ public class SymbolicParamGenerator {
 		return formula;
 	}
 
-	public StringBuilder getParallelAndCost(String[] nodes, String rootId, Map<String, String> ctxInformation, boolean isParam) {
+	public StringBuilder getParallelAndCost(String[] ids, String rootId, Map<String, String> ctxInformation, boolean isParam) {
 	
 		StringBuilder formula = new StringBuilder();
 		formula.append("(");
 		
 		if (isParam) {
-			int numNodes = nodes.length;
+			int numNodes = ids.length;
 			
 			if ((numNodes % 2) != 0) {
 				numNodes = (numNodes+1)/2;
@@ -90,12 +90,12 @@ public class SymbolicParamGenerator {
 				numNodes++;
 				formula.append(" (" + numNodes + "/2) * ");
 			}
-			formula.append(getSequentialAndCost(nodes, rootId, ctxInformation, isParam));
+			formula.append(getSequentialAndCost(ids, rootId, ctxInformation, isParam));
 		}
 		else {
-			for (String id: nodes) {
-				if (ctxInformation.containsKey(nodes)) {
-					if (id.equals(nodes[0])) {
+			for (String id: ids) {
+				if (ctxInformation.containsKey(id)) {
+					if (id.equals(ids[0])) {
 						formula.append(" CTX_" + id + " * " + id);
 					}
 					else {
@@ -103,7 +103,7 @@ public class SymbolicParamGenerator {
 					}
 				}
 				else {
-					if (id.equals(nodes[0])) {
+					if (id.equals(ids[0])) {
 						formula.append(" " + id);
 					}
 					else {
@@ -136,7 +136,7 @@ public class SymbolicParamGenerator {
 		return formula;
 	}
 
-	public StringBuilder getSequentialOrCost(String[] nodes, String rootId, Map<String, String> ctxInformation,
+	public StringBuilder getSequentialOrCost(String[] ids, String rootId, Map<String, String> ctxInformation,
 			boolean isParam) {
 		
 		StringBuilder formula = new StringBuilder();
@@ -150,9 +150,9 @@ public class SymbolicParamGenerator {
 			formula.append("(");
 			reliability.append("( 1 - ");
 			
-			for (String id : nodes) {
+			for (String id : ids) {
 				
-				if (id.equals(nodes[nodes.length-1])) {
+				if (id.equals(ids[ids.length-1])) {
 					StringBuilder reliabilityPrev = new StringBuilder(reliability);
 					reliabilityPrev.delete(reliabilityPrev.lastIndexOf("*"), reliabilityPrev.length()-1);
 					reliabilityPrev.append(")");
@@ -179,9 +179,9 @@ public class SymbolicParamGenerator {
 			formula.append("(");
 			StringBuilder reliability = new StringBuilder();
 			
-			for (String id : nodes) {
+			for (String id : ids) {
 				
-				if (ctxInformation.containsKey(nodes)) {
+				if (ctxInformation.containsKey(id)) {
 					if (reliability.length() == 0) {
 						reliability.append("(1 - R_" + id + " )");
 						formula.append(" CTX_" + id + " * " + id + " + ");
@@ -204,6 +204,86 @@ public class SymbolicParamGenerator {
 			}
 			formula.deleteCharAt(formula.length()-1);
 			formula.append(" ) ");
+		}
+		
+		return formula;
+	}
+
+	public StringBuilder getParallelOrCost(String[] ids, String rootId, Map<String, String> ctxInformation,
+			boolean isParam) {
+		
+		StringBuilder formula = new StringBuilder();
+		
+		if (isParam) {
+			//TO-DO
+		}
+		else {
+			formula = getParallelAndCost(ids, rootId, ctxInformation, false);
+		}
+
+		return formula;
+	}
+
+	public StringBuilder getRetryReliability(String[] ids, String rootId, Map<String, String> ctxInformation,
+			boolean isParam, int retryNum) {
+		
+		StringBuilder formula = new StringBuilder();
+		
+		if (isParam) {
+			formula.append("( 1 - ( 1 - ");
+			if (ctxInformation.containsKey(ids[0])) {
+				formula.append("CTX_" + ids[0] + " * " + ids[0] + " )^" + retryNum + " )");
+			}
+			else {
+				formula.append(ids[0] + " )^" + retryNum + " )");
+			}
+		}
+		else {
+			if (ctxInformation.containsKey(ids[0])) {
+				formula.append("( CTX_" + ids[0] + " * " + ids[0]);
+			}
+			else {
+				formula.append("( " + ids[0]);	
+			}
+			
+			for (int i = 1; i <= retryNum; i++) {
+				if (ctxInformation.containsKey(ids[0])) {
+					formula.append(" + CTX_" + ids[0] + " * " + ids[0] + " * (1 - CTX_" + ids[0] + " * " + ids[0] + " )^" + i);
+				}
+				else {
+					formula.append(" + " + ids[0] + " * (1 - " + ids[0] + " )^" + i);
+				}
+			}
+			formula.append(" )");
+		}
+		
+		return formula;
+	}
+
+	public StringBuilder getRetryCost(String[] ids, String rootId, Map<String, String> ctxInformation, boolean isParam,
+			int retryNum) {
+		StringBuilder formula = new StringBuilder();
+		
+		if (isParam) {
+			
+		}
+		else {
+			if (ctxInformation.containsKey(ids[0])) {
+				formula.append("( CTX_" + ids[0] + " * " + ids[0]);
+			}
+			else {
+				formula.append("( " + ids[0]);	
+			}
+			
+			for (int i = 1; i <= retryNum; i++) {
+				if (ctxInformation.containsKey(ids[0])) {
+					formula.append(" + CTX_" + ids[0] + " * " + ids[0] + " * (1 - CTX_" + ids[0] + " * R_" + ids[0] + " )^" + i);
+				}
+				else {
+					formula.append(" + " + ids[0] + " * (1 - R_" + ids[0] + " )^" + i);
+				}
+			}
+			formula.append(" )");
 		}
 		
 		return formula;
