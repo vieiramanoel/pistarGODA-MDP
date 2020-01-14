@@ -75,6 +75,7 @@ public class PrismWriter {
 	private String ndPattern;
 	private String ndHeaderPattern;
 	private String ndBodyPattern;
+	private String prevFailurePattern;
 
 	/** Has all the informations about the agent. */ 
 	private AgentDefinition ad;
@@ -158,6 +159,7 @@ public class PrismWriter {
 		ndBodyPattern					= ManageWriter.readFileAsString(input + "pattern_nd_body.nm");
 		optPattern						= ManageWriter.readFileAsString(input + "pattern_opt.nm");
 		optHeaderPattern				= ManageWriter.readFileAsString(input + "pattern_opt_header.nm");
+		prevFailurePattern 				= ManageWriter.readFileAsString(input + "pattern_prev_failure.nm");
 
 		//Collections.sort(rootGoals);
 
@@ -185,12 +187,6 @@ public class PrismWriter {
 		if (root.isDecisionMaking()) {
 			writeNondeterministicModule(root);
 		}
-		
-		/**
-		 * TO-DO: 
-		 * -Generate PRISM model with unique variable for the same context in different nodes
-		 * -Change the variable accordingly in eval_formula and parametric formulae
-		 */
 		
 		//Creating context repository
 		/*if (!root.getFulfillmentConditions().isEmpty()) {
@@ -481,6 +477,12 @@ public class PrismWriter {
 		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString());
 		//Type
 		planModule = planModule.replace(DEC_TYPE_TAG, sbType.toString());
+		
+		planModule = planModule.replace("$PREV_EFFECT$", buildPrevFailureFormula(prevFormula));
+		//Prev Success Guard Condition
+		String prevSuccessFormula = buildPrevSuccessFormula(prevFormula, plan);
+		planModule = planModule.replace("$PREV_SUCCESS$", prevSuccessFormula);
+		planModule = planModule.replace("$PREV_SUCCESS_EFFECT$", buildPrevSuccessEffectFormula(prevSuccessFormula, plan));		
 	
 		//Time
 		Integer timeSlot = plan.getTimeSlot();
@@ -568,6 +570,46 @@ public class PrismWriter {
 		String formula = op + "s" + plan.getClearElId() + "=2";
 		if (plan.isOptional()) formula += " | s" + plan.getClearElId() + "=3";
 		planFormula.append(formula);
+	}
+	
+	private String buildPrevFailureFormula(String prevFormula) {
+		if (prevFormula == null)
+			return "";
+		return new String(this.prevFailurePattern);
+	}
+
+	private String buildPrevSuccessFormula(String prevFormula, PlanContainer plan) {
+		if (prevFormula == null)
+			return "";
+		
+		StringBuilder sb = new StringBuilder();
+		GoalContainer parentGoal = plan.getParentGoal();
+		
+		if (parentGoal.getRoot() != null) {
+			if (parentGoal.getRoot().getDecomposition().equals(Const.OR)) {
+				sb.append("!(" + prevFormula + ") & ");
+			}
+			else {
+				sb.append("(" + prevFormula + ") & ");
+			}
+		}
+		return sb.toString();
+	}
+	
+	private String buildPrevSuccessEffectFormula(String prevSuccessFormula, PlanContainer plan) {
+		
+		if (prevSuccessFormula.equals("")) return "";
+		
+		GoalContainer parentGoal = plan.getParentGoal();
+		if (parentGoal.getRoot() != null) {
+			if (parentGoal.getRoot().getDecomposition().equals(Const.OR)) {
+				return prevSuccessFormula.substring(1, prevSuccessFormula.length());
+			}
+			else {
+				return "!" + prevSuccessFormula;
+			}
+		}
+		return "";
 	}
 
 	/*private void processPlanFormula(PlanContainer plan, StringBuilder planFormula, Const decType, boolean nonDeterminismCtx) throws IOException{
