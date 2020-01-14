@@ -5,16 +5,17 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.model.Goal;
 import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.parser.CostParser;
+import br.unb.cic.goda.rtgoretoprism.generator.goda.parser.RTParser;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.writer.ManageWriter;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.writer.ParamWriter;
 import br.unb.cic.goda.rtgoretoprism.generator.kl.AgentDefinition;
@@ -22,8 +23,9 @@ import br.unb.cic.goda.rtgoretoprism.model.kl.Const;
 import br.unb.cic.goda.rtgoretoprism.model.kl.GoalContainer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.PlanContainer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.RTContainer;
-import br.unb.cic.goda.rtgoretoprism.paramformula.SymbolicParamAndGenerator;
+import br.unb.cic.goda.rtgoretoprism.paramformula.SymbolicParamGenerator;
 import br.unb.cic.goda.rtgoretoprism.paramwrapper.ParamWrapper;
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class PARAMProducer {
 
@@ -33,21 +35,23 @@ public class PARAMProducer {
 	private Set<Actor> allActors;
 	private Set<Goal> allGoals;
 	private AgentDefinition ad;
+	private boolean isParam;
 
 	private String agentName;
 	private List<String> leavesId = new ArrayList<String>();
 	private Map<String,String> ctxInformation = new HashMap<String,String>();
-	private List<String> varReliabilityInformation = new ArrayList<String>();
-	private List<String> varCostInformation = new ArrayList<String>();
+	private Map<String,String> varReliabilityInformation = new HashMap<String,String>();
+	private Map<String,String> varCostInformation = new HashMap<String,String>();
 	private Map<String,String> reliabilityByNode = new HashMap<String,String>();
 
-	public PARAMProducer(Set<Actor> allActors, Set<Goal> allGoals, String in, String out, String tools) {
+	public PARAMProducer(Set<Actor> allActors, Set<Goal> allGoals, boolean isParam, String in, String out, String tools) {
 
 		this.sourceFolder = in;
 		this.targetFolder = out;
 		this.toolsFolder = tools;
 		this.allActors = allActors;
 		this.allGoals = allGoals;
+		this.isParam = isParam;
 	}
 
 	public PARAMProducer(AgentDefinition ad, Set<Actor> selectedActors, Set<Goal> selectedGoals,
@@ -61,7 +65,7 @@ public class PARAMProducer {
 		this.agentName = "EvaluationActor";
 	}
 
-	public void run() throws CodeGenerationException, IOException {
+	public void run() throws Exception {
 
 		for(Actor actor : allActors){
 
@@ -75,7 +79,7 @@ public class PARAMProducer {
 				agentName = ad.getAgentName();
 			}
 
-			System.out.println("Generating PARAM formulas for: " + agentName);
+			System.out.println("Generating parametric formulas for: " + agentName);
 
 			// Compose goal formula
 			startTime = new Date().getTime();
@@ -87,7 +91,7 @@ public class PARAMProducer {
 
 			//Print formula
 			printFormula(reliabilityForm, costForm);
-			System.out.println( "PARAM formulas created in " + (new Date().getTime() - startTime) + "ms.");
+			System.out.println( "Parametric formulas created in " + (new Date().getTime() - startTime) + "ms.");
 		}
 	}
 
@@ -95,68 +99,28 @@ public class PARAMProducer {
 		
 		if (!reliability) {
 			nodeForm = replaceReliabilites(nodeForm);
-			nodeForm = cleanMultipleContexts(nodeForm);
 		}
 		
-		nodeForm = nodeForm.replaceAll("\\s+", "");
-		return nodeForm;
-	}
-
-	private String cleanMultipleContexts(String nodeForm) {
-		
-		String[] plusSignalSplit = nodeForm.split("\\+");
-		
-		for (String exp1 : plusSignalSplit) {
-			String[] minusSignalSplit = exp1.split("-");
-			for (String exp2 : minusSignalSplit) {
-				String aux = exp2.replaceAll("\\(","");
-				aux = aux.replaceAll("\\)","");
-				aux = aux.replaceAll("\\s+", "");
-				if (!aux.equals("1") && !aux.equals("")) {
-					String[] multSignalSplit = exp2.split("\\*");
-					nodeForm = replaceCtxRepetition(nodeForm, multSignalSplit);
-				}
+		Map<String,String> mapAux = new HashMap<String,String>();
+		for (String ctxKey : this.ctxInformation.keySet()) {
+			if (nodeForm.contains("CTX_" + ctxKey)) {
+				mapAux.put(ctxKey, this.ctxInformation.get(ctxKey));
 			}
 		}
+		this.ctxInformation = mapAux;
 		
-		return nodeForm;
-	}
-
-	private String replaceCtxRepetition(String nodeForm, String[] multSignalSplit) {
-		Set<String> lump = new HashSet<String>();
-		String withoutRepetition = new String();
-		String withRepetition = new String();
-		 
-		for (String i : multSignalSplit) {
-			if (i.startsWith(" (")) i = i.substring(1, i.length());
-			
-			i = i.replaceAll("\\(", "");
-			i = i.replaceAll("\\)", "");
-
-			if (withRepetition.isEmpty()) withRepetition = i;
-			else withRepetition = withRepetition + "\\*" + i;
-
-			i = i.replaceAll("\\s+", "");
-
-			if (!lump.contains(i)) {
-				lump.add(i);
-				if (!i.equals("1")) {
-					if (withoutRepetition.isEmpty()) withoutRepetition = i;
-					else withoutRepetition = withoutRepetition + "*" + i;
-				}
-		    }
-		}
-		
-		nodeForm = nodeForm.replaceAll(withRepetition, withoutRepetition);
+		nodeForm = nodeForm.replaceAll("\\s+", "");
 		return nodeForm;
 	}
 
 	private String replaceReliabilites(String nodeForm) {
 		if (nodeForm.contains(" R_")) {
 			for (Map.Entry<String, String> entry : this.reliabilityByNode.entrySet()){
-				String reliability = entry.getValue();
 				String id = entry.getKey();
-				nodeForm = nodeForm.replaceAll(" R_" + id + " ", " " + reliability + " ");
+				if (nodeForm.contains("R_" + id)) {
+					String reliability = entry.getValue();
+					nodeForm = nodeForm.replaceAll(" R_" + id + " ", " " + reliability + " ");
+				}
 			}
 		}
 		return nodeForm;
@@ -166,29 +130,64 @@ public class PARAMProducer {
 
 		reliabilityForm = composeFormula(reliabilityForm, true);
 		costForm = composeFormula(costForm, false);
+		
+		String evalForm = composeEvalFormula();
 
 		String output = targetFolder + "/";
 		
 		PrintWriter reliabiltyFormula = ManageWriter.createFile("reliability.out", output);
 		PrintWriter costFormula = ManageWriter.createFile("cost.out", output);
+		PrintWriter evalBashFile = ManageWriter.createFile("eval_formula.sh", output);
 		
 		ManageWriter.printModel(reliabiltyFormula, reliabilityForm);
 		ManageWriter.printModel(costFormula, costForm);
+		ManageWriter.printModel(evalBashFile, evalForm);
+		
+	}
+
+	private String composeEvalFormula() throws CodeGenerationException {
+		String evalFormulaParams = new String();
+		String evalFormulaReplace = new String();
+		for (String ctxKey : this.ctxInformation.keySet()) {
+			evalFormulaParams += "CTX_" + ctxKey + "=\"1\";\n";
+			evalFormulaReplace += " -e \"s/CTX_" + ctxKey + "/$CTX_" + ctxKey + "/g\"";
+		}
+		for (String var : this.varReliabilityInformation.keySet()) {
+			String value = this.varReliabilityInformation.get(var);
+			if (value.contains("OPT_")) {
+				evalFormulaParams += "OPT_" + var + "=\"1\";\n";
+				evalFormulaReplace += " -e \"s/OPT_" + var + "/$OPT_" + var + "/g\"";
+			}
+			else {
+				evalFormulaParams += "R_" + var + "=\"0.99\";\n";
+				evalFormulaReplace += " -e \"s/R_" + var + "/$R_" + var + "/g\"";
+			}
+		}
+		for (String var : this.varCostInformation.keySet()) {
+			evalFormulaParams += "W_" + var + "=\"1\";\n";
+			evalFormulaReplace += " -e \"s/W_" + var + "/$W_" + var + "/g\"";
+		}
+
+		String evalBash = ManageWriter.readFileAsString(sourceFolder + "/PARAM/" + "eval_formula.sh");
+		
+		evalBash = evalBash.replace("$PARAMS_BASH$", evalFormulaParams);
+		evalBash = evalBash.replace("$REPLACE_BASH$", evalFormulaReplace);
+		
+		return evalBash;
 	}
 
 	private String composeFormula(String nodeForm, boolean isReliability) throws CodeGenerationException {
 
 		String body = nodeForm + "\n\n";
 		for (String ctxKey : ctxInformation.keySet()) {
-
-			body = body + "//" + ctxKey + " = " + ctxInformation.get(ctxKey) + "\n";
+			body = body + "//CTX_" + ctxKey + " = " + ctxInformation.get(ctxKey) + "\n";
 		}
-		for (String var : this.varReliabilityInformation) {
-			body = body + var;
+		for (String var : this.varReliabilityInformation.keySet()) {
+			body = body + this.varReliabilityInformation.get(var);
 		}
 		if (!isReliability) {
-			for (String var : this.varCostInformation) {
-				body = body + var;
+			for (String var : this.varCostInformation.keySet()) {
+				body = body + this.varCostInformation.get(var);
 			}
 		}
 
@@ -196,13 +195,12 @@ public class PARAMProducer {
 	}
 
 	//true: compose reliability, false: compose cost
-	private String composeNodeForm(RTContainer rootNode, boolean reliability) throws IOException, CodeGenerationException {
+	private String composeNodeForm(RTContainer rootNode, boolean reliability) throws Exception {
 
 		Const decType;
 		String rtAnnot;
 		String nodeForm;
 		String nodeId;
-		List<String> ctxAnnot = new ArrayList<String>();
 		LinkedList<GoalContainer> decompGoal = new LinkedList<GoalContainer>();
 		LinkedList<PlanContainer> decompPlans = new LinkedList<PlanContainer>();
 
@@ -213,23 +211,25 @@ public class PARAMProducer {
 		decompPlans = rootNode.getDecompPlans();
 		decType = rootNode.getDecomposition();
 		rtAnnot = rootNode.getRtRegex();
-		ctxAnnot = rootNode.getFulfillmentConditions();
+		
+		if (!decompGoal.isEmpty() || !decompPlans.isEmpty()) {
+			setContextList(decompGoal, decompPlans);
+		}
 
-		//nodeForm = getNodeForm(decType, rtAnnot, nodeId, reliability);
 		nodeForm = getNodeForm(decType, rtAnnot, nodeId, reliability, rootNode);
 		
 		/*Run for sub goals*/
 		for (GoalContainer subNode : decompGoal) {
 			String subNodeId = subNode.getClearUId();
 			String subNodeForm = composeNodeForm(subNode, reliability);
-			nodeForm = replaceSubForm(nodeForm, subNodeForm, nodeId, subNodeId);
+			nodeForm = replaceSubForm(nodeForm, subNodeForm, nodeId, subNodeId, reliability);
 		}
 
 		/*Run for sub tasks*/
 		for (PlanContainer subNode : decompPlans) {
 			String subNodeId = subNode.getClearElId();
 			String subNodeForm = composeNodeForm(subNode, reliability);
-			nodeForm = replaceSubForm(nodeForm, subNodeForm, nodeId, subNodeId);
+			nodeForm = replaceSubForm(nodeForm, subNodeForm, nodeId, subNodeId, reliability);
 		}
 
 		/*If leaf task*/
@@ -247,26 +247,311 @@ public class PARAMProducer {
 				nodeForm = paramWrapper.getFormula(model);
 				nodeForm = nodeForm.replaceFirst("1\\*", "");
 				
-				this.varReliabilityInformation.add("//R_" + nodeId + " = reliability of node " + nodeId + "\n");
-				this.varReliabilityInformation.add("//F_" + nodeId + " = frequency of node " + nodeId + "\n");
+				this.varReliabilityInformation.put(nodeId, "//R_" + nodeId + " = reliability of node " + nodeId + "\n");
 				if (rootNode.isOptional()) {
 					nodeForm += "*OPT_" + nodeId;
-					this.varReliabilityInformation.add("//OPT_" + nodeId + " = optionality of node " + nodeId + "\n");	
+					this.varReliabilityInformation.put(nodeId, "//OPT_" + nodeId + " = optionality of node " + nodeId + "\n");	
 				}
 			}
 			else {
 				//Cost
 				nodeForm = getCostFormula(rootNode);
-				this.varCostInformation.add("//" + nodeForm + " = cost of node " + nodeId + "\n");
+				this.varCostInformation.put(nodeId, "//" + nodeForm + " = cost of node " + nodeId + "\n");
 			}
-
-			if (!ctxAnnot.isEmpty()) {
-				nodeForm = insertCtxAnnotation(nodeForm, ctxAnnot, rootNode);
-			}	
 		}
 		if (reliability) this.reliabilityByNode.put(nodeId, nodeForm);
 
 		return nodeForm;
+	}
+
+	private String getNodeForm(Const decType, String rtAnnot, String nodeId, boolean reliability, RTContainer rootNode) throws Exception {
+		
+		if (rtAnnot == null) {
+			return nodeId;
+		}
+		
+		StringBuilder formula = new StringBuilder();
+		SymbolicParamGenerator symbolic = new SymbolicParamGenerator();
+		
+		if (rtAnnot.contains("DM")) {
+			
+		}
+		else if (rtAnnot.contains(";")) {
+			String[] ids = getChildrenId(rootNode);
+
+			if (reliability) { //Reliability formula
+				if (decType.equals(Const.AND)) { //Sequential AND
+					formula = symbolic.getAndReliability(ids, this.ctxInformation);
+				}
+				else { //Sequential OR
+					formula = symbolic.getOrReliability(ids, this.ctxInformation);
+				}
+			}
+			else { //Cost formula
+				if (decType.equals(Const.AND)) { //Sequential AND
+					formula = symbolic.getSequentialAndCost(ids, nodeId, this.ctxInformation, this.isParam);
+				}
+				else { //Sequential OR
+					formula = symbolic.getSequentialOrCost(ids, nodeId, this.ctxInformation, this.isParam);
+				}
+			}
+
+			return formula.toString();
+		}
+		else if (rtAnnot.contains("#")) {
+			String[] ids = getChildrenId(rootNode);
+			
+			if (reliability) { //Reliability formula
+				if (decType.equals(Const.AND)) { //Parallel AND
+					formula = symbolic.getAndReliability(ids, this.ctxInformation);
+				}
+				else { //Parallel OR
+					formula = symbolic.getOrReliability(ids, this.ctxInformation);
+				}
+			}
+			else { //Cost formula
+				if (decType.equals(Const.AND)) { //Parallel AND
+					formula = symbolic.getParallelAndCost(ids, nodeId, this.ctxInformation, this.isParam);
+				}
+				else { //Parallel OR
+					formula = symbolic.getParallelOrCost(ids, nodeId, this.ctxInformation, this.isParam);
+				}
+			}
+
+			return formula.toString();
+		}
+		else if (rtAnnot.contains("@")) {
+			String[] ids = getChildrenId(rootNode);
+			int retryNum = Integer.parseInt(rtAnnot.substring(rtAnnot.indexOf("@")+1)) + 1;
+			
+			if (reliability) {
+				formula = symbolic.getRetryReliability(ids, nodeId, this.ctxInformation, this.isParam, retryNum);
+			}
+			else {
+				formula = symbolic.getRetryCost(ids, nodeId, this.ctxInformation, this.isParam, retryNum);
+			}
+			return formula.toString();
+		}
+		else if (rtAnnot.contains("try")) {
+			
+		}
+		else {
+			return nodeId;
+		}
+		
+		return formula.toString();
+	}
+	
+//private String getNodeForm(Const decType, String dmAnnot, String nodeId, boolean reliability, RTContainer rootNode) throws Exception {
+//		
+//		List<String> childrenNodes = getChildrenId(rootNode);
+//		StringBuilder formula = new StringBuilder();
+//		
+//		//TO-DO: Define the formulae templates outside this method (improve legibility)
+//		
+//		if (dmAnnot == null) {
+//			if (childrenNodes.size() <= 1) return nodeId;
+//		
+//			//AND-Decomposition
+//			if (decType.equals(Const.AND)) {
+//				if (reliability) {
+//					formula.append("( ");
+//					for (String id : childrenNodes) {
+//						//Children is context-dependent
+//						if (this.ctxInformation.containsKey(id)) {
+//							formula.append(" CTX_" + id + " * " + id + " * ");
+//						}
+//						//Children is context-free
+//						else {
+//							formula.append(id + " * ");
+//						}
+//					}
+//					formula.delete(formula.lastIndexOf("*"), formula.length()-1);
+//					formula.append(")");
+//				}
+//				else {
+//					
+//					SymbolicParamAndGenerator param = new SymbolicParamAndGenerator();
+//					formula = param.getSequentialAndCost((String[]) childrenNodes.toArray(new String[0]), this.ctxInformation);
+//					formula.append(" * R_" + nodeId + " ");
+//				}
+//			}
+//			//OR-Decomposition
+//			else {
+//				if (this.ctxInformation.containsKey(childrenNodes.get(0)) && this.ctxInformation.containsKey(childrenNodes.get(1))) {
+//					formula.append("( - CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) 
+//						+ " * CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1)
+//						+ " + CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) 
+//						+ " + CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1) + " ) ");
+//				}
+//				else if (this.ctxInformation.containsKey(childrenNodes.get(0))) {
+//					formula.append("( - CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) 
+//					+ " * " + childrenNodes.get(1)
+//					+ " + CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) 
+//					+ " + " + childrenNodes.get(1) + " ) ");
+//				}
+//				else if (this.ctxInformation.containsKey(childrenNodes.get(1))) {
+//					formula.append("( - " + childrenNodes.get(0)
+//					+ " * CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1)
+//					+ " + " + childrenNodes.get(0)
+//					+ " + CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1) + " ) ");
+//				}
+//				else {
+//					formula.append("( - " + childrenNodes.get(0) + " * " + childrenNodes.get(1) + " + " + childrenNodes.get(0) + " + " + childrenNodes.get(1) + " ) ");
+//				}
+//				
+//				String removeFromFormula = new String();
+//				String sumCost = new String();
+//				if (!reliability) {
+//					formula = replaceAll(formula, " " + childrenNodes.get(0) + " ", " R_" + childrenNodes.get(0) + " ");
+//					formula = replaceAll(formula, " " + childrenNodes.get(1) + " ", " R_" + childrenNodes.get(1) + " ");
+//					
+//					if (this.ctxInformation.containsKey(childrenNodes.get(0)) && this.ctxInformation.containsKey(childrenNodes.get(1))) {
+//						removeFromFormula = " - CTX_" + childrenNodes.get(0) + " * " + "R_" + childrenNodes.get(0) + " * CTX_" + childrenNodes.get(1)+ " * " + childrenNodes.get(1);
+//						sumCost = "CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) + " + CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1);
+//					}
+//					else if (this.ctxInformation.containsKey(childrenNodes.get(0))) {
+//						removeFromFormula = " - CTX_" + childrenNodes.get(0) + " * " + "R_" + childrenNodes.get(0) + " * " + childrenNodes.get(1);
+//						sumCost = "CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) + " + " + childrenNodes.get(1);
+//					}
+//					else if (this.ctxInformation.containsKey(childrenNodes.get(1))) {
+//						removeFromFormula = " - R_" + childrenNodes.get(0) + " * CTX_" + childrenNodes.get(1)+ " * " + childrenNodes.get(1);
+//						sumCost = childrenNodes.get(0) + " + CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1);
+//					}
+//					else {
+//						removeFromFormula = " - R_" + childrenNodes.get(0) + " * " + childrenNodes.get(1);
+//						sumCost = childrenNodes.get(0) + " + " + childrenNodes.get(1);
+//					}
+//				}
+//
+//				for (int i = 2; i < childrenNodes.size(); i++) {
+//					if (!reliability) {
+//						if (this.ctxInformation.containsKey(childrenNodes.get(i))) {
+//							removeFromFormula += " - " + formula.toString() + " * CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i);
+//							sumCost += " + CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i);
+//						}
+//						else {
+//							removeFromFormula += " - " + formula + " * " + childrenNodes.get(i);
+//							sumCost += " + " + childrenNodes.get(i);
+//						}
+//					}
+//					String currentFormula = formula.toString();
+//					if (this.ctxInformation.containsKey(childrenNodes.get(i))) {
+//						formula.insert(0, "( - ");
+//						formula.append(currentFormula + " * CTX_" + childrenNodes.get(i) 
+//						+ " * " + childrenNodes.get(i) + " + " + currentFormula + " + CTX_" 
+//								+ childrenNodes.get(i) + " * " + childrenNodes.get(i) + " ) ");
+//					}
+//					else {
+//						formula.insert(0, "( - ");
+//						formula.append(currentFormula + " * " + childrenNodes.get(i) + " + " + currentFormula + " + " + childrenNodes.get(i) + " ) ");
+//					}
+//					if (!reliability) formula = replaceAll(formula, " " + childrenNodes.get(i) + " ", "R_" + childrenNodes.get(i));
+//				}
+//				if (!reliability) {
+//					String reliabilityFormula = formula.toString();
+//					formula = new StringBuilder();
+//					formula.append(" ( ( " + sumCost + " ) * " + reliabilityFormula + " " + removeFromFormula + " )");
+//				}
+//			}
+//			return formula.toString();
+//		}
+//		else {
+//			//DM-annotation (children nodes should always contain context information)
+//			if (childrenNodes.size() == 1) {
+//				//Assuring children nodes contain ctx information
+//				if (!this.ctxInformation.containsKey(childrenNodes.get(0))) {
+//					throw new Exception();
+//				}
+//				
+//				if (reliability) return " ( CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) + " )";
+//				formula.append(" ( CTX_" + childrenNodes.get(0) + " * R_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) + " )");
+//			}
+//			else {
+//				//Assuring children nodes contain ctx information
+//				if (!this.ctxInformation.containsKey(childrenNodes.get(0)) && !this.ctxInformation.containsKey(childrenNodes.get(1))) {
+//					throw new Exception();
+//				}
+//				
+//				formula.append("( - CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0)
+//				+ " * CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1) 
+//				+ " + CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0)
+//				+ " + CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1) + " ) ");
+//
+//				String removeFromFormula = new String();
+//				String sumCost = new String();
+//				if (!reliability) {
+//					formula = replaceAll(formula, " " + childrenNodes.get(0) + " ", " R_" + childrenNodes.get(0) + " ");
+//					formula = replaceAll(formula, " " + childrenNodes.get(1) + " ", " R_" + childrenNodes.get(1) + " ");
+//					removeFromFormula = " - CTX_" + childrenNodes.get(0) + " * R_" + childrenNodes.get(0) + " * CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1);
+//					sumCost = " CTX_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) + " + CTX_" + childrenNodes.get(1) + " * " + childrenNodes.get(1);
+//				}
+//
+//				for (int i = 2; i < childrenNodes.size(); i++) {
+//					if (!this.ctxInformation.containsKey(childrenNodes.get(i))) {
+//						throw new Exception();
+//					}
+//					
+//					if (!reliability) {
+//						removeFromFormula += " - " + formula.toString() + " * CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i);
+//						sumCost += " + " + childrenNodes.get(i);
+//					}
+//					String currentFormula = formula.toString();
+//					formula.insert(0, "( - ");
+//					formula.append(" * CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i) 
+//						+ " + " + currentFormula + " + CTX_" + childrenNodes.get(i) + " * " + childrenNodes.get(i) + " ) ");
+//					if (!reliability) formula = replaceAll(formula, " " + childrenNodes.get(i) + " ", "R_" + childrenNodes.get(i));
+//				}
+//				if (!reliability) {
+//					String reliabilityFormula = formula.toString();
+//					formula = new StringBuilder();
+//					formula.append(" ( ( " + sumCost + " ) * " + reliabilityFormula + " " + removeFromFormula + " )");
+//				}
+//			}
+//		}
+//		return formula.toString();
+//	}
+
+	
+	public static StringBuilder replaceAll(StringBuilder sb, String find, String replace){
+	    return new StringBuilder(Pattern.compile(find).matcher(sb).replaceAll(replace));
+	}
+
+	private void setContextList(LinkedList<GoalContainer> decompGoal, LinkedList<PlanContainer> decompPlans) {
+		
+		if (!decompGoal.isEmpty()) {
+			for (GoalContainer goal : decompGoal) {
+				List<String> ctxList = goal.getFulfillmentConditions();
+				if (!ctxList.isEmpty()) {
+					List<String> cleanCtx = clearCtxList(ctxList);
+					String ctxConcat = concatCtxInformation(cleanCtx);
+					this.ctxInformation.put(goal.getClearUId(), ctxConcat);
+				}
+			}
+		}
+		else if (!decompPlans.isEmpty()) {
+			for (PlanContainer plan : decompPlans) {
+				List<String> ctxList = plan.getFulfillmentConditions();
+				if (!ctxList.isEmpty()) {
+					List<String> cleanCtx = clearCtxList(ctxList);
+					String ctxConcat = concatCtxInformation(cleanCtx);
+					this.ctxInformation.put(plan.getClearElId(), ctxConcat);
+				}
+			}
+		}
+	}
+
+	private String concatCtxInformation(List<String> cleanCtx) {
+		String ctxConcat = new String();
+		for (String ctx : cleanCtx) {
+			if (ctxConcat.length() == 0) {
+				ctxConcat = "(" + ctx + ")";
+			}
+			else {
+				ctxConcat = ctxConcat.concat(" & (" + ctx + ")");
+			}
+		}
+		return ctxConcat;
 	}
 
 	private String getCostFormula(RTContainer rootNode) throws IOException {
@@ -278,47 +563,6 @@ public class PARAMProducer {
 		}
 		
 		return "W_"+rootNode.getClearElId();
-	}
-
-	private String insertCtxAnnotation(String nodeForm, List<String> ctxAnnot, RTContainer rootNode) {
-
-		List<String> cleanCtx = clearCtxList(ctxAnnot);
-
-		//Check if context if from non-deterministic node
-		String contextId = getContextId(rootNode);
-		
-		//String ctxParamId = "CTX_" + nodeId;
-		String ctxParamId = "CTX_" + contextId;
-		nodeForm = ctxParamId + "*" + nodeForm;
-
-		String ctxConcat = new String();
-		for (String ctx : cleanCtx) {
-			if (ctxConcat.length() == 0) {
-				ctxConcat = "(" + ctx + ")";
-			}
-			else {
-				ctxConcat = ctxConcat.concat(" & (" + ctx + ")");
-			}
-		}
-
-		ctxInformation.put(ctxParamId, ctxConcat);
-
-		return nodeForm;
-	}
-
-	private String getContextId(RTContainer node) {		
-		RTContainer root = node.getRoot();
-		RTContainer child = node;
-		while (root != null) {
-			if (root.isDecisionMaking()) {
-				if(child instanceof GoalContainer) return child.getClearUId();
-				else return child.getClearElId();
-			}
-			child = root;
-			root = root.getRoot();
-		}
-		if(node instanceof GoalContainer) return node.getClearUId();
-		else return node.getClearElId();
 	}
 
 	private List<String> clearCtxList(List<String> ctxAnnot) {
@@ -338,7 +582,7 @@ public class PARAMProducer {
 		return clearCtx;
 	}
 
-	private String replaceSubForm(String nodeForm, String subNodeForm, String nodeId, String subNodeId) {
+	private String replaceSubForm(String nodeForm, String subNodeForm, String nodeId, String subNodeId, boolean reliability) {
 
 		if (nodeForm.equals(nodeId)) {
 			nodeForm = subNodeForm;
@@ -364,99 +608,18 @@ public class PARAMProducer {
 	private String restricToString(String subNodeString) {
 		return " " + subNodeString + " ";
 	}
-	
-	//Get node form for AND/OR-decompositions and DM annotation only
-	private String getNodeForm(Const decType, String rtAnnot, String uid, boolean reliability, RTContainer rootNode) throws IOException {
-		
-		List<String> childrenNodes = getChildrenId(rootNode);
-		String formula = new String();
-		if (rtAnnot == null) {
-			if (childrenNodes.size() <= 1) return uid;
-		
-			if (decType.equals(Const.AND)) {
-				if (reliability) {
-					formula = "( ";
-					for (String id : childrenNodes) {
-						formula += id + " * ";
-					}
-					formula = formula.substring(0, formula.length()-2);
-					formula += " )";
-				}
-				else {
-					SymbolicParamAndGenerator param = new SymbolicParamAndGenerator();
-					formula = param.getSequentialAndCost((String[]) childrenNodes.toArray(new String[0]));
-				}
-			}
-			else {
-				formula = "( - " + childrenNodes.get(0) + " * " + childrenNodes.get(1) + " + " + childrenNodes.get(0) + " + " + childrenNodes.get(1) + " ) ";
-				String removeFromFormula = new String();
-				String sumCost = new String();
-				if (!reliability) {
-					formula = formula.replaceAll(childrenNodes.get(0), "R_" + childrenNodes.get(0));
-					formula = formula.replaceAll(childrenNodes.get(1), "R_" + childrenNodes.get(1));
-					removeFromFormula = " - R_" + childrenNodes.get(0) + " * " + childrenNodes.get(1);
-					sumCost = childrenNodes.get(0) + " + " + childrenNodes.get(1);
-				}
 
-				for (int i = 2; i < childrenNodes.size(); i++) {
-					if (!reliability) {
-						removeFromFormula += " - " + formula + " * " + childrenNodes.get(i);
-						sumCost += " + " + childrenNodes.get(i);
-					}
-					formula = "( - " + formula + " * " + childrenNodes.get(i) + " + " + formula + " + " + childrenNodes.get(i) + " ) ";
-					if (!reliability) formula = formula.replaceAll(childrenNodes.get(i), "R_" + childrenNodes.get(i));
-				}
-				if (!reliability) {
-					formula = " ( " + formula + " * ( " + sumCost + " ) " + removeFromFormula + " ) "; 
-				}
-			}
-			return formula;
-		}
-		else {
-			if (childrenNodes.size() == 1) {
-				if (reliability) return " ( " + childrenNodes.get(0) + " )";
-				formula = " ( R_" + childrenNodes.get(0) + " * " + childrenNodes.get(0) + " )";
-			}
-			else {
-				formula = "( - " + childrenNodes.get(0) + " * " + childrenNodes.get(1) + " + " + childrenNodes.get(0) + " + " + childrenNodes.get(1) + " ) ";
-				String removeFromFormula = new String();
-				String sumCost = new String();
-				if (!reliability) {
-					formula = formula.replaceAll(childrenNodes.get(0), "R_" + childrenNodes.get(0));
-					formula = formula.replaceAll(childrenNodes.get(1), "R_" + childrenNodes.get(1));
-					removeFromFormula = " - R_" + childrenNodes.get(0) + " * " + childrenNodes.get(1);
-					sumCost = childrenNodes.get(0) + " + " + childrenNodes.get(1);
-				}
-
-				for (int i = 2; i < childrenNodes.size(); i++) {
-					if (!reliability) {
-						removeFromFormula += " - " + formula + " * " + childrenNodes.get(i);
-						sumCost += " + " + childrenNodes.get(i);
-					}
-					formula = "( - " + formula + " * " + childrenNodes.get(i) + " + " + formula + " + " + childrenNodes.get(i) + " ) ";
-					if (!reliability) formula = formula.replaceAll(childrenNodes.get(i), "R_" + childrenNodes.get(i));
-				}
-				if (!reliability) {
-					formula = " ( " + formula + " * ( " + sumCost + " ) " + removeFromFormula + " ) "; 
-				}
-			}
-		}
-		return formula;
-	}
-
-	private List<String> getChildrenId(RTContainer rootNode) {
-		List<String> ids = new ArrayList<String>();
+	private String[] getChildrenId(RTContainer rootNode) {
+		List<String> childrenId = new ArrayList<String>();
 		LinkedList<RTContainer> children = rootNode.getDecompElements();
 		
-		if (children.isEmpty()) return ids;
+		if (children.isEmpty()) return null;
 		
 		for (RTContainer child : children) {
-			if(child instanceof GoalContainer) ids.add(child.getClearUId());
-			else ids.add(child.getClearElId());
+			if(child instanceof GoalContainer) childrenId.add(child.getClearUId());
+			else if (child instanceof PlanContainer) childrenId.add(child.getClearElId());
 		}
 		
-		if (ids.size() == 1) return ids;
-		
-		return ids;
+		return childrenId.toArray(new String[0]);
 	}
 }

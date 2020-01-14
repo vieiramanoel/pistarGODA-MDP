@@ -12,10 +12,12 @@ public class RunParamAction {
 
     private Set<Actor> selectedActors;
     private Set<Goal> selectedGoals;
+    private boolean isParam;
 
-    public RunParamAction(Set<Actor> selectedActors, Set<Goal> selectedGoals) {
+    public RunParamAction(Set<Actor> selectedActors, Set<Goal> selectedGoals, boolean isParam) {
         this.selectedActors = selectedActors;
         this.selectedGoals = selectedGoals;
+        this.isParam = isParam;
     }
 
     public void run() {
@@ -24,12 +26,15 @@ public class RunParamAction {
         String sourceFolder = "src/main/resources/TemplateInput";
         String targetFolder = "dtmc";
         String toolsFolder = "tools";
-        PARAMProducer producer = new PARAMProducer(selectedActors, selectedGoals, sourceFolder, targetFolder, toolsFolder);
+        PARAMProducer producer = new PARAMProducer(selectedActors, selectedGoals, isParam, sourceFolder, targetFolder, toolsFolder);
         try {
             producer.run();
         } catch (CodeGenerationException | IOException e) {
             e.printStackTrace();
-        }
+        } catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 }

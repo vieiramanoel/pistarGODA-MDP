@@ -8,18 +8,19 @@ import br.unb.cic.goda.rtgoretoprism.model.kl.RTContainer;
 
 import java.util.*;
 
-public abstract class RTContainer extends ElementContainer implements Comparable<RTContainer> {
+public abstract class RTContainer extends ElementContainer /*implements Comparable<RTContainer>*/ {
 
 	private boolean included;
 	private RTContainer root;
 	private String uid = "";
 	private String elId;
 	private String rtRegex;
-	private Integer timeSlot = 0;
+	private Integer timeSlot = 1;
+	private Integer prevTimeSlot = 0;
 	private Integer rootTimeSlot = 0;
-	private Integer timePath = 0;
+	/*private Integer timePath = 0;
 	private Integer prevTimePath = 0;
-	private Integer futTimePath = 0;
+	private Integer futTimePath = 0;*/
 	private Integer cardNumber = 0;
 	private Const cardType = Const.SEQ;
 	private Map <RTContainer, LinkedList<RTContainer>> alternatives;
@@ -239,7 +240,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 		this.rootTimeSlot = rootTimeSlot;
 	}
 
-	public Integer getPrevTimePath() {
+	/*public Integer getPrevTimePath() {
 		return prevTimePath;
 	}
 
@@ -253,7 +254,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 
 	public void setFutTimePath(Integer futTimePath) {
 		this.futTimePath = futTimePath;
-	}
+	}*/
 
 	public LinkedList<RTContainer> getFirstAlternatives() {
 		return firstAlternatives;
@@ -326,13 +327,13 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 		this.successTry = successTry;
 	}
 
-	public Integer getTimePath() {
+	/*public Integer getTimePath() {
 		return timePath;
 	}
 
 	public void setTimePath(Integer timePath) {
 		this.timePath = timePath;
-	}
+	}*/
 	
 	public boolean isOptional() {
 		return optional;
@@ -400,12 +401,28 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 		this.included = included;
 	}
 
-	@Override
+	public Integer getPrevTimeSlot() {
+		return prevTimeSlot;
+	}
+
+	public void setPrevTimeSlot(Integer prevTimeSlot) {
+		this.prevTimeSlot = prevTimeSlot;
+	}
+	
+	public GoalContainer getParentGoal() {
+		RTContainer root = this.getRoot();
+		while (root != null && root instanceof PlanContainer) {
+			root = root.getRoot();
+		}
+		return (GoalContainer) root;
+	}
+
+	/*@Override
 	public int compareTo(RTContainer gc) {
 		// TODO Auto-generated method stub
 		int pathC = getPrevTimePath().compareTo(gc.getPrevTimePath());
 		int timeC = getTimeSlot().compareTo(gc.getTimeSlot());
 		int idC = getElId().compareTo(gc.getElId());
 		return pathC != 0 ? pathC : (timeC != 0 ? timeC : idC);
-	}
+	}*/
 }

@@ -17,7 +17,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RTParser {
 
@@ -60,7 +62,10 @@ public class RTParser {
 
 		return new Object [] 	{rtRegexVisitor.reliabilityFormula,
 				rtRegexVisitor.costFormula,
-				rtRegexVisitor.decisionMemory};
+				rtRegexVisitor.decisionMemory,
+				rtRegexVisitor.retryMemory,
+				rtRegexVisitor.tryMemory,
+				rtRegexVisitor.timeMemory};
     }
 }
 
@@ -72,7 +77,10 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	String reliabilityFormula = new String();
 	String costFormula = new String();	
 	List<String> decisionMemory = new ArrayList<String>();
-
+	Map<String, Object[]> retryMemory = new HashMap<String, Object[]>();
+	Map<String, String[]> tryMemory = new HashMap<String, String[]>();
+	Map<String, Boolean[]> timeMemory = new HashMap<String, Boolean[]>();
+	
 	public CustomRTRegexVisitor(String uid, Const decType, boolean param) {
 		this.decType = decType;
 		this.param = param;
@@ -97,6 +105,9 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		if(ctx.t.getType() == RTRegexParser.TASK) {
 			gid = uid + '_' + gid;
 		}
+		if (!timeMemory.containsKey(gid)) {
+            timeMemory.put(gid, new Boolean[]{false, false});
+        }
 		return gid;
 	}
 	
@@ -123,4 +134,59 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		}
 		return gidAo + '-' + gidBo;
 	}
+
+	@Override
+	public String visitGRetry(GRetryContext ctx) {
+		String gid = visit(ctx.expr());
+		String k = ctx.FLOAT().getText();
+		
+		retryMemory.put(gid, new Object[]{Const.RTRY, Integer.parseInt(ctx.FLOAT().getText())});
+        k = String.valueOf(Integer.valueOf(k) + 1);
+		
+		return gid;
+	}
+
+	@Override
+	public String visitGTry(GTryContext ctx) {
+		String gidT = visit(ctx.expr(0));
+		String gidS = visit(ctx.expr(1));
+		String gidF = visit(ctx.expr(2));
+		
+		Boolean[] pathTimeS, pathTimeF;
+        if (gidS != null) {
+            pathTimeS = timeMemory.get(gidS);
+            pathTimeS[1] = pathTimeS[1] = true;
+        }
+        
+        if (gidF != null) {
+            pathTimeF = timeMemory.get(gidF);
+            pathTimeF[1] = pathTimeF[1] = true;
+        }
+        tryMemory.put(gidT, new String[]{gidS, gidF});
+        return gidT;
+	}
+
+	@Override
+	public String visitGSkip(GSkipContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitGTime(GTimeContext ctx) {
+		String gidAo = visit(ctx.expr(0));
+        String gidBo = visit(ctx.expr(1));
+        
+        //String [] gidAs = gidAo.split("-");
+        String[] gidBs = gidBo.split("-");
+        for (String gidB : gidBs) {
+            Boolean[] pathTimeB = timeMemory.get(gidB);
+            if (ctx.op.getType() == RTRegexParser.INT) {
+                pathTimeB[0] = true;
+            } else if (ctx.op.getType() == RTRegexParser.SEQ) {
+                pathTimeB[1] = true;
+            }
+        }
+        return gidAo + '-' + gidBo;
+	}
+	
 }

@@ -1,14 +1,12 @@
 $DEC_HEADER$
 
 module NonDeterminism_$GID$
-	s$GID$ :[0..$MAX_ND$] init 0;
+	s$GID$ :[0..2] init 0;
 	
 	[next$PREV_TIME_SLOT$] s$GID$ = 0 -> (s$GID$'= 1);
 
 	$DEC_TYPE$
-	[] s$GID$ = 1 -> (s$GID$'=$MAX_ND$); //no uncertainty holding
-
-$FINAL_TYPE$
+	[] s$GID$ = 1 -> (s$GID$'=2); //no uncertainty holding
 	 
-	[next$TIME_SLOT$] s$GID$ = $MAX_ND$ -> (s$GID$'=$MAX_ND$);
+	[next$TIME_SLOT$] s$GID$ = 2 -> (s$GID$'=2);
 endmodule

@@ -1,0 +1,2 @@
+[fail$PREV_GID$] $PREV_SUCCESS$ s$GID$ = 0 -> $DEC_TYPE_TRY$
+	[success$PREV_GID$] $PREV_SUCCESS$ s$GID$ = 0 -> (s$GID$'=3);//not used, skip running
