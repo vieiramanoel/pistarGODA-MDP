@@ -39,12 +39,13 @@ public class PARAMProducer {
 
 	private String agentName;
 	private List<String> leavesId = new ArrayList<String>();
-	private Map<String,String> ctxInformation = new HashMap<String,String>();
-	private Map<String,String> varReliabilityInformation = new HashMap<String,String>();
-	private Map<String,String> varCostInformation = new HashMap<String,String>();
-	private Map<String,String> reliabilityByNode = new HashMap<String,String>();
+	private Map<String, String> ctxInformation = new HashMap<String, String>();
+	private Map<String, String> varReliabilityInformation = new HashMap<String, String>();
+	private Map<String, String> varCostInformation = new HashMap<String, String>();
+	private Map<String, String> reliabilityByNode = new HashMap<String, String>();
 
-	public PARAMProducer(Set<Actor> allActors, Set<Goal> allGoals, boolean isParam, String in, String out, String tools) {
+	public PARAMProducer(Set<Actor> allActors, Set<Goal> allGoals, boolean isParam, String in, String out,
+			String tools) {
 
 		this.sourceFolder = in;
 		this.targetFolder = out;
@@ -54,8 +55,8 @@ public class PARAMProducer {
 		this.isParam = isParam;
 	}
 
-	public PARAMProducer(AgentDefinition ad, Set<Actor> selectedActors, Set<Goal> selectedGoals,
-			String sourceFolder, String targetFolder, String toolsFolder) {
+	public PARAMProducer(AgentDefinition ad, Set<Actor> selectedActors, Set<Goal> selectedGoals, String sourceFolder,
+			String targetFolder, String toolsFolder) {
 		this.sourceFolder = sourceFolder;
 		this.targetFolder = targetFolder;
 		this.toolsFolder = toolsFolder;
@@ -67,10 +68,10 @@ public class PARAMProducer {
 
 	public void run() throws Exception {
 
-		for(Actor actor : allActors){
+		for (Actor actor : allActors) {
 
 			long startTime = 0;
-			
+
 			if (this.ad == null) {
 				RTGoreProducer producer = new RTGoreProducer(allActors, allGoals, sourceFolder, targetFolder);
 				AgentDefinition ad = producer.run();
@@ -89,33 +90,33 @@ public class PARAMProducer {
 			reliabilityForm = cleanNodeForm(reliabilityForm, true);
 			costForm = cleanNodeForm(costForm, false);
 
-			//Print formula
+			// Print formula
 			printFormula(reliabilityForm, costForm);
-			System.out.println( "Parametric formulas created in " + (new Date().getTime() - startTime) + "ms.");
+			System.out.println("Parametric formulas created in " + (new Date().getTime() - startTime) + "ms.");
 		}
 	}
 
 	private String cleanNodeForm(String nodeForm, boolean reliability) {
-		
+
 		if (!reliability) {
 			nodeForm = replaceReliabilites(nodeForm);
 		}
-		
-		Map<String,String> mapAux = new HashMap<String,String>();
+
+		Map<String, String> mapAux = new HashMap<String, String>();
 		for (String ctxKey : this.ctxInformation.keySet()) {
 			if (nodeForm.contains("CTX_" + ctxKey)) {
 				mapAux.put(ctxKey, this.ctxInformation.get(ctxKey));
 			}
 		}
 		this.ctxInformation = mapAux;
-		
+
 		nodeForm = nodeForm.replaceAll("\\s+", "");
 		return nodeForm;
 	}
 
 	private String replaceReliabilites(String nodeForm) {
 		if (nodeForm.contains(" R_")) {
-			for (Map.Entry<String, String> entry : this.reliabilityByNode.entrySet()){
+			for (Map.Entry<String, String> entry : this.reliabilityByNode.entrySet()) {
 				String id = entry.getKey();
 				if (nodeForm.contains("R_" + id)) {
 					String reliability = entry.getValue();
@@ -130,19 +131,19 @@ public class PARAMProducer {
 
 		reliabilityForm = composeFormula(reliabilityForm, true);
 		costForm = composeFormula(costForm, false);
-		
+
 		String evalForm = composeEvalFormula();
 
 		String output = targetFolder + "/";
-		
+
 		PrintWriter reliabiltyFormula = ManageWriter.createFile("reliability.out", output);
 		PrintWriter costFormula = ManageWriter.createFile("cost.out", output);
 		PrintWriter evalBashFile = ManageWriter.createFile("eval_formula.sh", output);
-		
+
 		ManageWriter.printModel(reliabiltyFormula, reliabilityForm);
 		ManageWriter.printModel(costFormula, costForm);
 		ManageWriter.printModel(evalBashFile, evalForm);
-		
+
 	}
 
 	private String composeEvalFormula() throws CodeGenerationException {
@@ -157,8 +158,7 @@ public class PARAMProducer {
 			if (value.contains("OPT_")) {
 				evalFormulaParams += "OPT_" + var + "=\"1\";\n";
 				evalFormulaReplace += " -e \"s/OPT_" + var + "/$OPT_" + var + "/g\"";
-			}
-			else {
+			} else {
 				evalFormulaParams += "R_" + var + "=\"0.99\";\n";
 				evalFormulaReplace += " -e \"s/R_" + var + "/$R_" + var + "/g\"";
 			}
@@ -169,10 +169,10 @@ public class PARAMProducer {
 		}
 
 		String evalBash = ManageWriter.readFileAsString(sourceFolder + "/PARAM/" + "eval_formula.sh");
-		
+
 		evalBash = evalBash.replace("$PARAMS_BASH$", evalFormulaParams);
 		evalBash = evalBash.replace("$REPLACE_BASH$", evalFormulaReplace);
-		
+
 		return evalBash;
 	}
 
@@ -194,7 +194,7 @@ public class PARAMProducer {
 		return body;
 	}
 
-	//true: compose reliability, false: compose cost
+	// true: compose reliability, false: compose cost
 	private String composeNodeForm(RTContainer rootNode, boolean reliability) throws Exception {
 
 		Const decType;
@@ -204,144 +204,150 @@ public class PARAMProducer {
 		LinkedList<GoalContainer> decompGoal = new LinkedList<GoalContainer>();
 		LinkedList<PlanContainer> decompPlans = new LinkedList<PlanContainer>();
 
-		if(rootNode instanceof GoalContainer) nodeId = rootNode.getClearUId();
-		else nodeId = rootNode.getClearElId();
+		if (rootNode instanceof GoalContainer)
+			nodeId = rootNode.getClearUId();
+		else
+			nodeId = rootNode.getClearElId();
 
 		decompGoal = rootNode.getDecompGoals();
 		decompPlans = rootNode.getDecompPlans();
 		decType = rootNode.getDecomposition();
 		rtAnnot = rootNode.getRtRegex();
-		
+
 		if (!decompGoal.isEmpty() || !decompPlans.isEmpty()) {
 			setContextList(decompGoal, decompPlans);
 		}
 
 		nodeForm = getNodeForm(decType, rtAnnot, nodeId, reliability, rootNode);
-		
-		/*Run for sub goals*/
+
+		/* Run for sub goals */
 		for (GoalContainer subNode : decompGoal) {
 			String subNodeId = subNode.getClearUId();
 			String subNodeForm = composeNodeForm(subNode, reliability);
 			nodeForm = replaceSubForm(nodeForm, subNodeForm, nodeId, subNodeId, reliability);
 		}
 
-		/*Run for sub tasks*/
+		/* Run for sub tasks */
 		for (PlanContainer subNode : decompPlans) {
 			String subNodeId = subNode.getClearElId();
 			String subNodeForm = composeNodeForm(subNode, reliability);
 			nodeForm = replaceSubForm(nodeForm, subNodeForm, nodeId, subNodeId, reliability);
 		}
 
-		/*If leaf task*/
+		/* If leaf task */
 		if ((decompGoal.size() == 0) && (decompPlans.size() == 0)) {
 
 			this.leavesId.add(nodeId);
 
 			if (reliability) {
-				//Create DTMC model (param)
+				// Create DTMC model (param)
 				ParamWriter writer = new ParamWriter(sourceFolder, nodeId);
 				String model = writer.writeModel();
 
-				//Call to param (reliability)
+				// Call to param (reliability)
 				ParamWrapper paramWrapper = new ParamWrapper(toolsFolder, nodeId);
 				nodeForm = paramWrapper.getFormula(model);
 				nodeForm = nodeForm.replaceFirst("1\\*", "");
-				
+
 				this.varReliabilityInformation.put(nodeId, "//R_" + nodeId + " = reliability of node " + nodeId + "\n");
 				if (rootNode.isOptional()) {
 					nodeForm += "*OPT_" + nodeId;
-					this.varReliabilityInformation.put(nodeId, "//OPT_" + nodeId + " = optionality of node " + nodeId + "\n");	
+					this.varReliabilityInformation.put(nodeId,
+							"//OPT_" + nodeId + " = optionality of node " + nodeId + "\n");
 				}
-			}
-			else {
-				//Cost
+			} else {
+				// Cost
 				nodeForm = getCostFormula(rootNode);
 				this.varCostInformation.put(nodeId, "//" + nodeForm + " = cost of node " + nodeId + "\n");
 			}
 		}
-		if (reliability) this.reliabilityByNode.put(nodeId, nodeForm);
+		if (reliability)
+			this.reliabilityByNode.put(nodeId, nodeForm);
 
 		return nodeForm;
 	}
 
-	private String getNodeForm(Const decType, String rtAnnot, String nodeId, boolean reliability, RTContainer rootNode) throws Exception {
-		
+	private String getNodeForm(Const decType, String rtAnnot, String nodeId, boolean reliability, RTContainer rootNode)
+			throws Exception {
+
 		if (rtAnnot == null) {
 			return nodeId;
 		}
-		
+
 		StringBuilder formula = new StringBuilder();
 		SymbolicParamGenerator symbolic = new SymbolicParamGenerator();
-		
-		if (rtAnnot.contains("DM")) {
-			
-		}
-		else if (rtAnnot.contains(";")) {
+
+		if (rtAnnot.contains(";")) { // Sequential
 			String[] ids = getChildrenId(rootNode);
 
-			if (reliability) { //Reliability formula
-				if (decType.equals(Const.AND)) { //Sequential AND
+			if (reliability) {
+				// Reliability formula
+				if (decType.equals(Const.AND)) { // Sequential AND
 					formula = symbolic.getAndReliability(ids, this.ctxInformation);
-				}
-				else { //Sequential OR
+				} else { // Sequential OR
 					formula = symbolic.getOrReliability(ids, this.ctxInformation);
 				}
-			}
-			else { //Cost formula
-				if (decType.equals(Const.AND)) { //Sequential AND
+			} else {
+				// Cost formula
+				if (decType.equals(Const.AND)) { // Sequential AND
 					formula = symbolic.getSequentialAndCost(ids, nodeId, this.ctxInformation, this.isParam);
-				}
-				else { //Sequential OR
+				} else { // Sequential OR
 					formula = symbolic.getSequentialOrCost(ids, nodeId, this.ctxInformation, this.isParam);
 				}
 			}
 
 			return formula.toString();
-		}
-		else if (rtAnnot.contains("#")) {
+		} else if (rtAnnot.contains("#")) { // Parallel
 			String[] ids = getChildrenId(rootNode);
-			
-			if (reliability) { //Reliability formula
-				if (decType.equals(Const.AND)) { //Parallel AND
+
+			if (reliability) {
+				// Reliability formula
+				if (decType.equals(Const.AND)) { // Parallel AND
 					formula = symbolic.getAndReliability(ids, this.ctxInformation);
-				}
-				else { //Parallel OR
+				} else { // Parallel OR
 					formula = symbolic.getOrReliability(ids, this.ctxInformation);
 				}
-			}
-			else { //Cost formula
-				if (decType.equals(Const.AND)) { //Parallel AND
+			} else {
+				// Cost formula
+				if (decType.equals(Const.AND)) { // Parallel AND
 					formula = symbolic.getParallelAndCost(ids, nodeId, this.ctxInformation, this.isParam);
-				}
-				else { //Parallel OR
+				} else { // Parallel OR
 					formula = symbolic.getParallelOrCost(ids, nodeId, this.ctxInformation, this.isParam);
 				}
 			}
 
 			return formula.toString();
-		}
-		else if (rtAnnot.contains("@")) {
+		} else if (rtAnnot.contains("DM")) {
 			String[] ids = getChildrenId(rootNode);
-			int retryNum = Integer.parseInt(rtAnnot.substring(rtAnnot.indexOf("@")+1)) + 1;
-			
+			if (reliability) {
+				formula = symbolic.getOrReliability(ids, this.ctxInformation);
+			} else {
+				formula = symbolic.getDMReliability(ids, ctxInformation, this.isParam);
+			}
+		} else if (rtAnnot.contains("@")) {
+			String[] ids = getChildrenId(rootNode);
+			int retryNum = Integer.parseInt(rtAnnot.substring(rtAnnot.indexOf("@") + 1)) + 1;
+
 			if (reliability) {
 				formula = symbolic.getRetryReliability(ids, nodeId, this.ctxInformation, this.isParam, retryNum);
-			}
-			else {
+			} else {
 				formula = symbolic.getRetryCost(ids, nodeId, this.ctxInformation, this.isParam, retryNum);
 			}
 			return formula.toString();
-		}
-		else if (rtAnnot.contains("try")) {
-			
-		}
-		else {
+		} else if (rtAnnot.contains("try")) {
+			String[] ids = getChildrenId(rootNode);
+			if (reliability) {
+				formula = symbolic.getTryReliability(ids, this.ctxInformation, this.isParam);
+			} else {
+			}
+			return formula.toString();
+		} else {
 			return nodeId;
 		}
-		
+
 		return formula.toString();
 	}
-	
+
 //private String getNodeForm(Const decType, String dmAnnot, String nodeId, boolean reliability, RTContainer rootNode) throws Exception {
 //		
 //		List<String> childrenNodes = getChildrenId(rootNode);
@@ -512,13 +518,12 @@ public class PARAMProducer {
 //		return formula.toString();
 //	}
 
-	
-	public static StringBuilder replaceAll(StringBuilder sb, String find, String replace){
-	    return new StringBuilder(Pattern.compile(find).matcher(sb).replaceAll(replace));
+	public static StringBuilder replaceAll(StringBuilder sb, String find, String replace) {
+		return new StringBuilder(Pattern.compile(find).matcher(sb).replaceAll(replace));
 	}
 
 	private void setContextList(LinkedList<GoalContainer> decompGoal, LinkedList<PlanContainer> decompPlans) {
-		
+
 		if (!decompGoal.isEmpty()) {
 			for (GoalContainer goal : decompGoal) {
 				List<String> ctxList = goal.getFulfillmentConditions();
@@ -528,8 +533,7 @@ public class PARAMProducer {
 					this.ctxInformation.put(goal.getClearUId(), ctxConcat);
 				}
 			}
-		}
-		else if (!decompPlans.isEmpty()) {
+		} else if (!decompPlans.isEmpty()) {
 			for (PlanContainer plan : decompPlans) {
 				List<String> ctxList = plan.getFulfillmentConditions();
 				if (!ctxList.isEmpty()) {
@@ -546,8 +550,7 @@ public class PARAMProducer {
 		for (String ctx : cleanCtx) {
 			if (ctxConcat.length() == 0) {
 				ctxConcat = "(" + ctx + ")";
-			}
-			else {
+			} else {
 				ctxConcat = ctxConcat.concat(" & (" + ctx + ")");
 			}
 		}
@@ -556,13 +559,13 @@ public class PARAMProducer {
 
 	private String getCostFormula(RTContainer rootNode) throws IOException {
 		PlanContainer plan = (PlanContainer) rootNode;
-	
+
 		if (plan.getCostRegex() != null) {
-			Object [] res = CostParser.parseRegex(plan.getCostRegex());
+			Object[] res = CostParser.parseRegex(plan.getCostRegex());
 			return (String) res[2];
 		}
-		
-		return "W_"+rootNode.getClearElId();
+
+		return "W_" + rootNode.getClearElId();
 	}
 
 	private List<String> clearCtxList(List<String> ctxAnnot) {
@@ -572,8 +575,7 @@ public class PARAMProducer {
 			String[] aux;
 			if (ctx.contains("assertion condition")) {
 				aux = ctx.split("^assertion condition\\s*");
-			}
-			else {
+			} else {
 				aux = ctx.split("^assertion trigger\\s*");
 			}
 			clearCtx.add(aux[1]);
@@ -582,20 +584,19 @@ public class PARAMProducer {
 		return clearCtx;
 	}
 
-	private String replaceSubForm(String nodeForm, String subNodeForm, String nodeId, String subNodeId, boolean reliability) {
+	private String replaceSubForm(String nodeForm, String subNodeForm, String nodeId, String subNodeId,
+			boolean reliability) {
 
 		if (nodeForm.equals(nodeId)) {
 			nodeForm = subNodeForm;
-		}
-		else {
+		} else {
 			subNodeId = restricToString(subNodeId);
 			subNodeForm = restricToString(subNodeForm);
 			nodeForm = nodeForm.replaceAll(subNodeId, subNodeForm);
 		}
-		
+
 		if (subNodeForm.contains("CTX") && nodeForm.contains("XOR")) {
-			for (Map.Entry<String, String> entry : ctxInformation.entrySet())
-			{
+			for (Map.Entry<String, String> entry : ctxInformation.entrySet()) {
 				if (entry.getKey().contains(subNodeId.trim())) {
 					nodeForm = nodeForm.replaceAll("XOR_" + subNodeId.trim(), entry.getKey());
 					return nodeForm;
@@ -612,14 +613,17 @@ public class PARAMProducer {
 	private String[] getChildrenId(RTContainer rootNode) {
 		List<String> childrenId = new ArrayList<String>();
 		LinkedList<RTContainer> children = rootNode.getDecompElements();
-		
-		if (children.isEmpty()) return null;
-		
+
+		if (children.isEmpty())
+			return null;
+
 		for (RTContainer child : children) {
-			if(child instanceof GoalContainer) childrenId.add(child.getClearUId());
-			else if (child instanceof PlanContainer) childrenId.add(child.getClearElId());
+			if (child instanceof GoalContainer)
+				childrenId.add(child.getClearUId());
+			else if (child instanceof PlanContainer)
+				childrenId.add(child.getClearElId());
 		}
-		
+
 		return childrenId.toArray(new String[0]);
 	}
 }
