@@ -15,7 +15,6 @@ import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.model.Goal;
 import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.parser.CostParser;
-import br.unb.cic.goda.rtgoretoprism.generator.goda.parser.RTParser;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.writer.ManageWriter;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.writer.ParamWriter;
 import br.unb.cic.goda.rtgoretoprism.generator.kl.AgentDefinition;
@@ -25,7 +24,6 @@ import br.unb.cic.goda.rtgoretoprism.model.kl.PlanContainer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.RTContainer;
 import br.unb.cic.goda.rtgoretoprism.paramformula.SymbolicParamGenerator;
 import br.unb.cic.goda.rtgoretoprism.paramwrapper.ParamWrapper;
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class PARAMProducer {
 
@@ -44,6 +42,16 @@ public class PARAMProducer {
 	private Map<String, String> varCostInformation = new HashMap<String, String>();
 	private Map<String, String> reliabilityByNode = new HashMap<String, String>();
 
+	public class Formulas {
+		public Formulas(String reliability, String cost) {
+			this.reliability = reliability;
+			this.cost  = cost;
+			
+		}
+		public String reliability;
+		public String cost;
+	}
+	
 	public PARAMProducer(Set<Actor> allActors, Set<Goal> allGoals, boolean isParam, String in, String out,
 			String tools) {
 
@@ -69,31 +77,39 @@ public class PARAMProducer {
 	public void run() throws Exception {
 
 		for (Actor actor : allActors) {
-
 			long startTime = 0;
-
-			if (this.ad == null) {
-				RTGoreProducer producer = new RTGoreProducer(allActors, allGoals, sourceFolder, targetFolder);
-				AgentDefinition ad = producer.run();
-
-				this.ad = ad;
-				agentName = ad.getAgentName();
-			}
-
+			
 			System.out.println("Generating parametric formulas for: " + agentName);
 
 			// Compose goal formula
 			startTime = new Date().getTime();
-			String reliabilityForm = composeNodeForm(ad.rootlist.getFirst(), true);
-			String costForm = composeNodeForm(ad.rootlist.getFirst(), false);
-
-			reliabilityForm = cleanNodeForm(reliabilityForm, true);
-			costForm = cleanNodeForm(costForm, false);
+			
+			Formulas formulas  = generateFormulas(actor);
 
 			// Print formula
-			printFormula(reliabilityForm, costForm);
+			printFormula(formulas.reliability, formulas.cost);
 			System.out.println("Parametric formulas created in " + (new Date().getTime() - startTime) + "ms.");
 		}
+	}
+	
+	public Formulas generateFormulas(Actor actor) throws Exception {
+		
+		if (this.ad == null) {
+			RTGoreProducer producer = new RTGoreProducer(allActors, allGoals, sourceFolder, targetFolder);
+			AgentDefinition ad = producer.run();
+
+			this.ad = ad;
+			agentName = ad.getAgentName();
+		}
+
+		
+		String reliabilityForm = composeNodeForm(ad.rootlist.getFirst(), true);
+		String costForm = composeNodeForm(ad.rootlist.getFirst(), false);
+
+		reliabilityForm = cleanNodeForm(reliabilityForm, true);
+		costForm = cleanNodeForm(costForm, false);
+
+		return new Formulas(reliabilityForm, costForm);
 	}
 
 	private String cleanNodeForm(String nodeForm, boolean reliability) {
@@ -247,7 +263,13 @@ public class PARAMProducer {
 				// Call to param (reliability)
 				ParamWrapper paramWrapper = new ParamWrapper(toolsFolder, nodeId);
 				nodeForm = paramWrapper.getFormula(model);
-				nodeForm = nodeForm.replaceFirst("1\\*", "");
+				if(nodeForm.length()> 0) {
+					nodeForm = nodeForm.replaceFirst("1\\*", "");
+				} else {
+					nodeForm = nodeId;
+					System.err.println("Formula for node " + nodeId + " was not resolved. Using nodeId");
+				}
+					
 
 				this.varReliabilityInformation.put(nodeId, "//R_" + nodeId + " = reliability of node " + nodeId + "\n");
 				if (rootNode.isOptional()) {
@@ -558,6 +580,10 @@ public class PARAMProducer {
 	}
 
 	private String getCostFormula(RTContainer rootNode) throws IOException {
+		if(! (rootNode instanceof PlanContainer)) {
+			throw new IllegalStateException(rootNode.getClearElId() + " should be a plan");
+		}
+		
 		PlanContainer plan = (PlanContainer) rootNode;
 
 		if (plan.getCostRegex() != null) {

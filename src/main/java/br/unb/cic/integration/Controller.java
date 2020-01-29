@@ -1,26 +1,41 @@
 package br.unb.cic.integration;
 
-import br.unb.cic.goda.model.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import br.unb.cic.goda.model.Actor;
+import br.unb.cic.goda.model.ActorImpl;
+import br.unb.cic.goda.model.Goal;
+import br.unb.cic.goda.model.GoalImpl;
+import br.unb.cic.goda.model.Plan;
+import br.unb.cic.goda.model.PlanImpl;
 import br.unb.cic.goda.rtgoretoprism.action.PRISMCodeGenerationAction;
 import br.unb.cic.goda.rtgoretoprism.action.RunParamAction;
 import br.unb.cic.pistar.model.PistarActor;
 import br.unb.cic.pistar.model.PistarLink;
 import br.unb.cic.pistar.model.PistarModel;
 import br.unb.cic.pistar.model.PistarNode;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @RestController
 public class Controller {
@@ -114,7 +129,7 @@ public class Controller {
                 });
     }
 
-    private void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors, Set<Goal> selectedGoals) {
+    public static void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors, Set<Goal> selectedGoals) {
         List<PistarActor> pistarActors = model.getActors();
         pistarActors.forEach(pistarActor -> {
             Actor actor = new ActorImpl(pistarActor);
@@ -151,7 +166,7 @@ public class Controller {
         });
     }
 
-    private Goal fillDecompositionList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal, Goal goal) {
+    private static Goal fillDecompositionList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal, Goal goal) {
         List<PistarLink> linksToGoal = model.getLinks().stream()
                 .filter(d -> d.getTarget().equals(pistarGoal.getId()) && d.getType().contains("Link"))
                 .collect(Collectors.toList());
@@ -175,7 +190,7 @@ public class Controller {
         return goal;
     }
 
-    private void fillMeansToAndEndPlansList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal, Goal goal) {
+    private static void fillMeansToAndEndPlansList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal, Goal goal) {
         List<PistarLink> linksToGoal = model.getLinks().stream()
                 .filter(l -> l.getTarget().equals(pistarGoal.getId()) && l.getType().contains("Link"))
                 .collect(Collectors.toList());
@@ -190,7 +205,7 @@ public class Controller {
         });
     }
 
-    private Plan fillEndPlans(PistarModel model, PistarActor pistarActor, PistarNode pistarPlan, Plan meansToAnEndPlan) {
+    private static Plan fillEndPlans(PistarModel model, PistarActor pistarActor, PistarNode pistarPlan, Plan meansToAnEndPlan) {
         List<PistarLink> linksToPlan = model.getLinks().stream()
                 .filter(l -> l.getTarget().equals(pistarPlan.getId()) && l.getType().contains("Link"))
                 .collect(Collectors.toList());

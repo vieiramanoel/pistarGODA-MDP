@@ -300,13 +300,13 @@ public class SymbolicParamGenerator {
 			throw new IllegalStateException("TRY should have 3 parameters, and received: " + ids.toString());
 		}
 
-		String p1 = ctxInformation.containsKey(ids[0]) ? "CTX_" + ids[0] : "";
-		String p2 = ctxInformation.containsKey(ids[1]) ? "CTX_" + ids[1] : "";
-		String p3 = ctxInformation.containsKey(ids[2]) ? "CTX_" + ids[2] : "";
+		String p1 = ctxInformation.containsKey(ids[0]) ? "CTX_" + ids[0] + " * " : "";
+		String p2 = ctxInformation.containsKey(ids[1]) ? "CTX_" + ids[1] + " * " : "";
+		String p3 = ctxInformation.containsKey(ids[2]) ? "CTX_" + ids[2] + " * " : "";
 
-		p1 = p1 + " * " + ids[0];
-		p2 = p2 + " * " + ids[1];
-		p3 = p3 + " * " + ids[2];
+		p1 = p1 + ids[0];
+		p2 = p2 + ids[1];
+		p3 = p3 + ids[2];
 		
 		formula.append("( " + p1 + " * " + p2 + " - " + p1 + " * " + p3 + " + " + p3 + ")");
 

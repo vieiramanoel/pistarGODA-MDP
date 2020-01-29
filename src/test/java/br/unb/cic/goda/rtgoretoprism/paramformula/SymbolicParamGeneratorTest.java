@@ -1,7 +1,6 @@
 package br.unb.cic.goda.rtgoretoprism.paramformula;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,6 +76,8 @@ public class SymbolicParamGeneratorTest {
 	}
 	
 	
+	
+	
 	@Test
 	public void testTryCostEPMCN1N2N3() {
 		String[] ids = {"T1", "T2", "T3"};
@@ -86,10 +87,34 @@ public class SymbolicParamGeneratorTest {
 		
 		String formula = symbolic.getTryCost(ids, ctxInformation, false).toString();
 		
-		assertEq("(T1 + CTX_T1*R_T1*T2 + (1 - CTX_T1*R_T1)*T3 )", formula);
+		assertEq("(T1 + CTX_T1*R_T1*T2 + (1 - CTX_T1*R_T1) * T3 )", formula);
 		
 	}
 	
+	@Test
+	public void testTryCostEPMCN1N2skip() {
+		String[] ids = {"T1", "T2", "skip"};
+		ctxInformation.put("T1", "CTX_1");
+		ctxInformation.put("T2", "CTX_2");
+		
+		String formula = symbolic.getTryCost(ids, ctxInformation, false).toString();
+		
+		assertEq("(T1 + CTX_T1*R_T1*T2)", formula);
+		
+	}
+	
+	
+	@Test
+	public void testTryCostEPMCN1skipN3() {
+		String[] ids = {"T1", "skip", "T3"};
+		ctxInformation.put("T1", "CTX_1");
+		ctxInformation.put("T3", "CTX_3");
+		
+		String formula = symbolic.getTryCost(ids, ctxInformation, false).toString();
+		
+		assertEq("(T1 + (1 - CTX_T1*R_T1) * T3)", formula);
+	}
+		
 	
 	/* assert equivalent formulas, ignoring blank spaces */
 	private void assertEq(String str1, String str2) {
