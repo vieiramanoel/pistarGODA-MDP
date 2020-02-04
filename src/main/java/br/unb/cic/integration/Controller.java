@@ -87,7 +87,7 @@ public class Controller {
             }
             zos.close();
             cleanDTMCFolder();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -113,7 +113,7 @@ public class Controller {
             }
             zos.close();
             cleanDTMCFolder();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

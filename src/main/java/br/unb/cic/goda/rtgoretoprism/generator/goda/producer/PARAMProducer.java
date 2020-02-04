@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.model.Goal;
@@ -225,8 +226,8 @@ public class PARAMProducer {
 		else
 			nodeId = rootNode.getClearElId();
 
-		decompGoal = rootNode.getDecompGoals();
-		decompPlans = rootNode.getDecompPlans();
+		decompGoal = (LinkedList<GoalContainer>) removeDuplicates(rootNode.getDecompGoals());
+		decompPlans = (LinkedList<PlanContainer>) removeDuplicates(rootNode.getDecompPlans());
 		decType = rootNode.getDecomposition();
 		rtAnnot = rootNode.getRtRegex();
 
@@ -304,14 +305,14 @@ public class PARAMProducer {
 
 			if (reliability) {
 				// Reliability formula
-				if (decType.equals(Const.AND)) { // Sequential AND
+				if (decType.equals(Const.AND) || decType.equals(Const.ME)) { // Sequential AND
 					formula = symbolic.getAndReliability(ids, this.ctxInformation);
 				} else { // Sequential OR
 					formula = symbolic.getOrReliability(ids, this.ctxInformation);
 				}
 			} else {
 				// Cost formula
-				if (decType.equals(Const.AND)) { // Sequential AND
+				if (decType.equals(Const.AND) || decType.equals(Const.ME)) { // Sequential AND
 					formula = symbolic.getSequentialAndCost(ids, nodeId, this.ctxInformation, this.isParam);
 				} else { // Sequential OR
 					formula = symbolic.getSequentialOrCost(ids, nodeId, this.ctxInformation, this.isParam);
@@ -324,14 +325,14 @@ public class PARAMProducer {
 
 			if (reliability) {
 				// Reliability formula
-				if (decType.equals(Const.AND)) { // Parallel AND
+				if (decType.equals(Const.AND) || decType.equals(Const.ME)) { // Parallel AND
 					formula = symbolic.getAndReliability(ids, this.ctxInformation);
 				} else { // Parallel OR
 					formula = symbolic.getOrReliability(ids, this.ctxInformation);
 				}
 			} else {
 				// Cost formula
-				if (decType.equals(Const.AND)) { // Parallel AND
+				if (decType.equals(Const.AND) || decType.equals(Const.ME)) { // Parallel AND
 					formula = symbolic.getParallelAndCost(ids, nodeId, this.ctxInformation, this.isParam);
 				} else { // Parallel OR
 					formula = symbolic.getParallelOrCost(ids, nodeId, this.ctxInformation, this.isParam);
@@ -358,9 +359,17 @@ public class PARAMProducer {
 			return formula.toString();
 		} else if (rtAnnot.contains("try")) {
 			String[] ids = getChildrenId(rootNode);
+			
+			if(rtAnnot.contains("?skip:")) { //try(a)?b:skip
+				ids = new String[] {ids[0], "skip", ids[1]};
+			}else if(rtAnnot.contains(":skip")) {//try(a)?skip:b
+				ids = new String[] {ids[0], ids[1], "skip"};
+			} 
+			
 			if (reliability) {
 				formula = symbolic.getTryReliability(ids, this.ctxInformation, this.isParam);
 			} else {
+				formula = symbolic.getTryCost(ids, this.ctxInformation, this.isParam);
 			}
 			return formula.toString();
 		} else {
@@ -368,6 +377,11 @@ public class PARAMProducer {
 		}
 
 		return formula.toString();
+	}
+	
+	static <E> LinkedList<E> removeDuplicates(LinkedList<E> list) {
+		List<E> nlist = list.stream().distinct().collect(Collectors.toList());
+		return new LinkedList<E>(nlist);
 	}
 
 //private String getNodeForm(Const decType, String dmAnnot, String nodeId, boolean reliability, RTContainer rootNode) throws Exception {

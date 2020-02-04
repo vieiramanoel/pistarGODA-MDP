@@ -295,21 +295,33 @@ public class SymbolicParamGenerator {
 
 	public StringBuilder getTryReliability(String[] ids, Map<String, String> ctxInformation, boolean isParam) {
 		StringBuilder formula = new StringBuilder();
-
 		if (ids.length != 3) {
 			throw new IllegalStateException("TRY should have 3 parameters, and received: " + ids.toString());
 		}
-
-		String p1 = ctxInformation.containsKey(ids[0]) ? "CTX_" + ids[0] + " * " : "";
-		String p2 = ctxInformation.containsKey(ids[1]) ? "CTX_" + ids[1] + " * " : "";
-		String p3 = ctxInformation.containsKey(ids[2]) ? "CTX_" + ids[2] + " * " : "";
-
-		p1 = p1 + ids[0];
-		p2 = p2 + ids[1];
-		p3 = p3 + ids[2];
 		
-		formula.append("( " + p1 + " * " + p2 + " - " + p1 + " * " + p3 + " + " + p3 + ")");
+		String p1 = ctxInformation.containsKey(ids[0]) ? "CTX_" + ids[0] + " * " : "";
+		p1 = p1 + ids[0];
+		
+		String p2 = null, p3 = null;
+		if(ids[1] != "skip") {
+			p2 = ctxInformation.containsKey(ids[1]) ? "CTX_" + ids[1] + " * " : "";
+			p2 = p2 + ids[1];
+		}
+		
+		if(ids[2] != "skip") {
+			p3 = ctxInformation.containsKey(ids[2]) ? "CTX_" + ids[2] + " * " : "";	
+			p3 = p3 + ids[2];
+		}
+		
+		
+		// firstHalf of formula -  p1 and p2 (if defined) == p1*p2
+		String firstHalf = p2 != null ? p1 + " * " + p2 : p1;
+		
+		//secondHalf of formula - !p1 and p3(if defined)
+		String notP1 = "( 1 - "+ p1 + " )";
+		String secondHalf = p3 != null ?  notP1 + " * " + p3 : notP1;
 
+		formula.append("( " + firstHalf + " + " + secondHalf + " )");
 		return formula;
 	}
 	
@@ -324,10 +336,20 @@ public class SymbolicParamGenerator {
 			throw new IllegalStateException("TRY parametric formula for PARAM is not implemented");
 		}
 
-		String r1 = ctxInformation.containsKey(ids[0]) ? "CTX_" + ids[0] : "";
-		r1 = r1 + " * R_" + ids[0];
+		// reliability of task 1
+		String r1 = ctxInformation.containsKey(ids[0]) ? "CTX_" + ids[0] + " * " : "";
+		r1 = r1 + "R_" + ids[0];
 
-		formula.append("( " + ids[0] + " + " + r1 + " * " +  ids[1] + "+ (1 - " + r1 + " ) * " + ids[2] + ")");
+		formula.append("( " + ids[0]); // cost of p1
+
+		if(ids[1] != "skip") { //cost of p2, if defined
+			formula.append(" + " + r1 + " * " +  ids[1] );
+		}
+		if(ids[2] != "skip") {  //cost of p3, if defined
+			String notP1 = "( 1 - "+ r1 + " )";
+			formula.append(" + " + notP1 + " * " + ids[2]);
+		}
+		formula.append(" )");
 
 		return formula;
 	}

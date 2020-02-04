@@ -2,8 +2,6 @@ package br.unb.cic.integration;
 
 import static br.unb.cic.goda.testutils.AssertUtils.assertEq;
 import static br.unb.cic.integration.Controller.transformToTao4meEntities;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,15 +9,11 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,23 +29,51 @@ import br.unb.cic.pistar.model.PistarModel;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PARAMProducerTest {
 
-
 	@Test
-	public void testCase1() throws Exception {
-		Formulas formulas = readModelAndGetFormulas("Test1.txt", false);
+	public void formula_simple_and() throws Exception {
+		Formulas formulas = readModelAndGetFormulas("formulas/simple_seq_and.json", false);
 
-		assertEq("", formulas.reliability);
-		assertEq("", formulas.cost);
+		assertEq("(G0_T1*G0_T2)", formulas.reliability);
+		assertEq("(W_G0_T1+(G0_T1)*W_G0_T2)", formulas.cost);
 	}
 
 	@Test
-	public void testCase2() throws Exception {
-		Formulas formulas = readModelAndGetFormulas("Test2.txt", false);
+	public void formula_simple_or() throws Exception {
+		Formulas formulas = readModelAndGetFormulas("formulas/simple_seq_or.json", false);
 
-		assertEq("", formulas.reliability);
-		assertEq("", formulas.cost);
+		assertEq("(1 - (1-G0_T1)*(1-G0_T2))", formulas.reliability);
+		assertEq("(W_G0_T1+((1-G0_T1))*W_G0_T2)", formulas.cost);
 	}
+	
+	@Test
+	public void formula_try_with_N1N2N3() throws Exception {
+		Formulas formulas = readModelAndGetFormulas("formulas/try_3_params.json", false);
 
+		assertEq("(G0_T1*G0_T2+(1-G0_T1)*G0_T3)", formulas.reliability);
+		assertEq("(W_G0_T1 + G0_T1 * W_G0_T2 + (1-G0_T1)*W_G0_T3)", formulas.cost);
+		
+		
+	}
+	
+	@Test
+	public void formula_try_with_N1N2skip() throws Exception {
+		Formulas formulas = readModelAndGetFormulas("formulas/try_n1_n2_skip.json", false);
+
+		assertEq("(G0_T1*G0_T2 + (1-G0_T1))", formulas.reliability);
+		assertEq("(W_G0_T1 + G0_T1*W_G0_T2)", formulas.cost);
+				
+	}
+	
+	@Test
+	public void formula_try_with_N1skipN3() throws Exception {
+		Formulas formulas = readModelAndGetFormulas("formulas/try_n1_skip_n3.json", false);
+
+		assertEq("(G0_T1 + (1-G0_T1)*G0_T3)", formulas.reliability);
+		assertEq("(W_G0_T1 + (1 - G0_T1)*W_G0_T3)", formulas.cost);
+				
+	}
+	
+	
 	@Test
 	public void testCase3() throws Exception {
 		Formulas formulas = readModelAndGetFormulas("Test3.txt", false);
