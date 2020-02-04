@@ -28,7 +28,15 @@ import br.unb.cic.pistar.model.PistarModel;
 @RunWith(SpringRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PARAMProducerTest {
+	@Test
+	public void formula_DM() throws Exception {
+		Formulas formulas = readModelAndGetFormulas("formulas/dm.json", false);
 
+		assertEq("(1-(1-CTX_G0_T1*G0_T1)*(1-CTX_G0_T2*G0_T2))", formulas.reliability);
+		assertEq("(CTX_G0_T1*W_G0_T1+CTX_G0_T2*W_G0_T2)", formulas.cost);
+				
+	}
+	
 	@Test
 	public void formula_simple_and() throws Exception {
 		Formulas formulas = readModelAndGetFormulas("formulas/simple_seq_and.json", false);
@@ -43,6 +51,15 @@ public class PARAMProducerTest {
 
 		assertEq("(1 - (1-G0_T1)*(1-G0_T2))", formulas.reliability);
 		assertEq("(W_G0_T1+((1-G0_T1))*W_G0_T2)", formulas.cost);
+	}
+	
+	@Test
+	public void formula_retry() throws Exception {
+		Formulas formulas = readModelAndGetFormulas("formulas/retry.json", false);
+
+		assertEq("(G0_T1+G0_T1*(1-G0_T1)^1+G0_T1*(1-G0_T1)^2+G0_T1*(1-G0_T1)^3)", formulas.reliability);
+		assertEq("(W_G0_T1+W_G0_T1*(1-G0_T1)^1+W_G0_T1*(1-G0_T1)^2+W_G0_T1*(1-G0_T1)^3)", formulas.cost);
+				
 	}
 	
 	@Test
@@ -73,6 +90,23 @@ public class PARAMProducerTest {
 				
 	}
 	
+
+	
+	@Test
+	public void testCase1() throws Exception {
+		Formulas formulas = readModelAndGetFormulas("Test1.txt", false);
+
+		assertEq("", formulas.reliability);
+		assertEq("", formulas.cost);
+	}
+	
+	@Test
+	public void testCase2() throws Exception {
+		Formulas formulas = readModelAndGetFormulas("Test2.txt", false);
+
+		assertEq("", formulas.reliability);
+		assertEq("", formulas.cost);
+	}
 	
 	@Test
 	public void testCase3() throws Exception {

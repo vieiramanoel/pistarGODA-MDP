@@ -349,7 +349,7 @@ public class PARAMProducer {
 			}
 		} else if (rtAnnot.contains("@")) {
 			String[] ids = getChildrenId(rootNode);
-			int retryNum = Integer.parseInt(rtAnnot.substring(rtAnnot.indexOf("@") + 1)) + 1;
+			int retryNum = Integer.parseInt(rtAnnot.substring(rtAnnot.indexOf("@") + 1));
 
 			if (reliability) {
 				formula = symbolic.getRetryReliability(ids, nodeId, this.ctxInformation, this.isParam, retryNum);
