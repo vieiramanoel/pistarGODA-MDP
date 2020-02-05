@@ -57,7 +57,7 @@ public class SymbolicParamGeneratorTest {
 		String[] ids = {"T1", "T2"};
 		ctxInformation.put("T1", "CTX_1");
 		ctxInformation.put("T2", "CTX_2");
-		String formula = symbolic.getDMReliability(ids, ctxInformation, false).toString();
+		String formula = symbolic.getDMCost(ids, ctxInformation, false).toString();
 		
 		assertEq("(CTX_T1*T1 + CTX_T2*T2)", formula);
 	}
@@ -71,10 +71,9 @@ public class SymbolicParamGeneratorTest {
 		
 		String formula = symbolic.getTryReliability(ids, ctxInformation, false).toString();
 		
-		assertEq("(CTX_T1*T1 * CTX_T2*T2 - CTX_T1*T1 * CTX_T3*T3 + CTX_T3*T3 )", formula);
+		assertEq("(CTX_T1*T1 * CTX_T2*T2 + (1 - CTX_T1*T1)*CTX_T3*T3 )", formula);
 		
 	}
-	
 	
 	
 	

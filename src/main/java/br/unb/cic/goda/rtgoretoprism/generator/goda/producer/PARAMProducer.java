@@ -343,9 +343,9 @@ public class PARAMProducer {
 		} else if (rtAnnot.contains("DM")) {
 			String[] ids = getChildrenId(rootNode);
 			if (reliability) {
-				formula = symbolic.getOrReliability(ids, this.ctxInformation);
+				formula = symbolic.getDMReliability(ids, this.ctxInformation);
 			} else {
-				formula = symbolic.getDMReliability(ids, ctxInformation, this.isParam);
+				formula = symbolic.getDMCost(ids, ctxInformation, this.isParam);
 			}
 		} else if (rtAnnot.contains("@")) {
 			String[] ids = getChildrenId(rootNode);

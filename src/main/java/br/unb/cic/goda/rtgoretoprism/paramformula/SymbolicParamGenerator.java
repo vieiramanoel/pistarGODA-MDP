@@ -58,12 +58,12 @@ public class SymbolicParamGenerator {
 						reliability.append("R_" + id);
 						formula.append(" " + id + " + ");
 					} else {
-						formula.append(" ( " + reliability.toString() + " ) * " + id + " +");
+						formula.append(" ( " + reliability.toString() + " ) * " + id + " + ");
 						reliability.append(" * R_" + id);
 					}
 				}
 			}
-			formula.deleteCharAt(formula.length() - 1);
+			formula.delete(formula.lastIndexOf("+"), formula.length() - 1);
 			formula.append(" ) ");
 		}
 
@@ -209,7 +209,7 @@ public class SymbolicParamGenerator {
 		return formula;
 	}
 
-	public StringBuilder getDMReliability(String[] ids, Map<String, String> ctxInformation, boolean isParam) {
+	public StringBuilder getDMCost(String[] ids, Map<String, String> ctxInformation, boolean isParam) {
 
 		StringBuilder formula = new StringBuilder();
 
@@ -223,10 +223,10 @@ public class SymbolicParamGenerator {
 					System.out.println("[WARN] Node '" + id + "' has no context information and is in a DM");
 				}
 
-				formula.append(" CTX_" + id + " * " + id + " +");
+				formula.append(" CTX_" + id + " * " + id + " + ");
 
 			}
-			formula.deleteCharAt(formula.length() - 1);
+			formula.delete(formula.lastIndexOf("+"), formula.length() - 1);
 			formula.append(" ) ");
 		}
 
@@ -352,5 +352,9 @@ public class SymbolicParamGenerator {
 		formula.append(" )");
 
 		return formula;
+	}
+
+	public StringBuilder getDMReliability(String[] ids, Map<String, String> ctxInformation) {
+		return this.getOrReliability(ids, ctxInformation);
 	}
 }
