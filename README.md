@@ -117,7 +117,7 @@ Body Sensor Network contextual goal model augmented with uncertainty used to eva
 
 ### Installation 
 To run the source code locally:
-* Clone this repo: $ git clone https://github.com/gabrielasolano/Seams2019.git
+* Clone this repo: $ git clone https://github.com/lesunb/pistarGODA-MDP.git
 * Import it as a *Maven project* in your IDE.
 * Run as *java application*, selecting *Application* from *br.unb.cic.integration*. <img src="docs/images/JavaApplication.png" width="500">
 * In your browser: *localhost:8080* to use the framework.
