@@ -135,5 +135,8 @@ These are the steps when using the Eclipse IDE. Adaptation may be needed when us
 
 * Look for existing issues or create a new one describing your problem or doubt
 * Contact the author by email
+	* genaina[at]unb[dot]br
 	* felix.solano[at]gmail[dot]com
-	* TODO: add other team members contacts here
+	* gabrielsr[at]gmail[dot]com
+	* rdinizcal[at]gmail[dot]com
+	* ericbgil[at]gmail[dot]com
