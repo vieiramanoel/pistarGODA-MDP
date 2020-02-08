@@ -138,5 +138,6 @@ These are the steps when using the Eclipse IDE. Adaptation may be needed when us
 	* genaina[at]unb[dot]br
 	* felix.solano[at]gmail[dot]com
 	* gabrielsr[at]gmail[dot]com
+	* leandro.bergmann[at]gmail[dot]com
 	* rdinizcal[at]gmail[dot]com
 	* ericbgil[at]gmail[dot]com
