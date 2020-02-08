@@ -107,7 +107,7 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 
 ## Example
 
-Body Sensor Network contextual goal model augmented with uncertainty used as a case study in our article. For more information, we refer to the [article's Background section](docs/seams2019.pdf).
+Body Sensor Network contextual goal model augmented with uncertainty used to evaluate GODA-MDP. For more information, we refer to the [article's Background section](docs/seams2019.pdf). [Here](https://github.com/lesunb/bsn) you can find repository of the source files of our BSN prototype and [here](http://bodysensornetwork.herokuapp.com/#/) the BSN prototype live, deployed in Heroku. 
 
 <p align="center">
   <img src="docs/images/CGM.png" width="600">
