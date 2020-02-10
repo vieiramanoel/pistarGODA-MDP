@@ -1,12 +1,13 @@
 package br.unb.cic.goda.rtgoretoprism.model.kl;
 
-import br.unb.cic.goda.model.GeneralEntity;
-import br.unb.cic.goda.rtgoretoprism.model.kl.Const;
-import br.unb.cic.goda.rtgoretoprism.model.kl.GoalContainer;
-import br.unb.cic.goda.rtgoretoprism.model.kl.PlanContainer;
-import br.unb.cic.goda.rtgoretoprism.model.kl.RTContainer;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-import java.util.*;
+import br.unb.cic.goda.model.GeneralEntity;
 
 public abstract class RTContainer extends ElementContainer /*implements Comparable<RTContainer>*/ {
 
@@ -101,15 +102,18 @@ public abstract class RTContainer extends ElementContainer /*implements Comparab
 	 * @return Returns decomposed elements. 
 	 */
 	public LinkedList<RTContainer> getDecompElements() {
-		LinkedList<RTContainer> res = new LinkedList<RTContainer>();
+		LinkedList<RTContainer> res = new LinkedList<>();
 		if (!goals.isEmpty()) {
 			for (GoalContainer dec : goals)
-				res.add(dec);
+				if(!res.contains(dec))
+					res.add(dec);
 		}
 		else if (!plans.isEmpty()) {
 			for (PlanContainer dec : plans)
-				res.add(dec);
+				if(!res.contains(dec))
+					res.add(dec);
 		}
+		
 		return res;
 	}
 	/**

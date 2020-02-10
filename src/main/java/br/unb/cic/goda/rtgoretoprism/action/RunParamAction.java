@@ -20,7 +20,7 @@ public class RunParamAction {
         this.isParam = isParam;
     }
 
-    public void run() {
+    public void run() throws Exception {
         if (selectedActors.isEmpty())
             return;
         String sourceFolder = "src/main/resources/TemplateInput";
@@ -34,6 +34,7 @@ public class RunParamAction {
         } catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		}
     }
 

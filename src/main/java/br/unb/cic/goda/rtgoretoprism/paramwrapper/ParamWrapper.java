@@ -1,16 +1,18 @@
 package br.unb.cic.goda.rtgoretoprism.paramwrapper;
 
-import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
-
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
 
 /**
  * Façade to a PARAM executable.
@@ -100,12 +102,43 @@ public class ParamWrapper implements ParametricModelChecker {
         try {
             exitCode = program.waitFor();
         } catch (InterruptedException e) {
+        	LOGGER.severe("Error invoking param with command:" + commandLine);
+        	
             LOGGER.severe("Exit code: " + exitCode);
             LOGGER.log(Level.SEVERE, e.toString(), e);
         }
+        
+        logExecResults(program);
+        
         List<String> lines = Files.readAllLines(Paths.get(resultsPath), Charset.forName("UTF-8"));
         // Formula
         return lines.get(lines.size() - 1);
+    }
+    
+    private void logExecResults(Process proc) throws IOException {
+        BufferedReader stdInput = new BufferedReader(new 
+       	     InputStreamReader(proc.getInputStream()));
+       
+       BufferedReader stdError = new BufferedReader(new 
+       	     InputStreamReader(proc.getErrorStream()));
+       
+       String s = null;
+       
+       if(stdInput.ready()) {
+	       // Read the output from the command
+	       System.out.println("Here is the standard output of the command:");
+	       while ((s = stdInput.readLine()) != null) {
+	           System.out.println(s);
+	       }
+       }
+
+       if(stdError.ready()) {
+           // Read any errors from the attempted command
+           System.err.println("Here is the standard error of the command (if any):");
+           while ((s = stdError.readLine()) != null) {
+               System.err.println(s);
+           }
+       }
     }
 
 }
