@@ -1,7 +1,7 @@
 package br.unb.cic.integration;
 
 import static br.unb.cic.goda.testutils.AssertUtils.assertEq;
-import static br.unb.cic.integration.Controller.transformToTao4meEntities;
+import static br.unb.cic.integration.IntegrationService.transformToTao4meEntities;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 
 import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.model.Goal;
+import br.unb.cic.goda.model.ModelTypeEnum;
 import br.unb.cic.goda.rtgoretoprism.action.RunParamAction;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.producer.PARAMProducer;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.producer.PARAMProducer.Formulas;
@@ -28,6 +29,7 @@ import br.unb.cic.pistar.model.PistarModel;
 @RunWith(SpringRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PARAMProducerTest {
+	
 	@Test
 	public void formula_DM() throws Exception {
 		Formulas formulas = readModelAndGetFormulas("formulas/dm.json", false);
@@ -391,11 +393,11 @@ public class PARAMProducerTest {
 		String toolsFolder = "tools";
 		Formulas formula;
 		try {
-			new RunParamAction(selectedActors, selectedGoals, false).run();
+			new RunParamAction(selectedActors, selectedGoals, false, "DTMC").run();
 
 			
 			PARAMProducer producer = new PARAMProducer(selectedActors, selectedGoals, isParam, sourceFolder, targetFolder,
-					toolsFolder);
+					toolsFolder, ModelTypeEnum.DTMC.getTipo());
 
 			Actor actor = (Actor) selectedActors.toArray()[0];
 

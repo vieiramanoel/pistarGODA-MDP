@@ -28,7 +28,7 @@ var ui = {
     resetLinkSource: function(){this.linkSource = 'none'; return this;},
     resetLinkTarget: function(){this.linkTarget = 'none'; return this;},
 
-    tratarExcecao: function(error = ""){
+    handleException: function(error = ""){
 		var objError = JSON.parse(error);
 		if(objError["message"]){ 
 			error = "Error: " + objError["message"]; 
@@ -383,19 +383,38 @@ $('#saveModelButton').click(function() {
     $('#saveModel').show();
 });
 
-$('#runPRISMButton').click(function() {
+$('#runPrismDTMCButton').click(function() {
     var model = saveModel();
     $.ajax({
         type: "POST",
-        url: '/prism-dtmc',
+        url: '/prism/MDP',
         data: {
             "content": model
         },
         success: function() {
+	debugger;
             window.location.href = 'prism.zip';
         },
         error: function (request, status, error) {
-			ui.tratarExcecao(request.responseText);
+			ui.handleException(request.responseText);
+        }
+    });
+});
+
+$('#runPrismMDPButton').click(function() {
+    var model = saveModel();
+    $.ajax({
+        type: "POST",
+        url: '/prism/MDP',
+        data: {
+            "content": model
+        },
+        success: function() {
+	debugger;
+            window.location.href = 'prism.zip';
+        },
+        error: function (request, status, error) {
+			ui.handleException(request.responseText);
         }
     });
 });
@@ -404,15 +423,16 @@ $('#runPARAMButton').click(function() {
     var model = saveModel();
     $.ajax({
         type: "POST",
-        url: '/param-dtmc',
+        url: '/param/MDP',
         data: {
             "content": model
         },
         success: function() {
+	debugger;
             window.location.href = 'param.zip';
         },
         error: function (request, status, error) {
-			ui.tratarExcecao(request.responseText);
+			ui.handleException(request.responseText);
         }
     });
 });
@@ -421,15 +441,16 @@ $('#runEPMCButton').click(function() {
     var model = saveModel();
     $.ajax({
         type: "POST",
-        url: '/epmc-dtmc',
+        url: '/epmc/MDP',
         data: {
             "content": model
         },
         success: function() {
+	debugger;
             window.location.href = 'epmc.zip';
         },
         error: function (request, status, error) {
-			ui.tratarExcecao(request.responseText);
+			ui.handleException(request.responseText);
         }
     });
 });

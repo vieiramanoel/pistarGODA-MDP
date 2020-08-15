@@ -13,11 +13,13 @@ public class RunParamAction {
     private Set<Actor> selectedActors;
     private Set<Goal> selectedGoals;
     private boolean isParam;
+    private String typeModel;
 
-    public RunParamAction(Set<Actor> selectedActors, Set<Goal> selectedGoals, boolean isParam) {
+    public RunParamAction(Set<Actor> selectedActors, Set<Goal> selectedGoals, boolean isParam, String typeModel) {
         this.selectedActors = selectedActors;
         this.selectedGoals = selectedGoals;
         this.isParam = isParam;
+        this.typeModel = typeModel;
     }
 
     public void run() throws Exception {
@@ -26,7 +28,7 @@ public class RunParamAction {
         String sourceFolder = "src/main/resources/TemplateInput";
         String targetFolder = "dtmc";
         String toolsFolder = "tools";
-        PARAMProducer producer = new PARAMProducer(selectedActors, selectedGoals, isParam, sourceFolder, targetFolder, toolsFolder);
+        PARAMProducer producer = new PARAMProducer(selectedActors, selectedGoals, isParam, sourceFolder, targetFolder, toolsFolder, this.typeModel);
         try {
             producer.run();
         } catch (CodeGenerationException | IOException e) {

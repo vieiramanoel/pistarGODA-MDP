@@ -12,10 +12,12 @@ public class PRISMCodeGenerationAction {
 
     private Set<Actor> selectedActors;
     private Set<Goal> selectedGoals;
+    private String typeModel;
 
-    public PRISMCodeGenerationAction(Set<Actor> selectedActors, Set<Goal> selectedGoals) {
+    public PRISMCodeGenerationAction(Set<Actor> selectedActors, Set<Goal> selectedGoals, String typeModel) {
         this.selectedActors = selectedActors;
         this.selectedGoals = selectedGoals;
+        this.typeModel = typeModel;
     }
 
     public void run() {
@@ -23,7 +25,7 @@ public class PRISMCodeGenerationAction {
             return;
         String sourceFolder = "src/main/resources/TemplateInput";
         String targetFolder = "dtmc";
-        RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, sourceFolder, targetFolder);
+        RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, typeModel, sourceFolder, targetFolder);
         try {
             producer.run();
         } catch (CodeGenerationException | IOException e) {

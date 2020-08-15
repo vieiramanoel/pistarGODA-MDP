@@ -35,9 +35,9 @@ public class RTGoreProducer {
 	private Map<String, Object[]> rtRetryGoals;
 	private Map<String, String[]> rtTryGoals;
 	private Map<String, Boolean[]> rtSortedGoals;
-	
+	private String typeModel;
 
-	public RTGoreProducer(Set<Actor> allActors, Set<Goal> allGoals, String in, String out) {
+	public RTGoreProducer(Set<Actor> allActors, Set<Goal> allGoals, String typeModel, String in, String out) {
 
 		tn = new TroposNavigator();
 
@@ -51,6 +51,7 @@ public class RTGoreProducer {
 		this.rtRetryGoals = new TreeMap<>();
 		this.rtSortedGoals = new TreeMap<>();
         this.rtTryGoals = new TreeMap<>();
+        this.typeModel = typeModel;
 	}
 
 	/**
@@ -90,7 +91,7 @@ public class RTGoreProducer {
 			List<Plan> planList = a.getPlanList();
 
 			PrismWriter writer = new PrismWriter(ad, planList, inputFolder, outputFolder, false);
-			writer.writeModel();
+			writer.writeModel(typeModel);
 
 			//Generate pctl formulas
 			generatePctlFormulas(ad);

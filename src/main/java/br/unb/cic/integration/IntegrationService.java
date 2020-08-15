@@ -16,10 +16,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -37,11 +34,9 @@ import br.unb.cic.pistar.model.PistarLink;
 import br.unb.cic.pistar.model.PistarModel;
 import br.unb.cic.pistar.model.PistarNode;
 
-@RestController
-public class Controller {
-
-    @RequestMapping(value = "/prism-dtmc", method = RequestMethod.POST)
-    public void prism(@RequestParam(value = "content") String content) {
+@Service
+public class IntegrationService {
+    public void executePrism(String content, String typeModel) {
         Gson gson = new GsonBuilder().create();
         PistarModel model = gson.fromJson(content, PistarModel.class);
         Set<Actor> selectedActors = new HashSet<>();
@@ -49,7 +44,7 @@ public class Controller {
         transformToTao4meEntities(model, selectedActors, selectedGoals);
         try {
             cleanDTMCFolder();
-            new PRISMCodeGenerationAction(selectedActors, selectedGoals).run();
+            new PRISMCodeGenerationAction(selectedActors, selectedGoals, typeModel).run();
             FileOutputStream fos = new FileOutputStream("src/main/webapp/prism.zip");
             ZipOutputStream zos = new ZipOutputStream(fos);
             DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
@@ -65,35 +60,8 @@ public class Controller {
             ex.printStackTrace();
         }
     }
-
-    @RequestMapping(value = "/param-dtmc", method = RequestMethod.POST)
-    public void param(@RequestParam(value = "content") String content) {
-        Gson gson = new GsonBuilder().create();
-        PistarModel model = gson.fromJson(content, PistarModel.class);
-        Set<Actor> selectedActors = new HashSet<>();
-        Set<Goal> selectedGoals = new HashSet<>();
-        transformToTao4meEntities(model, selectedActors, selectedGoals);
-        try {
-            cleanDTMCFolder();
-            new RunParamAction(selectedActors, selectedGoals, true).run();
-            FileOutputStream fos = new FileOutputStream("src/main/webapp/param.zip");
-            ZipOutputStream zos = new ZipOutputStream(fos);
-            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
-            for (Path path : directoryStream) {
-                byte[] bytes = Files.readAllBytes(path);
-                zos.putNextEntry(new ZipEntry(path.getFileName().toString()));
-                zos.write(bytes, 0, bytes.length);
-                zos.closeEntry();
-            }
-            zos.close();
-            cleanDTMCFolder();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
     
-    @RequestMapping(value = "/epmc-dtmc", method = RequestMethod.POST)
-    public void epmc(@RequestParam(value = "content") String content) {
+    public void executeParam(String content, String typeModel, String output) {
         Gson gson = new GsonBuilder().create();
         PistarModel model = gson.fromJson(content, PistarModel.class);
         Set<Actor> selectedActors = new HashSet<>();
@@ -101,8 +69,8 @@ public class Controller {
         transformToTao4meEntities(model, selectedActors, selectedGoals);
         try {
             cleanDTMCFolder();
-            new RunParamAction(selectedActors, selectedGoals, false).run();
-            FileOutputStream fos = new FileOutputStream("src/main/webapp/epmc.zip");
+            new RunParamAction(selectedActors, selectedGoals, true, typeModel).run();
+            FileOutputStream fos = new FileOutputStream(output);
             ZipOutputStream zos = new ZipOutputStream(fos);
             DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
             for (Path path : directoryStream) {
