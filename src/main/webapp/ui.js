@@ -27,6 +27,14 @@ var ui = {
     resetAddingElement: function(){this.currentAddingElement = 'none'; return this;},
     resetLinkSource: function(){this.linkSource = 'none'; return this;},
     resetLinkTarget: function(){this.linkTarget = 'none'; return this;},
+
+    tratarExcecao: function(error = ""){
+		var objError = JSON.parse(error);
+		if(objError["message"]){ 
+			error = "Error: " + objError["message"]; 
+		} 
+		alert(error);
+	},
 };
 
 
@@ -386,7 +394,9 @@ $('#runPRISMButton').click(function() {
         success: function() {
             window.location.href = 'prism.zip';
         },
-        error: function(){alert("Error!");}
+        error: function (request, status, error) {
+			ui.tratarExcecao(request.responseText);
+        }
     });
 });
 
@@ -401,7 +411,9 @@ $('#runPARAMButton').click(function() {
         success: function() {
             window.location.href = 'param.zip';
         },
-        error: function(){alert("Error!");}
+        error: function (request, status, error) {
+			ui.tratarExcecao(request.responseText);
+        }
     });
 });
 
@@ -416,7 +428,9 @@ $('#runEPMCButton').click(function() {
         success: function() {
             window.location.href = 'epmc.zip';
         },
-        error: function(){alert("Error!");}
+        error: function (request, status, error) {
+			ui.tratarExcecao(request.responseText);
+        }
     });
 });
 
