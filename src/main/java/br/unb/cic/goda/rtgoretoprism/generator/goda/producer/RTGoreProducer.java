@@ -15,6 +15,7 @@ import br.unb.cic.goda.rtgoretoprism.model.kl.PlanContainer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.RTContainer;
 import br.unb.cic.goda.rtgoretoprism.util.FileUtility;
 import br.unb.cic.goda.rtgoretoprism.util.kl.TroposNavigator;
+import static br.unb.cic.goda.rtgoretoprism.util.SintaticAnaliser.verifyModel;
 
 import java.io.IOException;
 import java.util.*;
@@ -128,7 +129,8 @@ public class RTGoreProducer {
 			gc.createDecomposition(Const.AND);			
 		else if (g.isOrDecomposition())
 			gc.createDecomposition(Const.OR);	
-
+		
+		verifyModel(rtRegex, this.rtDMGoals, this.typeModel);
 		if (dmRT) gc.setDecisionMaking(this.rtDMGoals);
 
         iterateGoals(ad, gc, declist, included);
@@ -228,6 +230,7 @@ public class RTGoreProducer {
 			storeCostResults(pc);
 		}
 
+		verifyModel(pc.getRtRegex(), this.rtDMGoals, this.typeModel);
 		if (dmRT) pc.setDecisionMaking(this.rtDMGoals);
 
         iteratePlans(ad, pc, decList);
@@ -422,7 +425,7 @@ public class RTGoreProducer {
 	@SuppressWarnings("unchecked")
 	private boolean storeRegexResults(String uid, String rtRegex, Const decType) throws IOException {
 		if(rtRegex != null){
-			Object [] res = RTParser.parseRegex(uid, rtRegex + '\n', decType, false);
+ 			Object [] res = RTParser.parseRegex(uid, rtRegex + '\n', decType, false);
 			rtDMGoals.addAll((List<String>) res [2]);
 			rtRetryGoals.putAll((Map<String, Object[]>) res[3]);
 			rtTryGoals.putAll((Map<String, String[]>) res[4]);

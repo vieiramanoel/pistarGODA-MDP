@@ -30,6 +30,7 @@ var ui = {
 
     handleException: function(error = ""){
 		var objError = JSON.parse(error);
+		debugger
 		if(objError["message"]){ 
 			error = "Error: " + objError["message"]; 
 		} 
@@ -387,7 +388,7 @@ $('#runPrismDTMCButton').click(function() {
     var model = saveModel();
     $.ajax({
         type: "POST",
-        url: '/prism/MDP',
+        url: '/prism/DTMC',
         data: {
             "content": model
         },
