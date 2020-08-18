@@ -11,7 +11,7 @@ public class SintaticAnaliser {
 			if(isMDP(typeModel)) {
 				//Verifica se o modulo NonDeterminism existe pra ser gerado
 				if(rtDMGoals.isEmpty()) {
-					throw new RuntimeException("Sintaxe inválida: " + rtRegex);
+					throw new RuntimeException("sintaxe inválida em '" + rtRegex + "'");
 				}
 			}
 		}

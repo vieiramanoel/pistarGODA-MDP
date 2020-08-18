@@ -156,7 +156,7 @@ uiC.CellTableView = Backbone.View.extend({
             .on('shown', ui.changeStateToEdit)
             .on('hidden', ui.changeStateToView);
         }
-        $('#cellButtons').html('<button type="button" id="addPropertyButton">Add Property</button>');
+        $('#cellButtons').html('<button type="button" id="addPropertyButton" class="btn btn-primary">Add Property</button>');
         $('#addPropertyButton').click(function () {
             var newPropertyName = window.prompt('Name of the new custom property', 'newProperty');
             if (newPropertyName) {

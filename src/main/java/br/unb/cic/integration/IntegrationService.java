@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;

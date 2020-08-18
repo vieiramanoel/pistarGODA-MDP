@@ -145,20 +145,27 @@
             </div>
         </div>
 
-        <div id="appToolbar" class="col-md-3">
-            <button type="button" id="saveImageButton"><span class="glyphicon glyphicon-picture" aria-hidden="true"></span> Save Image</button>
-            <span id="saveImage" class="toolbarGroup"></span>
-
-            <button type="button" id="saveModelButton"><span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> Save Model</button>
-            <span id="saveModel" class="toolbarGroup"></span>
-
-            <button type="button" id="loadModelButton" data-toggle="modal" data-target="#loadModelModal" title="Load a goal model from a JSON file created with this tool"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span> Load model </button>
-            <button type="button" id="diagramOptionsModalButton" data-toggle="modal" data-target="#diagramOptions" title="Change diagram settings"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Diagram options</button>
-            <button type="button" id="clearButton"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Clear</button>
-            <button type="button" id="runPrismMDPButton"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Generate PRISM MDP Model</button>
-            <button type="button" id="runPrismDTMCButton"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Generate PRISM DTMC Model</button>
-            <button type="button" id="runPARAMButton"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> PARAM Formulas Generation</button>
-            <button type="button" id="runEPMCButton"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> ePMC Formulas Generation</button>
+        <div id="appToolbar" class="col">
+	        <div class="container-fluid row justify-content-center">
+		        <div class="col-12">
+		            <button type="button" class="btn btn-primary" id="saveImageButton"><span class="glyphicon glyphicon-picture" aria-hidden="true"></span> Save Image</button>
+		            <span id="saveImage" class="toolbarGroup"></span>
+		
+		            <button type="button" class="btn btn-primary" id="saveModelButton"><span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> Save Model</button>
+		            <span id="saveModel" class="toolbarGroup"></span>
+			 	</div>
+	       		<div class="col-12">
+		            <button type="button" class="btn btn-primary" id="loadModelButton" data-toggle="modal" data-target="#loadModelModal" title="Load a goal model from a JSON file created with this tool"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span> Load model </button>
+		            <button type="button" class="btn btn-primary" id="diagramOptionsModalButton" data-toggle="modal" data-target="#diagramOptions" title="Change diagram settings"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Diagram options</button>
+		            <button type="button" class="btn btn-primary" id="clearButton"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Clear</button>
+		        </div>
+		        <div class="mt-md col-12">
+	         	    <button type="button" class="btn btn-primary" id="runPrismMDPButton"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Generate PRISM MDP Model</button>
+		            <button type="button" class="btn btn-primary" id="runPrismDTMCButton"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Generate PRISM DTMC Model</button>
+		            <button type="button" class="btn btn-primary" id="runPARAMButton"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> PARAM Formulas Generation</button>
+		            <button type="button" class="btn btn-primary" id="runEPMCButton"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> ePMC Formulas Generation</button>
+		        </div>
+	        </div>
         </div>
     </div>
 </div>
