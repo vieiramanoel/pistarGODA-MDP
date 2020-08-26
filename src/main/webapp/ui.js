@@ -30,12 +30,80 @@ var ui = {
 
     handleException: function(error = ""){
 		var objError = JSON.parse(error);
-		debugger
 		if(objError["message"]){ 
 			error = "Error: " + objError["message"]; 
 		} 
 		alert(error);
 	},
+ 	addDM: function(){
+		var dm = "[DM(";
+		var select = document.getElementById("idDecisions");
+		for(var i = 0; i < select.children.length; i++){
+			if(select.children[i].firstChild.checked){
+				var valor = select.children[i].firstChild.value;
+				var tam = valor.indexOf(":");
+				
+				if(tam > 0){
+					valor = valor.substring(0, tam);
+				}
+				
+				dm = dm + valor + ",";
+			}
+		}
+		dm = dm + ")]";
+		dm = dm.replace(",)]", ")]");
+		
+		return dm;
+	},
+	loadSelectDM: function(){
+		//limpar select
+		var select = document.getElementById("idDecisions");
+		while (select.firstChild) {
+		    select.removeChild(select.firstChild);
+		}
+		
+		if(document.getElementById("checkboxDM").checked){
+			document.getElementById("idDecisions").style.display = "block";
+			var elem = ui.currentElement.collection.models;
+			
+			for(var i = 0; i < elem.length; i++){
+				var lab = elem[i].attr('text/text');
+				var isElGoal = elem[i].attributes.type.toUpperCase().includes("GOAL");
+				var isElTask = elem[i].attributes.type.toUpperCase().includes("TASK");
+				var labelPattern = ui.currentElement.attr('text/text');
+				
+				if(lab != labelPattern){
+					if(lab && (isElTask || isElGoal)){
+		        		var div = document.createElement('section'); 
+						div.className = "linha"
+						var checkbox = document.createElement("input");
+			            checkbox.type = "checkbox"; 
+			            checkbox.value = lab; 
+			            checkbox.name = lab + "_" + i; 
+	
+						var tam = lab.indexOf(":");
+						if(tam > 0){
+							lab = lab.substring(0, tam);
+						}
+						if(labelPattern.includes(lab)){
+							checkbox.checked = true;
+						}
+			              
+			            // creating label for checkbox 
+			            var label = document.createElement('label'); 
+			            label.for = lab + "_" + i; 
+						label.textContent = (isElGoal ? " GOAL - " + lab : " TASK - " + lab); 
+		
+						select.appendChild(div);
+						div.appendChild(checkbox);
+						div.appendChild(label);
+					}
+				}
+			}
+		}else{
+			select.style.display = "none";
+		}
+	}
 };
 
 
@@ -193,11 +261,54 @@ ui.defineInteractions = function() {
             }
         }
         else {
-            oldText = cellView.model.attr('text/text').replace(/(\r\n|\n|\r)/gm,'');
+			var tablePropertyEditable = document.getElementById("tablePropertyEditable");
+			var tableNameEditable = document.getElementById("tableNameEditable");
+			var inputName = document.getElementById("editNameCurrentProperty");
+			var modal = document.getElementById("modalRefact");
+			
+				modal.style.display = "block";
+				tablePropertyEditable.style.display = "none";
+				tableNameEditable.style.display = "block";
+				inputName.value = cellView.model.attr('text/text');
+			var isGoal = ui.currentElement.attributes.type.toUpperCase().includes("GOAL");
+			var isTask = ui.currentElement.attributes.type.toUpperCase().includes("TASK");
+			document.getElementById("idDecisions").style.display = "none";
+			
+			document.getElementById("idModalProperty").textContent = "Add Property: " + inputName.value;
+			
+			if(ui.currentElement.prop('customProperties/' + "selected")){
+				document.getElementById("checkboxRoot").checked = true;
+			}
+
+			var label = ui.currentElement.attr('text/text');
+			if(label.includes("[DM")){
+				var select = document.getElementById("idDecisions");
+				select.style.display = "block";
+				
+				document.getElementById("checkboxDM").checked = true;
+				ui.loadSelectDM();
+			}
+			
+			if(!isGoal){
+				document.getElementById("checkboxList").style.display = "none";
+			}else{
+				document.getElementById("checkboxList").style.display = "block";
+				document.getElementById("goalRoot").style.display = "block";
+			}
+			
+			if(isTask){
+				document.getElementById("checkboxList").style.display = "block";
+				document.getElementById("goalRoot").style.display = "none";
+			}
+			
+			inputName.setAttributeNS(null, "cid", cellView.id);
+		
+            
+          /*  oldText = cellView.model.attr('text/text').replace(/(\r\n|\n|\r)/gm,'');
             newText = window.prompt('Edit text:', oldText);
             if (newText !== null) {
                 cellView.model.changeNodeContent(newText);
-            }
+            }*/
         }
     });
 
@@ -384,6 +495,104 @@ $('#saveModelButton').click(function() {
     $('#saveModel').show();
 });
 
+$('#btnCancel').click(function() {
+	document.getElementById("inputProperty").value = "";
+	document.getElementById("currentnewProperty").value = "";
+	document.getElementById("checkboxRoot").checked = false;
+	var modal = document.getElementById("modalRefact");
+	modal.style.display = "none";
+});
+
+$('#checkboxDM').click(function() {
+	ui.loadSelectDM();
+});
+
+$('#btnOk').click(function() {
+	var isGoal = ui.currentElement.attributes.type.toUpperCase().includes("GOAL");
+	var isTask = ui.currentElement.attributes.type.toUpperCase().includes("TASK");
+	var newPropertyName = document.getElementById("inputProperty").value;
+	var newPropertyValue = document.getElementById("currentnewProperty").value;
+	var inputName = document.getElementById("editNameCurrentProperty");
+	var tablePropertyEditable = document.getElementById("tablePropertyEditable");
+	var erro = false;
+	
+		//Inserir property para definir se é goal ou task
+		if(isGoal){
+			ui.currentElement.prop('customProperties/' + "creationProperty", "assertion condition ctx = true");
+		}else if(isTask){
+			ui.currentElement.prop('customProperties/' + "creationProperty", "assertion trigger ctx = true");
+		}
+		
+		//Inserir property para definir o objetivo como Raiz
+		if(document.getElementById("checkboxRoot").checked && isGoal){
+			ui.currentElement.prop('customProperties/' + "selected", true);
+		}
+		if(!document.getElementById("checkboxRoot").checked){
+			ui.currentElement.removeProp('customProperties/selected', false);
+		}
+		
+		if(document.getElementById("checkboxDM").checked && (isGoal || isTask)){
+			//Inserir property para definir uma decision Making
+			var labelEl = ui.currentElement.attr('text/text');
+			var tam = labelEl.indexOf("[DM");
+			if(tam > 0){
+				labelEl = labelEl.substring(0, tam);
+			}
+			labelEl = labelEl +  ui.addDM();
+			ui.currentElement.changeNodeContent(labelEl);
+		}
+		
+		if(tablePropertyEditable.style.display == "block"){
+			if (newPropertyName) {
+		    	if(!parseInt(newPropertyName)){
+					if (!ui.currentElement.prop('customProperties/' + newPropertyName)) {
+						ui.currentElement.prop('customProperties/' + newPropertyName, newPropertyValue);
+					}else{
+						ui.currentElement.prop('customProperties/' + newPropertyName) = newPropertyValue;
+					}
+				}else{
+					erro = true;
+					alert("ERROR: This property can't to be a number");s
+				}
+			}
+			else {
+				if(!document.getElementById("checkboxDM").checked && !document.getElementById("checkboxRoot").checked){
+					erro = true;
+					alert('ERROR: This property name has been previously defined');
+				}
+			}
+		}else{
+			var tam = inputName.value.indexOf("[DM");
+			if(tam > 0){
+				inputName.value = inputName.value.substring(0, tam);
+			}
+			//Inserir property para definir uma decision Making
+			if(document.getElementById("checkboxDM").checked && (isGoal || isTask)){
+				inputName.value = inputName.value + ui.addDM();
+			}
+			ui.currentElement.changeNodeContent(inputName.value);
+		}
+		
+		if(!erro){
+			var modal = document.getElementById("modalRefact");
+			modal.style.display = "none";
+			document.getElementById("inputProperty").value = "";
+			document.getElementById("currentnewProperty").value = "";
+			document.getElementById("checkboxRoot").checked = false;
+			document.getElementById("checkboxDM").checked = false;
+			editNameCurrentProperty = "";
+			
+		}
+});
+
+$('#btnClose').click(function() {
+	document.getElementById("inputProperty").value = "";
+	document.getElementById("currentnewProperty").value = "";
+	document.getElementById("checkboxRoot").checked = false;
+	var modal = document.getElementById("modalRefact");
+	modal.style.display = "none";
+});
+
 $('#runPrismDTMCButton').click(function() {
     var model = saveModel();
     $.ajax({
@@ -393,7 +602,6 @@ $('#runPrismDTMCButton').click(function() {
             "content": model
         },
         success: function() {
-	debugger;
             window.location.href = 'prism.zip';
         },
         error: function (request, status, error) {
@@ -411,7 +619,6 @@ $('#runPrismMDPButton').click(function() {
             "content": model
         },
         success: function() {
-	debugger;
             window.location.href = 'prism.zip';
         },
         error: function (request, status, error) {
@@ -429,7 +636,6 @@ $('#runPARAMButton').click(function() {
             "content": model
         },
         success: function() {
-	debugger;
             window.location.href = 'param.zip';
         },
         error: function (request, status, error) {
