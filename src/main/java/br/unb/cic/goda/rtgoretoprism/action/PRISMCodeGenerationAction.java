@@ -6,6 +6,7 @@ import java.util.Set;
 import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
 import br.unb.cic.goda.rtgoretoprism.generator.goda.producer.RTGoreProducer;
+import br.unb.cic.goda.model.Goal;
 
 public class PRISMCodeGenerationAction {
 

@@ -2,7 +2,7 @@ package br.unb.cic.goda.model;
 
 import java.util.List;
 
-interface Goal extends GeneralEntity {
+public interface Goal extends GeneralEntity {
 
     String getMode();
 

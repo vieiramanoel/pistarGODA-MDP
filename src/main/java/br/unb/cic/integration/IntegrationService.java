@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 
 import br.unb.cic.goda.model.Actor;
 import br.unb.cic.goda.model.ActorImpl;
+import br.unb.cic.goda.model.Goal;
 import br.unb.cic.goda.model.GoalImpl;
 import br.unb.cic.goda.model.Plan;
 import br.unb.cic.goda.model.PlanImpl;
