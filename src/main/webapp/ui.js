@@ -132,6 +132,10 @@ new uiC.ButtonView({model: new uiC.ButtonModel({label: 'Resource', action: ui.ST
 new uiC.ButtonView({model: new uiC.ButtonModel({label: 'Quality', action: ui.STATE_ADD_NODE, name: 'Quality', tooltip:'Add Quality', statusText:'Click on an actor/role/agent to add a Quality'})}).render();
 new uiC.ButtonView({model: new uiC.ButtonModel({label: 'And-Refinement', action: ui.STATE_ADD_LINK, name: 'AndRefinementLink', tooltip:'Add And-Refinement link', statusText:'And-Refinement link: click first on the child, and then on the parent. It can only be applied to goals or tasks.'})}).render();
 new uiC.ButtonView({model: new uiC.ButtonModel({label: 'Or-Refinement', action: ui.STATE_ADD_LINK, name: 'OrRefinementLink', tooltip:'Add Or-Refinement link', statusText:'Or-Refinement link: click first on the child, and then on the parent. It can only be applied to goals or tasks.'})}).render();
+new uiC.ButtonView({model: new uiC.ButtonModel({label: 'And-P-Refinement', action: ui.STATE_ADD_LINK, name: 'AndRefinementPararelLink', tooltip:'Add And-P-Refinement link', statusText:'And-Refinement link: click first on the child, and then on the parent. It can only be applied to goals or tasks.'})}).render();
+new uiC.ButtonView({model: new uiC.ButtonModel({label: 'Or-P-Refinement', action: ui.STATE_ADD_LINK, name: 'OrRefinementPararelLink', tooltip:'Add Or-P-Refinement link', statusText:'Or-Refinement link: click first on the child, and then on the parent. It can only be applied to goals or tasks.'})}).render();
+new uiC.ButtonView({model: new uiC.ButtonModel({label: 'Try-Refinement', action: ui.STATE_ADD_LINK, name: 'TryRefinementLink', tooltip:'Add Try-Refinement link', statusText:'Try-Refinement link: click first on the child, and then on the parent. It can only be applied to goals or tasks.'})}).render();
+new uiC.ButtonView({model: new uiC.ButtonModel({label: 'Retry-Refinement', action: ui.STATE_ADD_LINK, name: 'RetryRefinementLink', tooltip:'Add Retry-Refinement link', statusText:'Retry-Refinement link: click first on the child, and then on the parent. It can only be applied to goals or tasks.'})}).render();
 new uiC.ButtonView({model: new uiC.ButtonModel({label: 'Qualification', action: ui.STATE_ADD_LINK, name: 'QualificationLink', tooltip:'Add Qualification link', statusText:'Qualification link: click first on the Quality and then on the element it qualifies (Goal, Task or Resource).'})}).render();
 new uiC.ButtonView({model: new uiC.ButtonModel({label: 'Needed-By', action: ui.STATE_ADD_LINK, name: 'NeededByLink', tooltip:'Add Needed-By link', statusText:'Needed-By link: click first on the Resource and then on the Task that needs it.'})}).render();
 new uiC.DropdownItemView({attributes: {parent:'#addContributionDropdown'}, model: new uiC.ButtonModel({label: 'Make (++)', action: ui.STATE_ADD_LINK, name: 'make', tooltip:'Add Make (++) Contribution link', statusText:'Make (++) Contribution link: click first on an element and then on the Quality it contributes to.'})}).render();
@@ -207,16 +211,20 @@ ui.defineInteractions = function() {
                 }
             }
             else {
-                if ( ui.currentAddingElement.match(/AndRefinementLink|OrRefinementLink|NeededByLink|QualificationLink|ContributionLink|DependencyLink|make|help|hurt|break/) )  {
+                if ( ui.currentAddingElement.match(/AndRefinementLink|OrRefinementLink|RetryRefinementLink|TryRefinementLink|AndRefinementPararelLink|OrRefinementPararelLink|NeededByLink|QualificationLink|ContributionLink|DependencyLink|make|help|hurt|break/) )  {
                     if (ui.isLinkSourceUndefined()) {
                         cellView.highlight({blur:10, color:'blue'});
                         ui.linkSource = cellView;
                     } else {
                         ui.linkTarget = cellView;
 
-                        if ( ui.currentAddingElement.match(/AndRefinementLink|OrRefinementLink|NeededByLink|QualificationLink|ContributionLink|make|help|hurt|break/) ) {
-                            if (ui.currentAddingElement === 'AndRefinementLink') istar.addAndRefinementLink(ui.linkSource.model, ui.linkTarget.model);
+                        if ( ui.currentAddingElement.match(/AndRefinementLink|OrRefinementLink|RetryRefinementLink|TryRefinementLink|AndRefinementPararelLink|OrRefinementPararelLink|NeededByLink|QualificationLink|ContributionLink|make|help|hurt|break/) ) {
+							 if (ui.currentAddingElement === 'AndRefinementLink') istar.addAndRefinementLink(ui.linkSource.model, ui.linkTarget.model);
                             else if (ui.currentAddingElement === 'OrRefinementLink') istar.addOrRefinementLink(ui.linkSource.model, ui.linkTarget.model);
+   							else if (ui.currentAddingElement === 'RetryRefinementLink') istar.addRetryRefinementLink(ui.linkSource.model, ui.linkTarget.model);
+                            else if (ui.currentAddingElement === 'TryRefinementLink') istar.addTryRefinementLink(ui.linkSource.model, ui.linkTarget.model);
+                            else if (ui.currentAddingElement === 'AndRefinementPararelLink') istar.addAndParalelRefinementLink(ui.linkSource.model, ui.linkTarget.model);
+                            else if (ui.currentAddingElement === 'OrRefinementPararelLink') istar.addOrParalelRefinementLink(ui.linkSource.model, ui.linkTarget.model);
                             else if (ui.currentAddingElement === 'NeededByLink') istar.addNeededByLink(ui.linkSource.model, ui.linkTarget.model);
                             else if (ui.currentAddingElement === 'QualificationLink') istar.addQualificationLink(ui.linkSource.model, ui.linkTarget.model);
                             else if (ui.currentAddingElement.match(/make|help|hurt|break/i)) {
@@ -653,7 +661,6 @@ $('#runEPMCButton').click(function() {
             "content": model
         },
         success: function() {
-	debugger;
             window.location.href = 'epmc.zip';
         },
         error: function (request, status, error) {

@@ -388,7 +388,6 @@ var istar = function(){
          */
         addLinkBetweenActors: function (linkName, shape, source, target) {
             "use strict";
-
             if (! shape) {
                 shape = joint.dia.Link;//safeguard in case the library is being used without a visual representation
             }
@@ -439,7 +438,6 @@ var istar = function(){
         addDependencyLink: function (depender, dependum, dependee) {
             "use strict";
             //TODO prevent repeated links
-
             var link;
             if ( depender.isKindOfActor() )
             {
@@ -482,7 +480,6 @@ var istar = function(){
         },
         addLinkBetweenNodes: function (linkName, shape, source, target, value) {
             "use strict";
-
             if (! shape) {
                 shape = joint.dia.Link;//safeguard in case the library is being used without a visual representation
             }

@@ -325,6 +325,86 @@ joint.shapes.istar.DependencyLink = joint.dia.Link.extend({
     }, joint.dia.Link.prototype.defaults)
 });
 
+joint.shapes.istar.RetryRefinementLink = joint.dia.Link.extend({
+    defaults: joint.util.deepSupplement({
+        type: 'istar.RetryRefinementLink',
+		arrowheadMarkup: '<g />',//prevents the arrowhead from appearing in the saved image
+        attrs: {
+			'.marker-target': {
+				d: `M 5, 7 h 10 M 30, 7 h 15
+			       M 20, 7 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0
+			       M 15, 7 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0 z`,
+				// d:    'M 15 0 L 15 20 M 15 10 L 0 10 ',
+				// d: 'M 15 0 L 15 20 M 15 10 L 0 10 ',
+				fill:'none',
+				'stroke-width':1 },
+			'.connection': { fill: 'none' },//necessary in order to prevent filling the curves when saving the image
+			'.connection-wrap': { fill: 'none' }//necessary in order to prevent filling the curves when saving the image
+		},
+        smooth: false
+    }, joint.dia.Link.prototype.defaults)
+});
+
+joint.shapes.istar.TryRefinementLink = joint.dia.Link.extend({
+    defaults: joint.util.deepSupplement({
+        type: 'istar.TryRefinementLink',
+		arrowheadMarkup: '<g />',//prevents the arrowhead from appearing in the saved image
+        attrs: {
+			'.marker-target': {
+				d: `M 5, 7 h 15 M 30, 7 h 15
+			       M 20, 7 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0 z`,
+				// d:    'M 15 0 L 15 20 M 15 10 L 0 10 ',
+				// d: 'M 15 0 L 15 20 M 15 10 L 0 10 ',
+				fill:'none',
+				'stroke-width':1 },
+			'.connection': { fill: 'none' },//necessary in order to prevent filling the curves when saving the image
+			'.connection-wrap': { fill: 'none' }//necessary in order to prevent filling the curves when saving the image
+		},
+        smooth: false
+    }, joint.dia.Link.prototype.defaults)
+});
+
+joint.shapes.istar.AndParalelRefinementLink = joint.dia.Link.extend({
+    defaults: joint.util.deepSupplement({
+        type: 'istar.AndParalelRefinementLink',
+		arrowheadMarkup: '<g />',//prevents the arrowhead from appearing in the saved image
+        attrs: {
+			'.marker-target': {
+				d: `M 5, 5 h 40
+			       M 20,7 h 25
+			       M 15 0 L 15 8 M 12 2 z`,
+				// d:    'M 15 0 L 15 20 M 15 10 L 0 10 ',
+				// d: 'M 15 0 L 15 20 M 15 10 L 0 10 ',
+				fill:'black',
+				'stroke-width':1 },
+			'.connection': { fill: 'none' },//necessary in order to prevent filling the curves when saving the image
+			'.connection-wrap': { fill: 'none' }//necessary in order to prevent filling the curves when saving the image
+		},
+        smooth: false
+    }, joint.dia.Link.prototype.defaults)
+});
+
+
+joint.shapes.istar.OrParalelRefinementLink = joint.dia.Link.extend({
+    defaults: joint.util.deepSupplement({
+        type: 'istar.OrParalelRefinementLink',
+		arrowheadMarkup: '<g />',//prevents the arrowhead from appearing in the saved image
+        attrs: {
+			'.marker-target': {
+				d: `M 15,5 h 40
+			       M 25,7 h 20
+			       M 15 0 L 5 5 L 15 10 z`,
+				// d: 'M 15 0 L 15 20 M 15 10 L 0 10 ',
+				fill:'black',
+				'stroke-width':1 },
+			'.connection': { fill: 'none' },//necessary in order to prevent filling the curves when saving the image
+			'.connection-wrap': { fill: 'none' }//necessary in order to prevent filling the curves when saving the image
+		},
+        smooth: false
+    }, joint.dia.Link.prototype.defaults)
+});
+
+
 joint.shapes.istar.AndRefinementLink = joint.dia.Link.extend({
     defaults: joint.util.deepSupplement({
         type: 'istar.AndRefinementLink',
@@ -348,7 +428,7 @@ joint.shapes.istar.OrRefinementLink = joint.dia.Link.extend({
 		arrowheadMarkup: '<g />',//prevents the arrowhead from appearing in the saved image
         attrs: {
 			'.marker-target': {
-				d: 'M 15 0 L 5 5 L 15 10 z',
+				d:'M 15 0 L 5 5 L 15 10 z',
 				fill:'black',
 				'stroke-width':2 },
 			'.connection': { fill: 'none' },//necessary in order to prevent filling the curves when saving the image

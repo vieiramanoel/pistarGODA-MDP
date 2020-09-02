@@ -1,12 +1,11 @@
 package br.unb.cic.goda.rtgoretoprism.action;
 
-import br.unb.cic.goda.model.Actor;
-import br.unb.cic.goda.model.Goal;
-import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
-import br.unb.cic.goda.rtgoretoprism.generator.goda.producer.RTGoreProducer;
-
 import java.io.IOException;
 import java.util.Set;
+
+import br.unb.cic.goda.model.Actor;
+import br.unb.cic.goda.rtgoretoprism.generator.CodeGenerationException;
+import br.unb.cic.goda.rtgoretoprism.generator.goda.producer.RTGoreProducer;
 
 public class PRISMCodeGenerationAction {
 

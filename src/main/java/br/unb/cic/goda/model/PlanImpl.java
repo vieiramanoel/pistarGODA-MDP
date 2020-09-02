@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlanImpl implements Plan, Serializable {
-
-    private String tA__sub_mode;
+	private static final long serialVersionUID = 1L;
+	private String tA__sub_mode;
     private Integer tA__root_ngroups;
     private Integer tA__sub_block_index;
     private String tA__sub_par_set_index;
@@ -24,6 +24,10 @@ public class PlanImpl implements Plan, Serializable {
     private List<Plan> endPlans = new ArrayList<>();
     private boolean isAndDecomposition = false;
     private boolean isOrDecomposition = false;
+    private boolean isAndPararelDecomposition = false;
+    private boolean isOrPararelDecomposition = false;
+    private boolean isTryDecomposition = false;
+    private boolean isRetryDecomposition = false;
 
     public PlanImpl(PistarNode pistarPlan) {
         this.name = pistarPlan.getText();
@@ -76,26 +80,6 @@ public class PlanImpl implements Plan, Serializable {
     @Override
     public List<Plan> getEndPlans() {
         return endPlans;
-    }
-
-    @Override
-    public boolean isAndDecomposition() {
-        return isAndDecomposition;
-    }
-
-    @Override
-    public boolean isOrDecomposition() {
-        return isOrDecomposition;
-    }
-
-    @Override
-    public void setAndDecomposition(boolean andDecomposition) {
-        isAndDecomposition = andDecomposition;
-    }
-
-    @Override
-    public void setOrDecomposition(boolean orDecomposition) {
-        isOrDecomposition = orDecomposition;
     }
 
     public String getNamePrefix() {
@@ -220,4 +204,65 @@ public class PlanImpl implements Plan, Serializable {
     public void setFulfillmentProperty(String fulfillmentProperty) {
         this.fulfillmentProperty = fulfillmentProperty;
     }
+
+
+	@Override
+	public boolean isAndDecomposition() {
+		return this.isAndDecomposition;
+	}
+
+	@Override
+	public boolean isOrDecomposition() {
+		return this.isOrDecomposition;
+	}
+
+	@Override
+	public boolean isAndPararelDecomposition() {
+		return this.isAndPararelDecomposition;
+	}
+
+	@Override
+	public boolean isOrPararelDecomposition() {
+		return this.isOrPararelDecomposition;
+	}
+
+	@Override
+	public boolean isTryDecomposition() {
+		return this.isTryDecomposition;
+	}
+
+	@Override
+	public boolean isRetryDecomposition() {
+		return this.isRetryDecomposition;
+	}
+
+	@Override
+	public void setAndDecomposition(boolean andDecomposition) {
+		this.isAndDecomposition = andDecomposition;
+	}
+
+	@Override
+	public void setOrDecomposition(boolean orDecomposition) {
+		this.isOrDecomposition = orDecomposition;
+	}
+
+	@Override
+	public void setAndPararelDecomposition(boolean andPDecomposition) {
+		this.isAndPararelDecomposition = andPDecomposition;
+	}
+
+	@Override
+	public void setOrPararelDecomposition(boolean orPDecomposition) {
+		this.isOrPararelDecomposition = orPDecomposition;
+	}
+
+	@Override
+	public void setTryDecomposition(boolean tryDecomposition) {
+		this.isTryDecomposition = tryDecomposition;
+	}
+
+	@Override
+	public void setRetryDecomposition(boolean retryDecomposition) {
+		this.isRetryDecomposition = retryDecomposition;
+	}
 }

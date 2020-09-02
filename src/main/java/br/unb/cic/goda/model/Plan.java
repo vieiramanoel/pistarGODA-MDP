@@ -22,14 +22,6 @@ public interface Plan extends GeneralEntity {
 
     List<Plan> getEndPlans();
 
-    boolean isAndDecomposition();
-
-    boolean isOrDecomposition();
-
-    void setAndDecomposition(boolean andDecomposition);
-
-    void setOrDecomposition(boolean orDecomposition);
-
     String getMode();
 
     void setMode(String value);
@@ -43,4 +35,17 @@ public interface Plan extends GeneralEntity {
     String getInvariantProperty();
 
     String getFulfillmentProperty();
+    
+    boolean isAndDecomposition();
+	boolean isOrDecomposition();
+	boolean isAndPararelDecomposition();
+	boolean isOrPararelDecomposition();
+	boolean isTryDecomposition();
+	boolean isRetryDecomposition();
+	void setAndDecomposition(boolean andDecomposition);
+	void setOrDecomposition(boolean orDecomposition);
+	void setAndPararelDecomposition(boolean andPDecomposition);
+	void setOrPararelDecomposition(boolean orPDecomposition);
+	void setTryDecomposition(boolean tryDecomposition);
+	void setRetryDecomposition(boolean retryDecomposition);
 }

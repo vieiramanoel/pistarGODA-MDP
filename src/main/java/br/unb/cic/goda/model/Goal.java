@@ -2,7 +2,7 @@ package br.unb.cic.goda.model;
 
 import java.util.List;
 
-public interface Goal extends GeneralEntity {
+interface Goal extends GeneralEntity {
 
     String getMode();
 
@@ -35,15 +35,19 @@ public interface Goal extends GeneralEntity {
     List<Plan> getMeansToAnEndPlans();
 
     void addToMeansToAnEndPlans(Plan plan);
-
-    boolean isAndDecomposition();
-
-    boolean isOrDecomposition();
-
-    void setAndDecomposition(boolean andDecomposition);
-
-    void setOrDecomposition(boolean orDecomposition);
-
+    
     boolean isSelected();
-
+    
+    boolean isAndDecomposition();
+	boolean isOrDecomposition();
+	boolean isAndPararelDecomposition();
+	boolean isOrPararelDecomposition();
+	boolean isTryDecomposition();
+	boolean isRetryDecomposition();
+	void setAndDecomposition(boolean andDecomposition);
+	void setOrDecomposition(boolean orDecomposition);
+	void setAndPararelDecomposition(boolean andPDecomposition);
+	void setOrPararelDecomposition(boolean orPDecomposition);
+	void setTryDecomposition(boolean tryDecomposition);
+	void setRetryDecomposition(boolean retryDecomposition);
 }
