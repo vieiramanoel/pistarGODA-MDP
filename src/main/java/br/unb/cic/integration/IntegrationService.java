@@ -269,11 +269,11 @@ public class IntegrationService {
 					String texto = node.getText();
 					if (node.getId().equals(linkFiltrado)) {
 						if (linkCurrent.getType().contains("TryRefinementLink")) {
-							texto = replaceNotationByDecomposition("[try(" + nomeOrigem + ")?skip:" + nomeDestino + "]",
+							texto = replaceNotationByDecomposition("[try(" + nomeDestino + ")?skip:" + nomeOrigem + "]",
 									node.getText());
 							node.setText(texto);
 						} else {
-							texto = replaceNotationByDecomposition("[" + nomeOrigem + "#" + nomeDestino + "]",
+							texto = replaceNotationByDecomposition("[" + nomeDestino + "#" + nomeOrigem + "]",
 									node.getText());
 							node.setText(texto);
 						}

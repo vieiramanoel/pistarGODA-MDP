@@ -325,7 +325,7 @@ joint.shapes.istar.DependencyLink = joint.dia.Link.extend({
     }, joint.dia.Link.prototype.defaults)
 });
 
-joint.shapes.istar.RetryRefinementLink = joint.dia.Link.extend({
+/*joint.shapes.istar.RetryRefinementLink = joint.dia.Link.extend({
     defaults: joint.util.deepSupplement({
         type: 'istar.RetryRefinementLink',
 		arrowheadMarkup: '<g />',//prevents the arrowhead from appearing in the saved image
@@ -344,7 +344,7 @@ joint.shapes.istar.RetryRefinementLink = joint.dia.Link.extend({
 		},
         smooth: false
     }, joint.dia.Link.prototype.defaults)
-});
+});*/
 
 joint.shapes.istar.TryRefinementLink = joint.dia.Link.extend({
     defaults: joint.util.deepSupplement({

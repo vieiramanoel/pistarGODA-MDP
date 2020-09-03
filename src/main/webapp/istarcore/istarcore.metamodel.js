@@ -74,7 +74,7 @@ var istarcoreMetamodel = {
     //links between internal elements
     /** @type {Object[]} */
     nodeLinks: [
-        {
+       /* {
             'name': 'RetryRefinementLink',
             'isValid': function (source, target) {
                 //istar 2.0:
@@ -92,7 +92,7 @@ var istarcoreMetamodel = {
                 result = result && (source.attributes.parent === target.attributes.parent);
                 return result;
             }
-        },
+        },*/
         {
             'name': 'TryRefinementLink',
             'isValid': function (source, target) {
@@ -104,9 +104,10 @@ var istarcoreMetamodel = {
                 //...any kind of parent (goal or task)
                 //A parent can only be AND-refined or OR-refined, not both simultaneously
 
-				if(source.isGoal()){
-					alert('Try just can be used in Tasks');
+				if(!source.isTask() || !target.isTask()){
+					alert('Or paralel just can be used in Tasks');
 				}
+
 
                 var result = false;
                 result = source.isTask() ;
@@ -126,11 +127,10 @@ var istarcoreMetamodel = {
                 //in at most one refinement relationship
                 //...any kind of parent (goal or task)
                 //A parent can only be AND-refined or OR-refined, not both simultaneously.
-
-				if(source.isGoal()){
-					alert('And paralel just can be used in Tasks');
+				
+				if(!source.isTask() || !target.isTask()){
+					alert('Or paralel just can be used in Tasks');
 				}
-
 
                 var result = false;
                 result = source.isTask() ;
@@ -151,11 +151,9 @@ var istarcoreMetamodel = {
                 //...any kind of parent (goal or task)
                 //A parent can only be AND-refined or OR-refined, not both simultaneously.
 
-
-				if(source.isGoal()){
+				if(!source.isTask() || !target.isTask()){
 					alert('Or paralel just can be used in Tasks');
 				}
-
                 var result = false;
                 result = source.isTask() ;
                 result = result && (target.isTask() );
