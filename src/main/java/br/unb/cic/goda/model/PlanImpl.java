@@ -24,8 +24,8 @@ public class PlanImpl implements Plan, Serializable {
     private List<Plan> endPlans = new ArrayList<>();
     private boolean isAndDecomposition = false;
     private boolean isOrDecomposition = false;
-    private boolean isAndPararelDecomposition = false;
-    private boolean isOrPararelDecomposition = false;
+    private boolean isAndParalelDecomposition = false;
+    private boolean isOrParalelDecomposition = false;
     private boolean isTryDecomposition = false;
     private boolean isRetryDecomposition = false;
 
@@ -217,13 +217,13 @@ public class PlanImpl implements Plan, Serializable {
 	}
 
 	@Override
-	public boolean isAndPararelDecomposition() {
-		return this.isAndPararelDecomposition;
+	public boolean isAndParalelDecomposition() {
+		return this.isAndParalelDecomposition;
 	}
 
 	@Override
-	public boolean isOrPararelDecomposition() {
-		return this.isOrPararelDecomposition;
+	public boolean isOrParalelDecomposition() {
+		return this.isOrParalelDecomposition;
 	}
 
 	@Override
@@ -247,13 +247,13 @@ public class PlanImpl implements Plan, Serializable {
 	}
 
 	@Override
-	public void setAndPararelDecomposition(boolean andPDecomposition) {
-		this.isAndPararelDecomposition = andPDecomposition;
+	public void setAndParalelDecomposition(boolean andPDecomposition) {
+		this.isAndParalelDecomposition = andPDecomposition;
 	}
 
 	@Override
-	public void setOrPararelDecomposition(boolean orPDecomposition) {
-		this.isOrPararelDecomposition = orPDecomposition;
+	public void setOrParalelDecomposition(boolean orPDecomposition) {
+		this.isOrParalelDecomposition = orPDecomposition;
 	}
 
 	@Override

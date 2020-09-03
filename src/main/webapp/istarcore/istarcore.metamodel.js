@@ -102,11 +102,15 @@ var istarcoreMetamodel = {
                 //to one or more children. An intentional element can be the parent
                 //in at most one refinement relationship
                 //...any kind of parent (goal or task)
-                //A parent can only be AND-refined or OR-refined, not both simultaneously.
+                //A parent can only be AND-refined or OR-refined, not both simultaneously
+
+				if(source.isGoal()){
+					alert('Try just can be used in Tasks');
+				}
 
                 var result = false;
-                result = source.isTask() || source.isGoal();
-                result = result && (target.isTask() || target.isGoal());
+                result = source.isTask() ;
+                result = result && (target.isTask());
                 result = result && (source != target);
                 result = result && (source.attributes.parent === target.attributes.parent);
                 return result;
@@ -123,9 +127,14 @@ var istarcoreMetamodel = {
                 //...any kind of parent (goal or task)
                 //A parent can only be AND-refined or OR-refined, not both simultaneously.
 
+				if(source.isGoal()){
+					alert('And paralel just can be used in Tasks');
+				}
+
+
                 var result = false;
-                result = source.isTask() || source.isGoal();
-                result = result && (target.isTask() || target.isGoal());
+                result = source.isTask() ;
+                result = result && (target.isTask());
                 result = result && (source != target);
                 result = result && (source.attributes.parent === target.attributes.parent);
                 return result;
@@ -142,9 +151,14 @@ var istarcoreMetamodel = {
                 //...any kind of parent (goal or task)
                 //A parent can only be AND-refined or OR-refined, not both simultaneously.
 
+
+				if(source.isGoal()){
+					alert('Or paralel just can be used in Tasks');
+				}
+
                 var result = false;
-                result = source.isTask() || source.isGoal();
-                result = result && (target.isTask() || target.isGoal());
+                result = source.isTask() ;
+                result = result && (target.isTask() );
                 result = result && (source != target);
                 result = result && (source.attributes.parent === target.attributes.parent);
                 return result;

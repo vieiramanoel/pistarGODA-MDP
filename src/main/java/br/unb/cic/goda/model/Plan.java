@@ -38,14 +38,14 @@ public interface Plan extends GeneralEntity {
     
     boolean isAndDecomposition();
 	boolean isOrDecomposition();
-	boolean isAndPararelDecomposition();
-	boolean isOrPararelDecomposition();
+	boolean isAndParalelDecomposition();
+	boolean isOrParalelDecomposition();
 	boolean isTryDecomposition();
 	boolean isRetryDecomposition();
 	void setAndDecomposition(boolean andDecomposition);
 	void setOrDecomposition(boolean orDecomposition);
-	void setAndPararelDecomposition(boolean andPDecomposition);
-	void setOrPararelDecomposition(boolean orPDecomposition);
+	void setAndParalelDecomposition(boolean andPDecomposition);
+	void setOrParalelDecomposition(boolean orPDecomposition);
 	void setTryDecomposition(boolean tryDecomposition);
 	void setRetryDecomposition(boolean retryDecomposition);
 }

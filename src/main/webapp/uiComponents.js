@@ -31,9 +31,9 @@ var ui = {
 						if(tam > 0){
 							lab = lab.substring(0, tam);
 						}
-						if(labelPattern.includes(lab)){
+						/*if(labelPattern.includes(lab)){
 							checkbox.checked = true;
-						}
+						}*/
 			              
 			            // creating label for checkbox 
 			            var label = document.createElement('label'); 

@@ -128,9 +128,17 @@ public class RTGoreProducer {
 		if (g.isAndDecomposition())
 			gc.createDecomposition(Const.AND);			
 		else if (g.isOrDecomposition())
-			gc.createDecomposition(Const.OR);	
+			gc.createDecomposition(Const.OR);			
+		else if (g.isOrParalelDecomposition())
+			gc.createDecomposition(Const.OR_P);			
+		else if (g.isAndParalelDecomposition())
+			gc.createDecomposition(Const.AND_P);			
+		else if (g.isTryDecomposition())
+			gc.createDecomposition(Const.TRY);			
+		else if (g.isRetryDecomposition())
+			gc.createDecomposition(Const.RTRY);	
 		
-		verifyModel(rtRegex, this.rtDMGoals, this.typeModel);
+		verifyModel(rtRegex, this);
 		if (dmRT) gc.setDecisionMaking(this.rtDMGoals);
 
         iterateGoals(ad, gc, declist, included);
@@ -215,10 +223,18 @@ public class RTGoreProducer {
 
 		List<Plan> decList = p.getEndPlans();
         sortIntentionalElements(decList);
-        if (p.isAndDecomposition())
-        	pc.createDecomposition(Const.AND);
-        else
-        	pc.createDecomposition(Const.OR);
+		if (p.isAndDecomposition())
+			pc.createDecomposition(Const.AND);			
+		else if (p.isOrDecomposition())
+			pc.createDecomposition(Const.OR);			
+		else if (p.isOrParalelDecomposition())
+			pc.createDecomposition(Const.OR_P);			
+		else if (p.isAndParalelDecomposition())
+			pc.createDecomposition(Const.AND_P);			
+		else if (p.isTryDecomposition())
+			pc.createDecomposition(Const.TRY);			
+		else if (p.isRetryDecomposition())
+			pc.createDecomposition(Const.RTRY);
 		
 		boolean dmRT = false;
 		if (!decList.isEmpty()){
@@ -230,7 +246,7 @@ public class RTGoreProducer {
 			storeCostResults(pc);
 		}
 
-		verifyModel(pc.getRtRegex(), this.rtDMGoals, this.typeModel);
+		verifyModel(pc.getRtRegex(), this);
 		if (dmRT) pc.setDecisionMaking(this.rtDMGoals);
 
         iteratePlans(ad, pc, decList);
@@ -467,5 +483,53 @@ public class RTGoreProducer {
 	int extractInt(String s) {
 		String num = s.replaceAll("\\D", "");
 		return num.isEmpty() ? 0 : Integer.parseInt(num);
+	}
+
+	public List<String> getSuccessTry() {
+		return successTry;
+	}
+
+	public void setSuccessTry(List<String> successTry) {
+		this.successTry = successTry;
+	}
+
+	public List<String> getRtDMGoals() {
+		return rtDMGoals;
+	}
+
+	public void setRtDMGoals(List<String> rtDMGoals) {
+		this.rtDMGoals = rtDMGoals;
+	}
+
+	public Map<String, Object[]> getRtRetryGoals() {
+		return rtRetryGoals;
+	}
+
+	public void setRtRetryGoals(Map<String, Object[]> rtRetryGoals) {
+		this.rtRetryGoals = rtRetryGoals;
+	}
+
+	public Map<String, String[]> getRtTryGoals() {
+		return rtTryGoals;
+	}
+
+	public void setRtTryGoals(Map<String, String[]> rtTryGoals) {
+		this.rtTryGoals = rtTryGoals;
+	}
+
+	public Map<String, Boolean[]> getRtSortedGoals() {
+		return rtSortedGoals;
+	}
+
+	public void setRtSortedGoals(Map<String, Boolean[]> rtSortedGoals) {
+		this.rtSortedGoals = rtSortedGoals;
+	}
+
+	public String getTypeModel() {
+		return typeModel;
+	}
+
+	public void setTypeModel(String typeModel) {
+		this.typeModel = typeModel;
 	}
 }

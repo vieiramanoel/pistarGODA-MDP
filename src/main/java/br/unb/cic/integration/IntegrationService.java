@@ -103,6 +103,7 @@ public class IntegrationService {
 			List<PistarNode> notDerivedPlans = new ArrayList<>();
 			notDerivedPlans.addAll(pistarActor.getAllPlans());
 			model.getLinks().forEach(pistarDependency -> {
+				addNotationByDecomposition(pistarDependency, model.getLinks(), pistarActor.getNodes());
 				pistarActor.getAllPlans().forEach(pistarPlan -> {
 					if (pistarDependency.getSource().equals(pistarPlan.getId())) {
 						boolean planTargetIsGoal = pistarActor.getAllGoals().stream()
@@ -138,19 +139,30 @@ public class IntegrationService {
 		List<PistarLink> linksToGoal = model.getLinks().stream()
 				.filter(d -> d.getTarget().equals(pistarGoal.getId()) && d.getType().contains("Link"))
 				.collect(Collectors.toList());
-		linksToGoal.forEach(l -> {
+		
+		List<PistarLink> linksToChildrenGoal = new ArrayList<PistarLink>();
+		for(PistarLink l: linksToGoal){
+			linksToChildrenGoal = model.getLinks().stream()
+				.filter(d -> ( d.getTarget().equals(l.getSource()) || d.getTarget().equals(l.getTarget()) || d.getSource().equals(l.getSource()) || d.getSource().equals(l.getTarget())) 
+							&& (d.getType().contains("TryRefinementLink") || d.getType().contains("ParalelRefinementLink")))
+				.collect(Collectors.toList());
+		}
+		
+		linksToGoal.addAll(linksToChildrenGoal);
+		for(PistarLink l: linksToGoal){
 			List<PistarNode> sourceGoals = pistarActor.getAllGoals().stream()
-					.filter(g -> l.getSource().equals(g.getId())).collect(Collectors.toList());
-			if (!sourceGoals.isEmpty()) {
+					.filter(g -> l.getSource().equals(g.getId()))
+					.collect(Collectors.toList());
+			if (!sourceGoals.isEmpty() || !linksToChildrenGoal.isEmpty()) {
 				String type = l.getType();
 				if (type.contains("AndRefinementLink")) {
 					goal.setAndDecomposition(true);
 				} else if (type.contains("OrRefinementLink")) {
 					goal.setOrDecomposition(true);
-				} else if (type.contains("OrPararelRefinementLink")) {
-					goal.setOrPararelDecomposition(true);
-				} else if (type.contains("AndPararelRefinementLink")) {
-					goal.setAndPararelDecomposition(true);
+				} else if (type.contains("OrParalelRefinementLink")) {
+					goal.setOrParalelDecomposition(true);
+				} else if (type.contains("AndParalelRefinementLink")) {
+					goal.setAndParalelDecomposition(true);
 				} else if (type.contains("TryRefinementLink")) {
 					goal.setTryDecomposition(true);
 				} else if (type.contains("RetryRefinementLink")) {
@@ -162,7 +174,7 @@ public class IntegrationService {
 				Goal dependencyGoal = fillDecompositionList(model, pistarActor, g, new GoalImpl(g));
 				goal.addToDecompositionList(dependencyGoal);
 			});
-		});
+		}
 		return goal;
 	}
 
@@ -171,6 +183,7 @@ public class IntegrationService {
 		List<PistarLink> linksToGoal = model.getLinks().stream()
 				.filter(l -> l.getTarget().equals(pistarGoal.getId()) && l.getType().contains("Link"))
 				.collect(Collectors.toList());
+
 		linksToGoal.forEach(link -> {
 			List<PistarNode> sourcePlans = pistarActor.getAllPlans().stream()
 					.filter(p -> link.getSource().equals(p.getId())).collect(Collectors.toList());
@@ -186,6 +199,7 @@ public class IntegrationService {
 		List<PistarLink> linksToPlan = model.getLinks().stream()
 				.filter(l -> l.getTarget().equals(pistarPlan.getId()) && l.getType().contains("Link"))
 				.collect(Collectors.toList());
+
 		linksToPlan.forEach(link -> {
 			List<PistarNode> sourcePlans = pistarActor.getAllPlans().stream()
 					.filter(p -> link.getSource().equals(p.getId())).collect(Collectors.toList());
@@ -195,10 +209,10 @@ public class IntegrationService {
 					meansToAnEndPlan.setAndDecomposition(true);
 				} else if (type.contains("OrRefinementLink")) {
 					meansToAnEndPlan.setOrDecomposition(true);
-				} else if (type.contains("OrPararelRefinementLink")) {
-					meansToAnEndPlan.setOrPararelDecomposition(true);
-				} else if (type.contains("AndPararelRefinementLink")) {
-					meansToAnEndPlan.setAndPararelDecomposition(true);
+				} else if (type.contains("OrParalelRefinementLink")) {
+					meansToAnEndPlan.setOrParalelDecomposition(true);
+				} else if (type.contains("AndParalelRefinementLink")) {
+					meansToAnEndPlan.setAndParalelDecomposition(true);
 				} else if (type.contains("TryRefinementLink")) {
 					meansToAnEndPlan.setTryDecomposition(true);
 				} else if (type.contains("RetryRefinementLink")) {
@@ -211,6 +225,71 @@ public class IntegrationService {
 			});
 		});
 		return meansToAnEndPlan;
+	}
+
+	private static void addNotationByDecomposition(PistarLink linkCurrent, List<PistarLink> links,
+			List<PistarNode> nodes) {
+
+		if ((linkCurrent.getType().contains("OrParalelRefinementLink"))
+				|| (linkCurrent.getType().contains("AndParalelRefinementLink"))
+				|| (linkCurrent.getType().contains("TryRefinementLink"))) {
+			List<String> linksFiltrados = new ArrayList<String>();
+
+			// verifica se o link atual tem associação com outros links,
+			// para descobrir qual o Objeto pai dos links e anotá-lo com a decomposition
+			// correta
+			// Funcao principal do LOOP: Recuperar o objeto pai dos links
+			for (PistarLink link : links) {
+				if (!link.getId().equals(linkCurrent.getId())) {
+					if (link.getTarget().equals(linkCurrent.getTarget())
+							|| link.getTarget().equals(linkCurrent.getSource())) {
+						linksFiltrados.add(link.getSource());
+					} else if (link.getSource().equals(linkCurrent.getTarget())
+							|| link.getSource().equals(linkCurrent.getSource())) {
+						linksFiltrados.add(link.getTarget());
+					}
+				}
+				linksFiltrados = linksFiltrados.stream().distinct().collect(Collectors.toList());
+			}
+
+			String nomeDestino = "";
+			String nomeOrigem = "";
+			// recuperar nomes de origem e destino
+			for (PistarNode node : nodes) {
+				int tam = (node.getText().indexOf(":") > 0 ? node.getText().indexOf(":") : node.getText().length());
+				if (node.getId().equals(linkCurrent.getSource())) {
+					nomeDestino = node.getText().substring(0, tam);
+				} else if (node.getId().equals(linkCurrent.getTarget())) {
+					nomeOrigem = node.getText().substring(0, tam);
+				}
+			}
+
+			for (String linkFiltrado : linksFiltrados) {
+				for (PistarNode node : nodes) {
+					String texto = node.getText();
+					if (node.getId().equals(linkFiltrado)) {
+						if (linkCurrent.getType().contains("TryRefinementLink")) {
+							texto = replaceNotationByDecomposition("[try(" + nomeOrigem + ")?skip:" + nomeDestino + "]",
+									node.getText());
+							node.setText(texto);
+						} else {
+							texto = replaceNotationByDecomposition("[" + nomeOrigem + "#" + nomeDestino + "]",
+									node.getText());
+							node.setText(texto);
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	private static String replaceNotationByDecomposition(String label, String textoOrig) {
+		if (!textoOrig.contains(label)) {
+			textoOrig = textoOrig + label;
+		}
+
+		return textoOrig;
 	}
 
 }

@@ -35,11 +35,13 @@ var ui = {
 		} 
 		alert(error);
 	},
- 	addDM: function(){
+ 	addDM: function(labelEl){
 		var dm = "[DM(";
+		var numCheckeds = 0;
 		var select = document.getElementById("idDecisions");
 		for(var i = 0; i < select.children.length; i++){
 			if(select.children[i].firstChild.checked){
+				numCheckeds++;
 				var valor = select.children[i].firstChild.value;
 				var tam = valor.indexOf(":");
 				
@@ -50,8 +52,17 @@ var ui = {
 				dm = dm + valor + ",";
 			}
 		}
-		dm = dm + ")]";
-		dm = dm.replace(",)]", ")]");
+		if(numCheckeds > 0){
+			var tam2 = labelEl.indexOf("[DM");
+			if(tam2 > 0){
+				labelEl = labelEl.substring(0, tam2);
+			}
+			
+			dm = dm + ")]";
+			dm = labelEl + dm.replace(",)]", ")]");
+		}else{
+			dm = labelEl;
+		}
 		
 		return dm;
 	},
@@ -85,9 +96,9 @@ var ui = {
 						if(tam > 0){
 							lab = lab.substring(0, tam);
 						}
-						if(labelPattern.includes(lab)){
+						/*if(labelPattern.includes(lab)){
 							checkbox.checked = true;
-						}
+						}*/
 			              
 			            // creating label for checkbox 
 			            var label = document.createElement('label'); 
@@ -542,11 +553,7 @@ $('#btnOk').click(function() {
 		if(document.getElementById("checkboxDM").checked && (isGoal || isTask)){
 			//Inserir property para definir uma decision Making
 			var labelEl = ui.currentElement.attr('text/text');
-			var tam = labelEl.indexOf("[DM");
-			if(tam > 0){
-				labelEl = labelEl.substring(0, tam);
-			}
-			labelEl = labelEl +  ui.addDM();
+			labelEl = ui.addDM(labelEl);
 			ui.currentElement.changeNodeContent(labelEl);
 		}
 		
@@ -570,13 +577,9 @@ $('#btnOk').click(function() {
 				}
 			}
 		}else{
-			var tam = inputName.value.indexOf("[DM");
-			if(tam > 0){
-				inputName.value = inputName.value.substring(0, tam);
-			}
 			//Inserir property para definir uma decision Making
 			if(document.getElementById("checkboxDM").checked && (isGoal || isTask)){
-				inputName.value = inputName.value + ui.addDM();
+				inputName.value = ui.addDM(inputName.value);
 			}
 			ui.currentElement.changeNodeContent(inputName.value);
 		}

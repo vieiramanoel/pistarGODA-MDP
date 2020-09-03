@@ -332,11 +332,12 @@ joint.shapes.istar.RetryRefinementLink = joint.dia.Link.extend({
         attrs: {
 			'.marker-target': {
 				d: `M 5, 7 h 10 M 30, 7 h 15
-			       M 20, 7 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0
-			       M 15, 7 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0 z`,
+			       M 35, 7 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0
+			       M 25, 7 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0
+			       M 15 0 L 5 5 L 15 10 z`,
 				// d:    'M 15 0 L 15 20 M 15 10 L 0 10 ',
 				// d: 'M 15 0 L 15 20 M 15 10 L 0 10 ',
-				fill:'none',
+				fill:'black',
 				'stroke-width':1 },
 			'.connection': { fill: 'none' },//necessary in order to prevent filling the curves when saving the image
 			'.connection-wrap': { fill: 'none' }//necessary in order to prevent filling the curves when saving the image
@@ -352,10 +353,11 @@ joint.shapes.istar.TryRefinementLink = joint.dia.Link.extend({
         attrs: {
 			'.marker-target': {
 				d: `M 5, 7 h 15 M 30, 7 h 15
-			       M 20, 7 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0 z`,
+			       M 30, 7 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0
+			       M 15 0 L 5 5 L 15 10 z`,
 				// d:    'M 15 0 L 15 20 M 15 10 L 0 10 ',
 				// d: 'M 15 0 L 15 20 M 15 10 L 0 10 ',
-				fill:'none',
+				fill:'black',
 				'stroke-width':1 },
 			'.connection': { fill: 'none' },//necessary in order to prevent filling the curves when saving the image
 			'.connection-wrap': { fill: 'none' }//necessary in order to prevent filling the curves when saving the image
