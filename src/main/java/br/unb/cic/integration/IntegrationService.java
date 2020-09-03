@@ -97,6 +97,7 @@ public class IntegrationService {
 
 	public static void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors,
 			Set<Goal> selectedGoals) {
+//		selectRetry/
 		List<PistarActor> pistarActors = model.getActors();
 		pistarActors.forEach(pistarActor -> {
 			Actor actor = new ActorImpl(pistarActor);
@@ -230,6 +231,12 @@ public class IntegrationService {
 	private static void addNotationByDecomposition(PistarLink linkCurrent, List<PistarLink> links,
 			List<PistarNode> nodes) {
 
+//		configNotationRetryInNodes(nodes);
+		configNotationParalelAndTryInNodes(linkCurrent, links, nodes);
+		
+	}
+
+	private static void configNotationParalelAndTryInNodes(PistarLink linkCurrent, List<PistarLink> links, List<PistarNode> nodes) {
 		if ((linkCurrent.getType().contains("OrParalelRefinementLink"))
 				|| (linkCurrent.getType().contains("AndParalelRefinementLink"))
 				|| (linkCurrent.getType().contains("TryRefinementLink"))) {
@@ -256,17 +263,17 @@ public class IntegrationService {
 			String nomeOrigem = "";
 			// recuperar nomes de origem e destino
 			for (PistarNode node : nodes) {
-				int tam = (node.getText().indexOf(":") > 0 ? node.getText().indexOf(":") : node.getText().length());
+				String texto = handlerNameNode(node.getText());
 				if (node.getId().equals(linkCurrent.getSource())) {
-					nomeDestino = node.getText().substring(0, tam);
+					nomeDestino = texto;
 				} else if (node.getId().equals(linkCurrent.getTarget())) {
-					nomeOrigem = node.getText().substring(0, tam);
+					nomeOrigem = texto;
 				}
 			}
 
 			for (String linkFiltrado : linksFiltrados) {
 				for (PistarNode node : nodes) {
-					String texto = node.getText();
+					String texto = handlerNameNode(node.getText());
 					if (node.getId().equals(linkFiltrado)) {
 						if (linkCurrent.getType().contains("TryRefinementLink")) {
 							texto = replaceNotationByDecomposition("[try(" + nomeDestino + ")?skip:" + nomeOrigem + "]",
@@ -280,8 +287,19 @@ public class IntegrationService {
 					}
 				}
 			}
-
 		}
+	}
+	
+	private static void configNotationRetryInNodes(List<PistarNode> nodes) {
+		List<PistarNode> retryNodes = new ArrayList<PistarNode>();
+		
+		for (PistarNode node : nodes) {
+			//Verificar se existe property do tipo Retry
+			if(node.getCustomProperties() != null && node.getCustomProperties().get("selectRetry") != null) {
+				retryNodes.add(node);
+			}
+		}
+
 	}
 
 	private static String replaceNotationByDecomposition(String label, String textoOrig) {
@@ -290,6 +308,11 @@ public class IntegrationService {
 		}
 
 		return textoOrig;
+	}
+	
+	private static String handlerNameNode(String text) {
+		int tam = (text.indexOf(":") > 0 ? text.indexOf(":") : text.length());
+		return text.substring(0, tam);
 	}
 
 }

@@ -219,9 +219,20 @@ uiC.CellTableView = Backbone.View.extend({
 			modal.style.display = "block";
 			document.getElementById("idDecisions").style.display = "none";
 			
-		var isGoal = ui.currentElement.attributes.type.toUpperCase().includes("GOAL");
+			var isGoal = ui.currentElement.attributes.type.toUpperCase().includes("GOAL");
+			var isTask = ui.currentElement.attributes.type.toUpperCase().includes("TASK");
 			if(!isGoal){
 				document.getElementById("checkboxList").style.display = "none";
+			}
+			
+			if(isTask){
+				document.getElementById("retryCheck").style.display = "block";
+			}else{
+				document.getElementById("retryCheck").style.display = "none";
+			}
+			
+			if(ui.currentElement.prop("customProperties/selectRetry")){
+				document.getElementById("checkboxRetry").checked = true;
 			}
 			
 			if(ui.currentElement.prop('customProperties/' + "selected")){

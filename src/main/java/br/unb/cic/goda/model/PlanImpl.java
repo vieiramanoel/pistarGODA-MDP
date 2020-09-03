@@ -17,6 +17,7 @@ public class PlanImpl implements Plan, Serializable {
     private Goal isFulfilled = null;
     private String mode;
     private String attribute;
+    private String selectRetry;
     private String creationProperty;
     private String invariantProperty;
     private String fulfillmentProperty;
@@ -36,6 +37,10 @@ public class PlanImpl implements Plan, Serializable {
                 switch (key) {
                     case "attribute":
                         attribute = value;
+                        break;
+                    case "selectRetry":
+                    	setSelectRetry(value);
+                        isRetryDecomposition = true;
                         break;
                     case "creationProperty":
                         creationProperty = value;
@@ -264,5 +269,13 @@ public class PlanImpl implements Plan, Serializable {
 	@Override
 	public void setRetryDecomposition(boolean retryDecomposition) {
 		this.isRetryDecomposition = retryDecomposition;
+	}
+
+	public String getSelectRetry() {
+		return selectRetry;
+	}
+
+	public void setSelectRetry(String selectRetry) {
+		this.selectRetry = selectRetry;
 	}
 }

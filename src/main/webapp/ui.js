@@ -316,6 +316,12 @@ ui.defineInteractions = function() {
 			}
 			
 			if(isTask){
+				document.getElementById("retryCheck").style.display = "block";
+			}else{
+				document.getElementById("retryCheck").style.display = "none";
+			}
+			
+			if(isTask){
 				document.getElementById("checkboxList").style.display = "block";
 				document.getElementById("goalRoot").style.display = "none";
 			}
@@ -545,10 +551,17 @@ $('#btnOk').click(function() {
 		//Inserir property para definir o objetivo como Raiz
 		if(document.getElementById("checkboxRoot").checked && isGoal){
 			ui.currentElement.prop('customProperties/' + "selected", true);
-		}
-		if(!document.getElementById("checkboxRoot").checked){
+		}else if(!document.getElementById("checkboxRoot").checked){
 			ui.currentElement.removeProp('customProperties/selected', false);
 		}
+		
+		var checkboxRetry = document.getElementById("checkboxRetry");
+		if(checkboxRetry.checked && isTask){
+			ui.currentElement.prop("customProperties/selectRetry", checkboxRetry.value);
+		}else if(!checkboxRetry.checked){
+			ui.currentElement.removeProp('customProperties/selectRetry', false);
+		}
+		
 		
 		if(document.getElementById("checkboxDM").checked && (isGoal || isTask)){
 			//Inserir property para definir uma decision Making
@@ -594,6 +607,21 @@ $('#btnOk').click(function() {
 			editNameCurrentProperty = "";
 			
 		}
+});
+
+$('#checkboxRetry').click(function() {
+	var  checkboxRetry = document.getElementById("checkboxRetry");
+	if(checkboxRetry.checked){
+        checkboxRetry.value = window.prompt('Number of attempts', '');
+		if(isNaN(checkboxRetry.value)){
+			alert('Please, Number of attempts should be a number.');
+			checkboxRetry.value = "";
+		}
+		
+		if(!checkboxRetry.value){
+			checkboxRetry.checked = false;
+		}
+	}
 });
 
 $('#btnClose').click(function() {
