@@ -807,11 +807,28 @@ ui.connectLinksToShape = function () {
     }, 100);
 };
 
-$('#runPRISMButton').click(function() {
+$('#runPrismMDPButton').click(function() {
+	debugger
     var model = istar.fileManager.saveModel();
     $.ajax({
         type: "POST",
-        url: '/prism-dtmc',
+        url: '/prism/MDP',
+        data: {
+            "content": model
+        },
+        success: function() {
+            window.location.href = 'prism.zip';
+        },
+        error: function(){alert("Error!");}
+    });
+});
+
+$('#runPrismDTMCButton').click(function() {
+	debugger
+    var model = istar.fileManager.saveModel();
+  	$.ajax({
+        type: "POST",
+        url: '/prism/DTMC',
         data: {
             "content": model
         },
@@ -826,7 +843,7 @@ $('#runPARAMButton').click(function() {
     var model = istar.fileManager.saveModel();
     $.ajax({
         type: "POST",
-        url: '/param-dtmc',
+        url: '/param/MDP',
         data: {
             "content": model
         },
@@ -841,7 +858,7 @@ $('#runEPMCButton').click(function() {
     var model = istar.fileManager.saveModel();
     $.ajax({
         type: "POST",
-        url: '/epmc-dtmc',
+        url: '/epmc/MDP',
         data: {
             "content": model
         },
