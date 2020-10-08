@@ -156,6 +156,13 @@ var ui = function() {
             $('#resize-handle').hide();
             $('.cell-selection').hide();
         },
+	    handleException: function(error = ""){
+			var objError = JSON.parse(error);
+			if(objError["message"]){ 
+				error = "Error: " + objError["message"]; 
+			} 
+			alert(error);
+		},
         showSelection: function(_cell) {
             var cell = _cell || this.selectedCell;
             var cellView = istar.paper.findViewByModel(cell);
@@ -819,7 +826,10 @@ $('#runPrismMDPButton').click(function() {
         success: function() {
             window.location.href = 'prism.zip';
         },
-        error: function(){alert("Error!");}
+        error: function (request, status, error) {
+			ui.handleException(request.responseText);
+        }
+
     });
 });
 
@@ -833,9 +843,11 @@ $('#runPrismDTMCButton').click(function() {
             "content": model
         },
         success: function() {
-            window.location.href = 'prism.zip';
+            window.location.href = '/prism.zip';
         },
-        error: function(){alert("Error!");}
+        error: function (request, status, error) {
+			ui.handleException(request.responseText);
+        }
     });
 });
 
@@ -850,7 +862,9 @@ $('#runPARAMButton').click(function() {
         success: function() {
             window.location.href = 'param.zip';
         },
-        error: function(){alert("Error!");}
+        error: function (request, status, error) {
+			ui.handleException(request.responseText);
+        }
     });
 });
 
@@ -865,7 +879,9 @@ $('#runEPMCButton').click(function() {
         success: function() {
             window.location.href = 'epmc.zip';
         },
-        error: function(){alert("Error!");}
+        error: function (request, status, error) {
+			ui.handleException(request.responseText);
+        }
     });
 });
 
