@@ -43,7 +43,7 @@ public class IntegrationService {
 		Set<Goal> selectedGoals = new HashSet<>();
 		transformToTao4meEntities(model, selectedActors, selectedGoals);
 		try {
-			cleanDTMCFolder();
+//			cleanDTMCFolder();
 			new PRISMCodeGenerationAction(selectedActors, selectedGoals, typeModel).run();
 			FileOutputStream fos = new FileOutputStream("src/main/webapp/prism.zip");
 			ZipOutputStream zos = new ZipOutputStream(fos);
@@ -68,7 +68,7 @@ public class IntegrationService {
 		Set<Goal> selectedGoals = new HashSet<>();
 		transformToTao4meEntities(model, selectedActors, selectedGoals);
 		try {
-			cleanDTMCFolder();
+//			cleanDTMCFolder();
 			new RunParamAction(selectedActors, selectedGoals, true, typeModel).run();
 			FileOutputStream fos = new FileOutputStream(output);
 			ZipOutputStream zos = new ZipOutputStream(fos);

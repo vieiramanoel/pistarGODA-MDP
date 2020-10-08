@@ -843,7 +843,7 @@ $('#runPrismDTMCButton').click(function() {
             "content": model
         },
         success: function() {
-            window.location.href = '/prism.zip';
+            window.location.href = 'prism.zip';
         },
         error: function (request, status, error) {
 			ui.handleException(request.responseText);
