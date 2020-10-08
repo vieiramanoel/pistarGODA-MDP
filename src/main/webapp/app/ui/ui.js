@@ -815,7 +815,6 @@ ui.connectLinksToShape = function () {
 };
 
 $('#runPrismMDPButton').click(function() {
-	debugger
     var model = istar.fileManager.saveModel();
     $.ajax({
         type: "POST",
@@ -834,7 +833,6 @@ $('#runPrismMDPButton').click(function() {
 });
 
 $('#runPrismDTMCButton').click(function() {
-	debugger
     var model = istar.fileManager.saveModel();
   	$.ajax({
         type: "POST",
