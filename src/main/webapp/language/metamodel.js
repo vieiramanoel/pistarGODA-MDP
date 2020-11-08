@@ -108,6 +108,8 @@ istar.metamodel = {
     "nodeLinks": {
         "AndRefinementLink": { },
         "OrRefinementLink": { },
+        "OrParalelRefinementLink": { },
+        "AndParalelRefinementLink": { },
         "NeededByLink": {
             "tryReversedWhenAdding": true
         },

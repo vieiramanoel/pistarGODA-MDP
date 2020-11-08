@@ -135,6 +135,7 @@ public class IntegrationService {
 		});
 	}
 
+	
 	private static Goal fillDecompositionList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal,
 			Goal goal) {
 		List<PistarLink> linksToGoal = model.getLinks().stream()
@@ -227,7 +228,9 @@ public class IntegrationService {
 		});
 		return meansToAnEndPlan;
 	}
-
+	
+	// cria relacionamentos atraves de links entre target e source
+	@SuppressWarnings("unused")
 	private static void addNotationByDecomposition(PistarLink linkCurrent, List<PistarLink> links,
 			List<PistarNode> nodes) {
 
@@ -265,9 +268,9 @@ public class IntegrationService {
 			for (PistarNode node : nodes) {
 				String texto = handlerNameNode(node.getText());
 				if (node.getId().equals(linkCurrent.getSource())) {
-					nomeDestino = texto;
-				} else if (node.getId().equals(linkCurrent.getTarget())) {
 					nomeOrigem = texto;
+				} else if (node.getId().equals(linkCurrent.getTarget())) {
+					nomeDestino = texto;
 				}
 			}
 
@@ -310,6 +313,7 @@ public class IntegrationService {
 		return textoOrig;
 	}
 	
+	//	recupera apenas o nome principal do nó
 	private static String handlerNameNode(String text) {
 		int tam = (text.indexOf(":") > 0 ? text.indexOf(":") : text.length());
 		return text.substring(0, tam);

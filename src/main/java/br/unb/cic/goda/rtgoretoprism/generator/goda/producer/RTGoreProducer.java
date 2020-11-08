@@ -71,7 +71,7 @@ public class RTGoreProducer {
 		AgentDefinition ad = null;
 
 		for( Actor a : allActors ) {
-			System.out.println( "Generating MDP model for: " + a.getName() );
+			System.out.println( "Generating " + this.typeModel + " model for: " + a.getName() );
 
 			//generate the AgentDefinition object for the current actor
 			ad = new AgentDefinition( a );
@@ -127,15 +127,15 @@ public class RTGoreProducer {
 		sortIntentionalElements(declist);
 		if (g.isAndDecomposition())
 			gc.createDecomposition(Const.AND);			
-		else if (g.isOrDecomposition())
+		if (g.isOrDecomposition())
 			gc.createDecomposition(Const.OR);			
-		else if (g.isOrParalelDecomposition())
+		if (g.isOrParalelDecomposition())
 			gc.createDecomposition(Const.OR_P);			
-		else if (g.isAndParalelDecomposition())
+		if (g.isAndParalelDecomposition())
 			gc.createDecomposition(Const.AND_P);			
-		else if (g.isTryDecomposition())
+		if (g.isTryDecomposition())
 			gc.createDecomposition(Const.TRY);			
-		else if (g.isRetryDecomposition())
+		if (g.isRetryDecomposition())
 			gc.createDecomposition(Const.RTRY);	
 		
 		verifyModel(rtRegex, this);
@@ -225,15 +225,15 @@ public class RTGoreProducer {
         sortIntentionalElements(decList);
 		if (p.isAndDecomposition())
 			pc.createDecomposition(Const.AND);			
-		else if (p.isOrDecomposition())
+		if (p.isOrDecomposition())
 			pc.createDecomposition(Const.OR);			
-		else if (p.isOrParalelDecomposition())
+		if (p.isOrParalelDecomposition())
 			pc.createDecomposition(Const.OR_P);			
-		else if (p.isAndParalelDecomposition())
+		if (p.isAndParalelDecomposition())
 			pc.createDecomposition(Const.AND_P);			
-		else if (p.isTryDecomposition())
+		if (p.isTryDecomposition())
 			pc.createDecomposition(Const.TRY);			
-		else if (p.isRetryDecomposition())
+		if (p.isRetryDecomposition())
 			pc.createDecomposition(Const.RTRY);
 		
 		boolean dmRT = false;

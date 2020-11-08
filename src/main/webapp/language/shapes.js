@@ -507,6 +507,45 @@ joint.shapes.istar.OrRefinementLink = joint.dia.Link.define('OrRefinementLink',
     }
 );
 
+joint.shapes.istar.OrParalelRefinementLink = joint.dia.Link.define('OrParalelRefinementLink',
+    {
+        attrs: {
+            line: {
+                connection: true,
+                fill: 'none',
+                stroke: 'black',
+                'stroke-width': 1,
+                targetMarker: {
+                    'd': 'm 12,-6 l -12,6 12,6 z',
+                     fill: 'black',
+                    'stroke-width': 1.2,
+                    'type': 'path',
+                }
+            },
+            'connection-wrap': {
+                connection: true,
+                fill: 'none',
+                stroke: 'transparent',
+                'stroke-linecap': 'round',
+                'stroke-width': 20
+            }
+        }
+    },
+    {
+        markup: [
+            {
+                className: 'c-connection-wrap',
+                selector: 'connection-wrap',
+                tagName: 'path'
+            },
+            {
+                selector: 'line',
+                tagName: 'path'
+            }
+        ]
+    }
+);
+
 joint.shapes.istar.NeededByLink = joint.dia.Link.define('NeededByLink',
     {
         attrs: {
