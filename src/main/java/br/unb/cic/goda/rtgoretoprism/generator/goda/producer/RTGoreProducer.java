@@ -83,6 +83,7 @@ public class RTGoreProducer {
 				
 				//create the goalcontainer for this one
 				GoalContainer gc = ad.createGoal(rootgoal, type);
+				String name = gc.getName();
 				gc.setRequest(request);
 
 				//add to the root goal list
@@ -120,6 +121,7 @@ public class RTGoreProducer {
 		gc.setIncluded(included);
 		
 		String rtRegex = gc.getRtRegex();
+		String name = gc.getName();
 		boolean dmRT = false;
 		dmRT = storeRegexResults(gc.getUid(), rtRegex, gc.getDecomposition());
 
@@ -138,7 +140,7 @@ public class RTGoreProducer {
 		if (g.isRetryDecomposition())
 			gc.createDecomposition(Const.RTRY);	
 		
-		verifyModel(rtRegex, this);
+//		verifyModel(rtRegex, this);
 		if (dmRT) gc.setDecisionMaking(this.rtDMGoals);
 
         iterateGoals(ad, gc, declist, included);
@@ -246,7 +248,7 @@ public class RTGoreProducer {
 			storeCostResults(pc);
 		}
 
-		verifyModel(pc.getRtRegex(), this);
+//		verifyModel(pc.getRtRegex(), this);
 		if (dmRT) pc.setDecisionMaking(this.rtDMGoals);
 
         iteratePlans(ad, pc, decList);

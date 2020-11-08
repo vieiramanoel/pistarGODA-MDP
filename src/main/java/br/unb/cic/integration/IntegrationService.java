@@ -1,5 +1,7 @@
 package br.unb.cic.integration;
 
+import static br.unb.cic.goda.rtgoretoprism.util.SintaticAnaliser.verifyModel;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -41,7 +43,7 @@ public class IntegrationService {
 		PistarModel model = gson.fromJson(content, PistarModel.class);
 		Set<Actor> selectedActors = new HashSet<>();
 		Set<Goal> selectedGoals = new HashSet<>();
-		transformToTao4meEntities(model, selectedActors, selectedGoals);
+		transformToTao4meEntities(model, selectedActors, selectedGoals, typeModel);
 		try {
 //			cleanDTMCFolder();
 			new PRISMCodeGenerationAction(selectedActors, selectedGoals, typeModel).run();
@@ -66,7 +68,7 @@ public class IntegrationService {
 		PistarModel model = gson.fromJson(content, PistarModel.class);
 		Set<Actor> selectedActors = new HashSet<>();
 		Set<Goal> selectedGoals = new HashSet<>();
-		transformToTao4meEntities(model, selectedActors, selectedGoals);
+		transformToTao4meEntities(model, selectedActors, selectedGoals, typeModel);
 		try {
 //			cleanDTMCFolder();
 			new RunParamAction(selectedActors, selectedGoals, true, typeModel).run();
@@ -96,10 +98,11 @@ public class IntegrationService {
 	}
 
 	public static void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors,
-			Set<Goal> selectedGoals) {
+			Set<Goal> selectedGoals, String typeModel) {
 //		selectRetry/
 		List<PistarActor> pistarActors = model.getActors();
 		pistarActors.forEach(pistarActor -> {
+			verifyNodeSintax(pistarActor.getNodes(), typeModel);
 			Actor actor = new ActorImpl(pistarActor);
 			List<PistarNode> notDerivedPlans = new ArrayList<>();
 			notDerivedPlans.addAll(pistarActor.getAllPlans());
@@ -238,6 +241,14 @@ public class IntegrationService {
 		configNotationParalelAndTryInNodes(linkCurrent, links, nodes);
 		
 	}
+	
+	@SuppressWarnings("unused")
+	private static void verifyNodeSintax(List<PistarNode> nodes, String typeModel) {
+		for (PistarNode node : nodes) {
+			verifyModel(node.getText(), typeModel);
+		}
+		
+	}
 
 	private static void configNotationParalelAndTryInNodes(PistarLink linkCurrent, List<PistarLink> links, List<PistarNode> nodes) {
 		if ((linkCurrent.getType().contains("OrParalelRefinementLink"))
@@ -279,7 +290,7 @@ public class IntegrationService {
 					String texto = handlerNameNode(node.getText());
 					if (node.getId().equals(linkFiltrado)) {
 						if (linkCurrent.getType().contains("TryRefinementLink")) {
-							texto = replaceNotationByDecomposition("[try(" + nomeDestino + ")?skip:" + nomeOrigem + "]",
+							texto = replaceNotationByDecomposition("[try(" + nomeDestino + ")?" + nomeOrigem  + ":skip]",
 									node.getText());
 							node.setText(texto);
 						} else {

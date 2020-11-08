@@ -381,12 +381,13 @@ public class PARAMProducerTest {
 	
 	private Formulas readModelAndGetFormulas(String caseFileName, boolean isParam) throws Exception {
 		String content = getContent(caseFileName);
+		String typeModel = ModelTypeEnum.DTMC.getTipo();
 
 		Gson gson = new GsonBuilder().create();
 		PistarModel model = gson.fromJson(content, PistarModel.class);
 		Set<Actor> selectedActors = new HashSet<>();
 		Set<Goal> selectedGoals = new HashSet<>();
-		transformToTao4meEntities(model, selectedActors, selectedGoals);
+		transformToTao4meEntities(model, selectedActors, selectedGoals, typeModel);
 
 		String sourceFolder = "src/main/resources/TemplateInput";
 		String targetFolder = "dtmc";
@@ -397,7 +398,7 @@ public class PARAMProducerTest {
 
 			
 			PARAMProducer producer = new PARAMProducer(selectedActors, selectedGoals, isParam, sourceFolder, targetFolder,
-					toolsFolder, ModelTypeEnum.DTMC.getTipo());
+					toolsFolder, typeModel);
 
 			Actor actor = (Actor) selectedActors.toArray()[0];
 
