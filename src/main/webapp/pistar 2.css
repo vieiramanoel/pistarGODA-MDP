@@ -180,49 +180,6 @@ button:focus{
 	margin-right: 30px;
 }
 
-.modalNodeEdition {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 10;
-  opacity: 0;
-  visibility: hidden;
-  -webkit-transition: all 0.5s 0.5s ease-in-out;
-  transition: all 0.5s 0.5s ease-in-out;
-}
-
-.modalNodeEdition-content {
-  padding: 10px;
-  max-width: 600px;
-  min-width: 360px;
-  max-height: 85%;
-  overflow: auto;
-  position: absolute;
-  top: 5%;
-  left: 50%;
-  z-index: 2;
-  opacity: 0;
-  border-radius: 3px;
-  background: #fff;
-  -webkit-transform: translate(-50%, 0);
-  -ms-transform: translate(-50%, 0);
-  transform: translate(-50%, 0);
-  -webkit-transition: all 0.5s ease-in-out;
-  transition: all 0.5s ease-in-out;
-}
-
-.modalNodeEdition-content img {
-  display: block;
-  width: 100%;
-  margin: 10px 0 0;
-}
-
-.modalNodeEdition-content p {
-  padding-top: 10px;
-  text-align: justify;
-}
 /* The Close Button */
 .close-refct {
   color: black;
