@@ -75,7 +75,7 @@ public class SintaticAnaliser {
 	private enum RegexDecompositionEnum {
 		RETRY(0,"RETRY", "x@x", "\\[.*\\@[0-9].*\\]", ""),
 		TRY(1, "TRY", "[try(x)?(x | skip):(x | skip)]", "\\[try\\(.*\\)\\?.*\\:.*\\]", ""),
-		DM(2, "DM", "[DM(x,x)]", "\\[DM\\(.*?\\)\\]", "[^0-9A-Za-z\\(\\,\\)\\[\\]]"),
+		DM(2, "DM", "[DM(x,x)]", "\\[DM\\(.*?\\)\\]", "[^0-9A-Za-z\\.\\_\\-\\(\\,\\)\\[\\]]"),
 		OR_AND_PARALEL(3,"OR_AND_PARALEL", "x#x", "\\[.*\\#.*\\]", "");
 
 		private final String name;
