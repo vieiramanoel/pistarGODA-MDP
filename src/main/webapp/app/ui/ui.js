@@ -6,6 +6,9 @@
  * https://github.com/jhcp/pistar
  */
 
+
+const regexDM = /\[DM\(.*?\)\]/g;
+
 var ui = function() {
 	'use strict';
 
@@ -103,14 +106,37 @@ var ui = function() {
 				return _.size(this.getSelectedCells());
 			}
 		},
-		verifyIsRootCell: function() {
-			var checked = this.getSelectedCells()[0].prop('customProperties/selected');
-			
-			if(checked){
+		verifyIsRootCell: function(cell) {
+			var checked = cell.prop('customProperties/selected');
+
+			if (checked) {
 				$('#MNE_rootNode').prop('checked', true);
-			}else{
+			} else {
 				$('#MNE_rootNode').prop('checked', false);
 			}
+		},
+		verifyIsDMCell: function(cell) {
+			var name = cell.prop('name');
+			if (name.search(regexDM) >= 0) {
+				ui.loadSelectDM(cell);
+			} else {
+				ui.removeSelectDM();
+			}
+		},
+		verifyIfTaskIsIncludedInNameCell: function(name, nameTask) {
+			var start = name.indexOf(nameTask);
+			var regex = /\,|\;|\(|\)/;
+			if (start > 0)  {
+				//Verificar se os caracteres anterior e posterior ao nome encontrado corresponde a um caracter de limitaçao
+				if (name[start - 1] != null && name[start - 1].search(regex) >= 0) {
+					var end = start + nameTask.length;
+					if (name[end] != null && name[end].search(regex) >= 0) {
+						return 'checked';
+					}
+				}
+			}
+
+			return '!checked';
 		},
 		setNameCell: function(name) {
 			this.getSelectedCells()[0].prop('name', name);
@@ -123,6 +149,91 @@ var ui = function() {
 		},
 		getPropertyCell: function(key) {
 			return this.getSelectedCells()[0].prop('customProperties/' + key);
+		},
+		removeBlankSpacesInNotation: function(cell) {
+			var mainName = cell.prop('name');
+			var regexBrackets = /\[.*?\]/g;
+
+			if (mainName.search(regexBrackets) >= 0) {
+				var start = mainName.indexOf("[");
+				var end = mainName.indexOf("]")+1;
+				var mainNameRefact = mainName.substring(start, end).replaceAll(" ", "");
+				mainName = mainName.replaceAll(regexBrackets, mainNameRefact)
+			}
+			cell.prop('name', mainName);
+		},
+		loadModalEditNode: function() {
+			var cellView = this.getSelectedCells()[0];
+			ui.removeBlankSpacesInNotation(cellView);
+			$('#modalNodeEdition').show();
+			$('#MNE_nameNode').val(cellView.prop('name'));
+			ui.verifyIsRootCell(cellView);
+			ui.verifyIsDMCell(cellView);
+		},
+		selectDMCheckbox: function() {
+			var cell = this.getSelectedCells()[0];
+			//atualizar a label principal para o DM selecionado
+			var labelPrincipal = cell.prop('name');
+			var checksSelect = $('#MNE_dmSelect>input');
+			var labelsSelect = $('#MNE_dmSelect>label');
+			labelPrincipal = labelPrincipal.replaceAll(regexDM, "");
+
+			var qtdChecked = 0;
+			var tasksCheck = "[DM(";
+			for (var i = 0; i < checksSelect.length; i++) {
+				if (checksSelect[i].checked == true) {
+					tasksCheck = `${tasksCheck}${labelsSelect[i].textContent},`;
+					qtdChecked++;
+				}
+			}
+			labelPrincipal = (labelPrincipal + tasksCheck + ")]").replaceAll(",)", ")");
+			if (qtdChecked <= 0) {
+				var labelPrincipal = cell.prop('name');
+				labelPrincipal = labelPrincipal.replaceAll(regexDM, "");
+			}
+			$('#MNE_nameNode').val(labelPrincipal);
+			cell.prop('name', labelPrincipal);
+		},
+		loadSelectDM: function(cell) {
+			cell = (cell ? cell : this.getSelectedCells()[0]);
+			var model = JSON.parse(istar.fileManager.saveModel());
+			var nodes = cell.collection.models;
+			var name = cell.prop('name');
+			var links = model['links'];
+			var id = cell.prop('id');
+			var childrens = [];
+
+			$('#MNE_dmCheck').prop('checked', true);
+			$('#MNE_dmSelect').empty();
+
+			//generate select dm
+			for (var i = 0; i < links.length; i++) {
+				if (links[i].target == id) {
+					for (var j = 0; j < nodes.length; j++) {
+						if (nodes[j].id == links[i].source) {
+							var label = nodes[j].attributes.name;
+							var tam = label.indexOf(":");
+							if (tam > 0) {
+								label = label.substring(0, tam);
+							}
+							childrens.push(label);
+							var checked = ui.verifyIfTaskIsIncludedInNameCell(name, label);
+							$('#MNE_dmSelect').append(`<input id="" type="checkbox" style="margin-left: 5px;" 
+								class="form-check-input" id="dmCheck${j}" ${checked}/> <label
+								class="form-check-label" for="dmCheck${j}">${label}</label>`);
+						}
+					}
+				}
+			}
+		},
+		removeSelectDM: function() {
+			var cell = this.getSelectedCells()[0];
+			var labelPrincipal = cell.prop('name');
+			labelPrincipal = labelPrincipal.replaceAll(regexDM, "");
+			$('#MNE_nameNode').val(labelPrincipal);
+			cell.prop('name', labelPrincipal);
+			$('#MNE_dmSelect').empty();
+			$('#MNE_dmCheck').prop("checked", false);
 		},
 		selectCell: function(cell) {
 			if (cell) {
@@ -584,11 +695,7 @@ ui.defineInteractions = function() {
 		if (!(evt.ctrlKey || evt.altKey)) {
 			var newText;
 			if (cellView.model.isElement()) {
-				$('#modalNodeEdition').show();
-				$('#MNE_nameNode').val(cellView.model.prop('name'));
-				ui.verifyIsRootCell();
-				
-				
+				ui.loadModalEditNode();
 				/* ui.showSelection();
  
 				 ui.prompt({
@@ -1680,11 +1787,20 @@ function changeValueInputEditionNode() {
 }
 
 function setRootCell() {
-	var checked = $('#MNE_rootNode').prop( "checked");
-	if(checked){
+	var checked = $('#MNE_rootNode').prop("checked");
+	if (checked) {
 		ui.setPropertyCell('selected', checked);
-	}else{
+	} else {
 		ui.removePropertyCell('selected');
+	}
+}
+
+function setDMCell() {
+	var checked = $('#MNE_dmCheck').prop("checked");
+	if (checked != true) {
+		ui.removeSelectDM();
+	} else {
+		ui.loadSelectDM();
 	}
 }
 

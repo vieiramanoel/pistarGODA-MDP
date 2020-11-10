@@ -630,28 +630,35 @@ https://github.com/jhcp/pistar
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<button type="button" class="close" onclick="closeModalEditionNode()" data-dismiss="modal"
+						<button type="button" class="close"
+							onclick="closeModalEditionNode()" data-dismiss="modal"
 							aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
 						<h5 class="modal-title">Edit</h5>
 					</div>
 					<div class="modal-body">
-						<input class="input-group" id="MNE_nameNode" style="width: 100%; margin-bottom: 15px;" />
+						<input class="input-group" id="MNE_nameNode"
+							style="width: 100%; margin-bottom: 15px;" />
 						<div class="form-check mt-md">
-							<input id="MNE_rootNode" onclick="setRootCell()" type="checkbox" class="form-check-input"
-								id="exampleCheck1"> <label class="form-check-label"
-								for="exampleCheck1">Is Root</label>
+							<input id="MNE_rootNode" onclick="setRootCell()" type="checkbox"
+								class="form-check-input" id="rootNode"> <label
+								class="form-check-label" for="rootNode">Is Root</label>
 						</div>
-						<!-- <div id="MNE_rootNode" class="form-check mt-2">
-							<input type="checkbox" class="form-check-input"
-								id="exampleCheck1"> <label class="form-check-label"
-								for="exampleCheck1">Is Root</label>
-						</div> -->
+						<div class="form-check">
+							<input id="MNE_dmCheck" type="checkbox" onclick="setDMCell()"
+								class="form-check-input" id="dmCheck"> <label
+								class="form-check-label" for="dmCheck">Is Decision
+								Making</label>
+							<div id="MNE_dmSelect" class="form-check container" onclick="ui.selectDMCheckbox()">
+							</div>
+						</div>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-primary" onclick="changeValueInputEditionNode()">Save</button>
-						<button type="button" class="btn btn-primary" onclick="closeModalEditionNode()"
+						<button type="button" class="btn btn-primary"
+							onclick="changeValueInputEditionNode()">Save</button>
+						<button type="button" class="btn btn-primary"
+							onclick="closeModalEditionNode()"
 							data-dismiss="#modalNodeEdition">Close</button>
 					</div>
 				</div>

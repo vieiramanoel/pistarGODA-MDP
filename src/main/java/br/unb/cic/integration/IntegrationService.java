@@ -1,6 +1,6 @@
 package br.unb.cic.integration;
 
-import static br.unb.cic.goda.rtgoretoprism.util.SintaticAnaliser.verifyModel;
+import static br.unb.cic.goda.rtgoretoprism.util.SintaticAnaliser.verifySintaxModel;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -245,7 +245,9 @@ public class IntegrationService {
 	@SuppressWarnings("unused")
 	private static void verifyNodeSintax(List<PistarNode> nodes, String typeModel) {
 		for (PistarNode node : nodes) {
-			verifyModel(node.getText(), typeModel);
+			//Verifica a Sintaxe para cada nó
+			//Settando o novo texto apenas para remover espaços em branco indesejados no nome do nó
+			node.setText(verifySintaxModel(node.getText(), typeModel)) ;
 		}
 		
 	}

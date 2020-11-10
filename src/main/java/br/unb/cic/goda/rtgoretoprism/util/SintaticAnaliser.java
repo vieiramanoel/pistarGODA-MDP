@@ -7,26 +7,42 @@ import br.unb.cic.goda.model.ModelTypeEnum;
 
 public class SintaticAnaliser {
 
-	public static void verifyModel(String rtRegex, String typeModel) {
+	public static String verifySintaxModel(String rtRegex, String typeModel) {
 		if (rtRegex != null) {
+			//Removes os espaços em branco dentro dos colchetes
+			rtRegex = removeBlankSpaceInBrackets(rtRegex);
+			String regexAux = rtRegex.toUpperCase();
 			if (isMDP(typeModel)) {
 				// Verifica se o modulo NonDeterminism existe
 				if (rtRegex.toUpperCase().contains("DM")) {
-					generateMessageError(RegexDecompositionEnum.DM, rtRegex);
+					generateMessageError(RegexDecompositionEnum.DM, regexAux);
 				}
 			}
 			if (rtRegex.toUpperCase().contains("TRY")) {
-				generateMessageError(RegexDecompositionEnum.TRY, rtRegex);
+				generateMessageError(RegexDecompositionEnum.TRY, regexAux);
 			}
 			if (rtRegex.toUpperCase().contains("#")) {
-				generateMessageError(RegexDecompositionEnum.OR_AND_PARALEL, rtRegex);
+				generateMessageError(RegexDecompositionEnum.OR_AND_PARALEL, regexAux);
 			}
 			if (rtRegex.toUpperCase().contains("@")) {
-				generateMessageError(RegexDecompositionEnum.RETRY, rtRegex);
+				generateMessageError(RegexDecompositionEnum.RETRY, regexAux);
 			}
 		}
+		
+		return rtRegex;
 	}
 
+	private static String removeBlankSpaceInBrackets(String rtRegex) {
+		Matcher bracketsMatcher = Pattern.compile("\\[.*\\]").matcher(rtRegex);
+		if(bracketsMatcher.find()) {
+			String regexStart = rtRegex.substring(0, bracketsMatcher.start());
+			String regexEnd = rtRegex.substring(bracketsMatcher.start(), bracketsMatcher.end());
+			return regexStart + regexEnd.replaceAll(" ", "");
+		}
+		
+		return rtRegex;
+	}
+	
 	private static void generateMessageError(RegexDecompositionEnum enm, String rtRegex) {
 		Matcher bracketsMatcher = Pattern.compile("\\[.*\\]").matcher(rtRegex);
 		String reg1 = enm.getPrimary();

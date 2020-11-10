@@ -15,7 +15,7 @@ import br.unb.cic.goda.rtgoretoprism.model.kl.PlanContainer;
 import br.unb.cic.goda.rtgoretoprism.model.kl.RTContainer;
 import br.unb.cic.goda.rtgoretoprism.util.FileUtility;
 import br.unb.cic.goda.rtgoretoprism.util.kl.TroposNavigator;
-import static br.unb.cic.goda.rtgoretoprism.util.SintaticAnaliser.verifyModel;
+import static br.unb.cic.goda.rtgoretoprism.util.SintaticAnaliser.verifySintaxModel;
 
 import java.io.IOException;
 import java.util.*;
