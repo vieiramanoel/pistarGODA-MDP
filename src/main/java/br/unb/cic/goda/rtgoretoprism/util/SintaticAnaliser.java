@@ -11,7 +11,7 @@ public class SintaticAnaliser {
 		if (rtRegex != null) {
 			//Removes os espaços em branco dentro dos colchetes
 			rtRegex = removeBlankSpaceInBrackets(rtRegex);
-			String regexAux = rtRegex.toUpperCase();
+			String regexAux = rtRegex;
 			if (isMDP(typeModel)) {
 				// Verifica se o modulo NonDeterminism existe
 				if (rtRegex.toUpperCase().contains("DM")) {
