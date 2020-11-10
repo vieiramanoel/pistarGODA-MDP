@@ -8,6 +8,7 @@
 
 
 const regexDM = /\[DM\(.*?\)\]/g;
+const regexBrackets = /\[.*?\]/g;
 
 var ui = function() {
 	'use strict';
@@ -120,7 +121,13 @@ var ui = function() {
 			if (name.search(regexDM) >= 0) {
 				ui.loadSelectDM(cell);
 			} else {
-				ui.removeSelectDM();
+				//Verifica se existe outra relacao alem de DM no name
+				if (name.search(regexBrackets) >= 0) {
+					$('#MNE_dmNodeCheck').hide();
+				} else {
+					$('#MNE_dmNodeCheck').show();
+					ui.removeSelectDM();
+				}
 			}
 		},
 		verifyIfTaskIsIncludedInNameCell: function(name, nameTask) {
@@ -152,11 +159,10 @@ var ui = function() {
 		},
 		removeBlankSpacesInNotation: function(cell) {
 			var mainName = cell.prop('name');
-			var regexBrackets = /\[.*?\]/g;
 
 			if (mainName.search(regexBrackets) >= 0) {
 				var start = mainName.indexOf("[");
-				var end = mainName.indexOf("]")+1;
+				var end = mainName.indexOf("]") + 1;
 				var mainNameRefact = mainName.substring(start, end).replaceAll(" ", "");
 				mainName = mainName.replaceAll(regexBrackets, mainNameRefact)
 			}
