@@ -305,7 +305,7 @@ istar.metamodel.nodeLinks.OrRefinementLink.isValid = function (source, target) {
     return result;
 };
 
-
+/*
 istar.metamodel.nodeLinks.AndParalelRefinementLink.isValid = function (source, target) {
     'use strict';
     var result = {};
@@ -407,7 +407,7 @@ istar.metamodel.nodeLinks.OrParalelRefinementLink.isValid = function (source, ta
 
     result.isValid = isValid;
     return result;
-};
+};*/
 
 istar.metamodel.nodeLinks.NeededByLink.isValid = function (source, target) {
     'use strict';

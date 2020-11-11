@@ -53,7 +53,7 @@ ui.setupMetamodelUI = function () {
         istar.metamodel.nodeLinks.OrRefinementLink.buttonTooltip = 'Add Or-Refinement link';
         istar.metamodel.nodeLinks.OrRefinementLink.buttonStatusText = 'Adding <b>Or-Refinement</b> link: click first on the child, and then on the parent. It can only be applied to goals or tasks.';
     }
-    if (istar.metamodel.nodeLinks.OrParalelRefinementLink) {
+    /*if (istar.metamodel.nodeLinks.OrParalelRefinementLink) {
         istar.metamodel.nodeLinks.OrParalelRefinementLink.buttonLabel = 'OrParalel';
         istar.metamodel.nodeLinks.OrParalelRefinementLink.buttonTooltip = 'Add Or-Paralel-Refinement link';
         istar.metamodel.nodeLinks.OrParalelRefinementLink.buttonStatusText = 'Adding <b>Or-Paralel-Refinement</b> link: click first on the child, and then on the parent. It can only be applied to goals or tasks.';
@@ -63,7 +63,7 @@ ui.setupMetamodelUI = function () {
         istar.metamodel.nodeLinks.AndParalelRefinementLink.buttonLabel = 'AndParalel';
         istar.metamodel.nodeLinks.AndParalelRefinementLink.buttonTooltip = 'Add And-Paralel-Refinement link';
         istar.metamodel.nodeLinks.AndParalelRefinementLink.buttonStatusText = 'Adding <b>And-Paralel-Refinement</b> link: click first on the child, and then on the parent. It can only be applied to goals or tasks.';
-    }
+    }*/
     if (istar.metamodel.nodeLinks.NeededByLink) {
         istar.metamodel.nodeLinks.NeededByLink.buttonLabel = 'Needed-By';
         istar.metamodel.nodeLinks.NeededByLink.buttonTooltip = 'Add Needed-By link';
