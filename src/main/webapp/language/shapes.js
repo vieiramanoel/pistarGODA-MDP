@@ -506,7 +506,7 @@ joint.shapes.istar.OrRefinementLink = joint.dia.Link.define('OrRefinementLink',
         ]
     }
 );
-
+/*
 joint.shapes.istar.OrParalelRefinementLink = joint.dia.Link.define('OrParalelRefinementLink',
     {
         attrs: {
@@ -544,7 +544,7 @@ joint.shapes.istar.OrParalelRefinementLink = joint.dia.Link.define('OrParalelRef
             }
         ]
     }
-);
+);*/
 
 joint.shapes.istar.NeededByLink = joint.dia.Link.define('NeededByLink',
     {
