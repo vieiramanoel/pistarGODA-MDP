@@ -45,11 +45,11 @@ public class IntegrationService {
 		Set<Goal> selectedGoals = new HashSet<>();
 		transformToTao4meEntities(model, selectedActors, selectedGoals, typeModel);
 		try {
-//			cleanDTMCFolder();
+//			cleanDTMCFolder(typeModel);
 			new PRISMCodeGenerationAction(selectedActors, selectedGoals, typeModel).run();
 			FileOutputStream fos = new FileOutputStream("src/main/webapp/prism.zip");
 			ZipOutputStream zos = new ZipOutputStream(fos);
-			DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
+			DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(typeModel.toLowerCase()));
 			for (Path path : directoryStream) {
 				byte[] bytes = Files.readAllBytes(path);
 				zos.putNextEntry(new ZipEntry(path.getFileName().toString()));
@@ -57,7 +57,7 @@ public class IntegrationService {
 				zos.closeEntry();
 			}
 			zos.close();
-			cleanDTMCFolder();
+			cleanDTMCFolder(typeModel);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -70,11 +70,11 @@ public class IntegrationService {
 		Set<Goal> selectedGoals = new HashSet<>();
 		transformToTao4meEntities(model, selectedActors, selectedGoals, typeModel);
 		try {
-//			cleanDTMCFolder();
+			cleanDTMCFolder(typeModel);
 			new RunParamAction(selectedActors, selectedGoals, true, typeModel).run();
 			FileOutputStream fos = new FileOutputStream(output);
 			ZipOutputStream zos = new ZipOutputStream(fos);
-			DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("dtmc"));
+			DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(typeModel.toLowerCase()));
 			for (Path path : directoryStream) {
 				byte[] bytes = Files.readAllBytes(path);
 				zos.putNextEntry(new ZipEntry(path.getFileName().toString()));
@@ -82,14 +82,14 @@ public class IntegrationService {
 				zos.closeEntry();
 			}
 			zos.close();
-			cleanDTMCFolder();
+			cleanDTMCFolder(typeModel);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	private void cleanDTMCFolder() throws IOException {
-		Files.walk(Paths.get("dtmc"), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
+	private void cleanDTMCFolder(String typeModel) throws IOException {
+		Files.walk(Paths.get(typeModel.toLowerCase()), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
 				.forEach(f -> {
 					if (f.isFile()) {
 						f.delete();

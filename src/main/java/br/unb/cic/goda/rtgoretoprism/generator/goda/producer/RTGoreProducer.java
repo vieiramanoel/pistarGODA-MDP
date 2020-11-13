@@ -98,7 +98,7 @@ public class RTGoreProducer {
 			//Generate pctl formulas
 			generatePctlFormulas(ad);
 		}
-		System.out.println( "MDP model created in " + (new Date().getTime() - startTime) + "ms.");
+		System.out.println( typeModel + " model created in " + (new Date().getTime() - startTime) + "ms.");
 		return ad;
 	}
 
