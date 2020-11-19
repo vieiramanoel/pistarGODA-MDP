@@ -32,10 +32,10 @@ public class RunParamAction {
         try {
             producer.run();
         } catch (CodeGenerationException | IOException e) {
-			throw new RuntimeException(e.getMessage());
+//			throw new RuntimeException(e.getMessage());
         } catch (Exception e) {
 			// TODO Auto-generated catch block
-			throw new RuntimeException(e.getMessage());
+//			throw new RuntimeException(e.getMessage());
 		}
     }
 

@@ -23,24 +23,23 @@ public class IntegrationController {
 		this.service.executePrism(content, ModelTypeEnum.DTMC.getTipo());
     }
 	
-	@RequestMapping(value = "/param/MDP", method = RequestMethod.POST)
-    public void paramMDP( @RequestParam(value = "content") String content) {
-		this.service.executeParam(content, ModelTypeEnum.MDP.getTipo(), "src/main/webapp/param.zip");
-    }
-	
 	@RequestMapping(value = "/param/DTMC", method = RequestMethod.POST)
     public void paramDTMC( @RequestParam(value = "content") String content) {
-		this.service.executeParam(content, ModelTypeEnum.DTMC.getTipo(), "src/main/webapp/param.zip");
+		this.service.executeParam(content, ModelTypeEnum.PARAM.getTipo(), true, "src/main/webapp/zip/param.zip");
     }
 	
     @RequestMapping(value = "/epmc/DTMC", method = RequestMethod.POST)
     public void epmcDTMC(@RequestParam(value = "content") String content) {
-    	this.service.executeParam(content, ModelTypeEnum.DTMC.getTipo(), "src/main/webapp/epmc.zip");
+    	this.service.executeParam(content, ModelTypeEnum.EPMC.getTipo(), false, "src/main/webapp/zip/epmc.zip");
     }
 
+	@RequestMapping(value = "/param/MDP", method = RequestMethod.POST)
+    public void paramMDP( @RequestParam(value = "content") String content) {
+		this.service.executeParam(content, ModelTypeEnum.PARAM.getTipo(), true, "src/main/webapp/zip/param.zip");
+    }
+	
     @RequestMapping(value = "/epmc/MDP", method = RequestMethod.POST)
     public void epmcMDP(@RequestParam(value = "content") String content) {
-    	this.service.executeParam(content, ModelTypeEnum.MDP.getTipo(), "src/main/webapp/epmc.zip");
+    	this.service.executeParam(content, ModelTypeEnum.EPMC.getTipo(), false, "src/main/webapp/zip/epmc.zip");
     }
-  
 }

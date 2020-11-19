@@ -30,7 +30,7 @@ public class PRISMCodeGenerationAction {
             producer.run();
         } catch (CodeGenerationException | IOException e) {
             e.printStackTrace();
-			throw new RuntimeException(e.getMessage());
+//			throw new RuntimeException(e.getMessage());
         }
     }
 
