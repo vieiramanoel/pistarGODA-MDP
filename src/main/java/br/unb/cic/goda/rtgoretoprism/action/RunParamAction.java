@@ -31,11 +31,13 @@ public class RunParamAction {
         PARAMProducer producer = new PARAMProducer(selectedActors, selectedGoals, isParam, sourceFolder, targetFolder, toolsFolder, this.typeModel);
         try {
             producer.run();
-        } catch (CodeGenerationException | IOException e) {
-//			throw new RuntimeException(e.getMessage());
-        } catch (Exception e) {
+        } catch (CodeGenerationException | IOException ex) {
+			ex.printStackTrace();
+//			throw new RuntimeException(ex.getMessage());
+        } catch (Exception ex) {
+			ex.printStackTrace();
 			// TODO Auto-generated catch block
-//			throw new RuntimeException(e.getMessage());
+//			throw new RuntimeException(ex.getMessage());
 		}
     }
 
