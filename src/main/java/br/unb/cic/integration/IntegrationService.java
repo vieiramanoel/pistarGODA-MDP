@@ -40,7 +40,7 @@ import br.unb.cic.pistar.model.PistarNode;
 
 @Service
 public class IntegrationService {
-	public void executePrism(String content, String typeModel) {
+	public void executePrism(String content, String typeModel, String output) {
 		Gson gson = new GsonBuilder().create();
 		PistarModel model = gson.fromJson(content, PistarModel.class);
 		Set<Actor> selectedActors = new HashSet<>();
@@ -49,7 +49,7 @@ public class IntegrationService {
 		try {
 			cleanFolder(typeModel.toLowerCase());
 			new PRISMCodeGenerationAction(selectedActors, selectedGoals, typeModel).run();
-			FileOutputStream fos = new FileOutputStream("src/main/webapp/zip/prism.zip");
+			FileOutputStream fos = new FileOutputStream(output);
 			ZipOutputStream zos = new ZipOutputStream(fos);
 			DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(typeModel.toLowerCase()));
 			for (Path path : directoryStream) {
