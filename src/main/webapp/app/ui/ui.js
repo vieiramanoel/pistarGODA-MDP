@@ -964,7 +964,7 @@ $('#runPrismMDPButton').click(function() {
 			"content": model
 		},
 		success: function() {
-			window.location.href = '/zip/prism.zip';
+			window.location.href = 'prism.zip';
 		},
 		error: function(request, status, error) {
 			ui.handleException(request.responseText);
@@ -982,7 +982,7 @@ $('#runPrismDTMCButton').click(function() {
 			"content": model
 		},
 		success: function() {
-			window.location.href = '/zip/prism.zip';
+			window.location.href = 'prism.zip';
 		},
 		error: function(request, status, error) {
 			ui.handleException(request.responseText);
@@ -999,7 +999,7 @@ $('#runPARAMButton').click(function() {
 			"content": model
 		},
 		success: function() {
-			window.location.href = '/zip/param.zip';
+			window.location.href = 'param.zip';
 		},
 		error: function(request, status, error) {
 			ui.handleException(request.responseText);
@@ -1017,7 +1017,7 @@ $('#runEPMCButton').click(function() {
 		},
 		success: function() {
 			debugger
-			window.location.href = '/zip/epmc.zip';
+			window.location.href = 'epmc.zip';
 		},
 		error: function(request, status, error) {
 			ui.handleException(request.responseText);
