@@ -261,6 +261,7 @@ public class PARAMProducer {
 
 			if (reliability) {
 				// Create DTMC model (param)
+				//Comentando esse trecho baseado no codigo da branch master do Gabriel Rodrigues
 				ParamWriter writer = new ParamWriter(sourceFolder, nodeId);
 				String model = writer.writeModel();
 

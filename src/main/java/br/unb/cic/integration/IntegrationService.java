@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.management.RuntimeErrorException;
+
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -45,9 +47,9 @@ public class IntegrationService {
 		Set<Goal> selectedGoals = new HashSet<>();
 		transformToTao4meEntities(model, selectedActors, selectedGoals, typeModel);
 		try {
-//			cleanDTMCFolder(typeModel);
+			cleanFolder(typeModel);
 			new PRISMCodeGenerationAction(selectedActors, selectedGoals, typeModel).run();
-			FileOutputStream fos = new FileOutputStream("src/main/webapp/prism.zip");
+			FileOutputStream fos = new FileOutputStream("src/main/webapp/zip/prism.zip");
 			ZipOutputStream zos = new ZipOutputStream(fos);
 			DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(typeModel.toLowerCase()));
 			for (Path path : directoryStream) {
@@ -57,21 +59,22 @@ public class IntegrationService {
 				zos.closeEntry();
 			}
 			zos.close();
-			cleanDTMCFolder(typeModel);
+			cleanFolder(typeModel);
 		} catch (IOException ex) {
 			ex.printStackTrace();
+//			throw new RuntimeException(ex.getMessage());
 		}
 	}
 
-	public void executeParam(String content, String typeModel, String output) {
+	public void executeParam(String content, String typeModel, Boolean isParam, String output) {
 		Gson gson = new GsonBuilder().create();
 		PistarModel model = gson.fromJson(content, PistarModel.class);
 		Set<Actor> selectedActors = new HashSet<>();
 		Set<Goal> selectedGoals = new HashSet<>();
 		transformToTao4meEntities(model, selectedActors, selectedGoals, typeModel);
 		try {
-			cleanDTMCFolder(typeModel);
-			new RunParamAction(selectedActors, selectedGoals, true, typeModel).run();
+			cleanFolder(typeModel.toLowerCase());
+			new RunParamAction(selectedActors, selectedGoals, isParam, typeModel).run();
 			FileOutputStream fos = new FileOutputStream(output);
 			ZipOutputStream zos = new ZipOutputStream(fos);
 			DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(typeModel.toLowerCase()));
@@ -82,24 +85,26 @@ public class IntegrationService {
 				zos.closeEntry();
 			}
 			zos.close();
-			cleanDTMCFolder(typeModel);
+			cleanFolder(typeModel);
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			throw new RuntimeException(ex.getMessage());
 		}
 	}
 
-	private void cleanDTMCFolder(String typeModel) throws IOException {
-		Files.walk(Paths.get(typeModel.toLowerCase()), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
-				.forEach(f -> {
-					if (f.isFile()) {
-						f.delete();
-					}
-				});
+	private void cleanFolder(String typeModel) throws IOException {
+		if(Files.exists(Paths.get(typeModel))) {
+			Files.walk(Paths.get(typeModel), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
+			.forEach(f -> {
+				if (f.isFile()) {
+					f.delete();
+				}
+			});
+		}
 	}
 
 	public static void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors,
 			Set<Goal> selectedGoals, String typeModel) {
-//		selectRetry/
 		List<PistarActor> pistarActors = model.getActors();
 		pistarActors.forEach(pistarActor -> {
 			verifyNodeSintax(pistarActor.getNodes(), typeModel);

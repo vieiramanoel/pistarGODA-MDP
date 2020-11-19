@@ -964,7 +964,7 @@ $('#runPrismMDPButton').click(function() {
 			"content": model
 		},
 		success: function() {
-			window.location.href = 'prism.zip';
+			window.location.href = '/zip/prism.zip';
 		},
 		error: function(request, status, error) {
 			ui.handleException(request.responseText);
@@ -982,7 +982,7 @@ $('#runPrismDTMCButton').click(function() {
 			"content": model
 		},
 		success: function() {
-			window.location.href = 'prism.zip';
+			window.location.href = '/zip/prism.zip';
 		},
 		error: function(request, status, error) {
 			ui.handleException(request.responseText);
@@ -994,12 +994,12 @@ $('#runPARAMButton').click(function() {
 	var model = istar.fileManager.saveModel();
 	$.ajax({
 		type: "POST",
-		url: '/param/MDP',
+		url: '/param/DTMC',
 		data: {
 			"content": model
 		},
 		success: function() {
-			window.location.href = 'param.zip';
+			window.location.href = '/zip/param.zip';
 		},
 		error: function(request, status, error) {
 			ui.handleException(request.responseText);
@@ -1011,12 +1011,13 @@ $('#runEPMCButton').click(function() {
 	var model = istar.fileManager.saveModel();
 	$.ajax({
 		type: "POST",
-		url: '/epmc/MDP',
+		url: '/epmc/DTMC',
 		data: {
 			"content": model
 		},
 		success: function() {
-			window.location.href = 'epmc.zip';
+			debugger
+			window.location.href = '/zip/epmc.zip';
 		},
 		error: function(request, status, error) {
 			ui.handleException(request.responseText);

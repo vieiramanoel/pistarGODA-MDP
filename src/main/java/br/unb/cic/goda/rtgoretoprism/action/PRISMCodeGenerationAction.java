@@ -25,11 +25,12 @@ public class PRISMCodeGenerationAction {
             return;
         String sourceFolder = "src/main/resources/TemplateInput";
         String targetFolder = typeModel.toLowerCase();
-        RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, typeModel, sourceFolder, targetFolder);
+        RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, sourceFolder, targetFolder, typeModel);
         try {
             producer.run();
         } catch (CodeGenerationException | IOException e) {
             e.printStackTrace();
+//			throw new RuntimeException(e.getMessage());
         }
     }
 

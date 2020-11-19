@@ -38,7 +38,7 @@ public class RTGoreProducer {
 	private Map<String, Boolean[]> rtSortedGoals;
 	private String typeModel;
 
-	public RTGoreProducer(Set<Actor> allActors, Set<Goal> allGoals, String typeModel, String in, String out) {
+	public RTGoreProducer(Set<Actor> allActors, Set<Goal> allGoals, String in, String out, String typeModel) {
 
 		tn = new TroposNavigator();
 
