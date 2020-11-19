@@ -131,7 +131,7 @@ public class PrismWriter {
 		String prismInputFolder = inputPRISMFolder;
 		String planOutputFolder = basicOutputFolder + "plans" + "/";
 		String planPkgName = basicAgentPackage + ".plans";
-		header = ManageWriter.readFileAsString( prismInputFolder + "modelheader.nm" );
+		header = ManageWriter.readFileAsString( prismInputFolder + typeModel + "_modelheader.nm" );
 		body = ManageWriter.readFileAsString( prismInputFolder + "modelbody.nm" );
 		reward = ManageWriter.readFileAsString( prismInputFolder + "modelreward.nm" );
 		/*evalBash = ManageWriter.readFileAsString( prismInputFolder + "eval_formula.sh" );*/

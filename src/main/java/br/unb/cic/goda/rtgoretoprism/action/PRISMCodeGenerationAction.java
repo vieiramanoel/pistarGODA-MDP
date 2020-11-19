@@ -24,7 +24,7 @@ public class PRISMCodeGenerationAction {
         if (selectedActors.isEmpty())
             return;
         String sourceFolder = "src/main/resources/TemplateInput";
-        String targetFolder = "dtmc";
+        String targetFolder = typeModel.toLowerCase();
         RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, typeModel, sourceFolder, targetFolder);
         try {
             producer.run();
