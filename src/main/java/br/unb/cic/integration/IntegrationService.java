@@ -47,7 +47,7 @@ public class IntegrationService {
 		Set<Goal> selectedGoals = new HashSet<>();
 		transformToTao4meEntities(model, selectedActors, selectedGoals, typeModel);
 		try {
-			cleanFolder(typeModel);
+			cleanFolder(typeModel.toLowerCase());
 			new PRISMCodeGenerationAction(selectedActors, selectedGoals, typeModel).run();
 			FileOutputStream fos = new FileOutputStream("src/main/webapp/zip/prism.zip");
 			ZipOutputStream zos = new ZipOutputStream(fos);
@@ -59,7 +59,7 @@ public class IntegrationService {
 				zos.closeEntry();
 			}
 			zos.close();
-			cleanFolder(typeModel);
+			cleanFolder(typeModel.toLowerCase());
 		} catch (IOException ex) {
 			ex.printStackTrace();
 //			throw new RuntimeException(ex.getMessage());
@@ -85,7 +85,7 @@ public class IntegrationService {
 				zos.closeEntry();
 			}
 			zos.close();
-			cleanFolder(typeModel);
+			cleanFolder(typeModel.toLowerCase());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new RuntimeException(ex.getMessage());
