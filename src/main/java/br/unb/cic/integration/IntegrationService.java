@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.management.RuntimeErrorException;
+
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -60,6 +62,7 @@ public class IntegrationService {
 			cleanDTMCFolder(typeModel);
 		} catch (IOException ex) {
 			ex.printStackTrace();
+			throw new RuntimeException(ex.getMessage());
 		}
 	}
 
@@ -70,7 +73,7 @@ public class IntegrationService {
 		Set<Goal> selectedGoals = new HashSet<>();
 		transformToTao4meEntities(model, selectedActors, selectedGoals, typeModel);
 		try {
-			cleanDTMCFolder(typeModel);
+			cleanDTMCFolder(typeModel.toLowerCase());
 			new RunParamAction(selectedActors, selectedGoals, true, typeModel).run();
 			FileOutputStream fos = new FileOutputStream(output);
 			ZipOutputStream zos = new ZipOutputStream(fos);
@@ -85,11 +88,12 @@ public class IntegrationService {
 			cleanDTMCFolder(typeModel);
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			throw new RuntimeException(ex.getMessage());
 		}
 	}
 
 	private void cleanDTMCFolder(String typeModel) throws IOException {
-		Files.walk(Paths.get(typeModel.toLowerCase()), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
+		Files.walk(Paths.get(typeModel), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
 				.forEach(f -> {
 					if (f.isFile()) {
 						f.delete();

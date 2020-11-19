@@ -994,7 +994,7 @@ $('#runPARAMButton').click(function() {
 	var model = istar.fileManager.saveModel();
 	$.ajax({
 		type: "POST",
-		url: '/param/MDP',
+		url: '/param/DTMC',
 		data: {
 			"content": model
 		},
@@ -1009,9 +1009,10 @@ $('#runPARAMButton').click(function() {
 
 $('#runEPMCButton').click(function() {
 	var model = istar.fileManager.saveModel();
+	debugger
 	$.ajax({
 		type: "POST",
-		url: '/epmc/MDP',
+		url: '/epmc/DTMC',
 		data: {
 			"content": model
 		},

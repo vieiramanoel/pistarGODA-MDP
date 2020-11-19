@@ -26,17 +26,16 @@ public class RunParamAction {
         if (selectedActors.isEmpty())
             return;
         String sourceFolder = "src/main/resources/TemplateInput";
-        String targetFolder = "dtmc";
+        String targetFolder = typeModel.toLowerCase();
         String toolsFolder = "tools";
         PARAMProducer producer = new PARAMProducer(selectedActors, selectedGoals, isParam, sourceFolder, targetFolder, toolsFolder, this.typeModel);
         try {
             producer.run();
         } catch (CodeGenerationException | IOException e) {
-            e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
         } catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw e;
+			throw new RuntimeException(e.getMessage());
 		}
     }
 
