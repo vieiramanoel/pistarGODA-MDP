@@ -311,6 +311,7 @@ public class IntegrationService {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private static void configNotationRetryInNodes(List<PistarNode> nodes) {
 		List<PistarNode> retryNodes = new ArrayList<PistarNode>();
 		
