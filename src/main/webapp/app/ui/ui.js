@@ -172,9 +172,45 @@ var ui = function() {
 			var cellView = this.getSelectedCells()[0];
 			ui.removeBlankSpacesInNotation(cellView);
 			$('#modalNodeEdition').show();
+			ui.getProperties();
 			$('#MNE_nameNode').val(cellView.prop('name'));
 			ui.verifyIsRootCell(cellView);
 			ui.verifyIsDMCell(cellView);
+		},
+		getProperties() {
+			var type = this.selectedCell.prop('type').toUpperCase();
+			$.ajax({
+				type: "GET",
+				url: "/getProperties?attribute=" + type,
+				success: function(properties) {
+					$( "#MNE_properties" ).empty();
+					var htmlGen = ui.generatePropertiesModalHtml(properties);
+					$( "#MNE_properties").append($(htmlGen));
+				},
+				error: function(request) {
+					ui.handleException(request.responseText);
+				}
+		
+			});
+		},
+		generatePropertiesModalHtml(properties) {
+			var htmlGen = "";
+			
+			for(var i = 0; i < properties.length; i++){
+					console.log(properties[i].childrens)
+				if(properties[i].type == "CHECKBOX"){
+					var id = properties[i].name + i;
+					htmlGen = "<input id='" + id  + "' type='checkbox' class='form-check-input' " + (properties[i].value == "true" ? "checked" : "") +  ">" +
+						"<label class='form-check-label' for='" + id  + "'>" + properties[i].name + "</label><p></p>";
+					
+					if(properties[i].childrens.length > 0){
+						htmlGen += ui.generatePropertiesModalHtml(properties[i].childrens );
+					}
+					htmlGen = "<div>" +  htmlGen + "</div>";
+					console.log(htmlGen)
+				}
+			}
+			return htmlGen;
 		},
 		selectDMCheckbox: function() {
 			var cell = this.getSelectedCells()[0];

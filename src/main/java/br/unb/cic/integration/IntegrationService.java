@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.management.RuntimeErrorException;
-
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -33,6 +31,9 @@ import br.unb.cic.goda.model.Plan;
 import br.unb.cic.goda.model.PlanImpl;
 import br.unb.cic.goda.rtgoretoprism.action.PRISMCodeGenerationAction;
 import br.unb.cic.goda.rtgoretoprism.action.RunParamAction;
+import br.unb.cic.modelling.Properties;
+import br.unb.cic.modelling.enums.AttributesEnum;
+import br.unb.cic.modelling.models.PropertyModel;
 import br.unb.cic.pistar.model.PistarActor;
 import br.unb.cic.pistar.model.PistarLink;
 import br.unb.cic.pistar.model.PistarModel;
@@ -40,6 +41,15 @@ import br.unb.cic.pistar.model.PistarNode;
 
 @Service
 public class IntegrationService {
+
+	public List<PropertyModel> getProperties(String typeAttr) {
+ 		if (AttributesEnum.GOAL.equals(typeAttr)) {
+			return Properties.getGoalsProperties();
+		} else{
+			return Properties.getTasksProperties();
+		}
+	}
+
 	public void executePrism(String content, String typeModel, String output) {
 		Gson gson = new GsonBuilder().create();
 		PistarModel model = gson.fromJson(content, PistarModel.class);
@@ -93,18 +103,18 @@ public class IntegrationService {
 	}
 
 	private void cleanFolder(String typeModel) throws IOException {
-		if(Files.exists(Paths.get(typeModel))) {
-			Files.walk(Paths.get(typeModel), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
-			.forEach(f -> {
-				if (f.isFile()) {
-					f.delete();
-				}
-			});
+		if (Files.exists(Paths.get(typeModel))) {
+			Files.walk(Paths.get(typeModel), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder())
+					.map(Path::toFile).forEach(f -> {
+						if (f.isFile()) {
+							f.delete();
+						}
+					});
 		}
 	}
 
-	public static void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors,
-			Set<Goal> selectedGoals, String typeModel) {
+	public static void transformToTao4meEntities(PistarModel model, Set<Actor> selectedActors, Set<Goal> selectedGoals,
+			String typeModel) {
 		List<PistarActor> pistarActors = model.getActors();
 		pistarActors.forEach(pistarActor -> {
 			verifyNodeSintax(pistarActor.getNodes(), typeModel);
@@ -143,26 +153,26 @@ public class IntegrationService {
 		});
 	}
 
-	
 	private static Goal fillDecompositionList(PistarModel model, PistarActor pistarActor, PistarNode pistarGoal,
 			Goal goal) {
 		List<PistarLink> linksToGoal = model.getLinks().stream()
 				.filter(d -> d.getTarget().equals(pistarGoal.getId()) && d.getType().contains("Link"))
 				.collect(Collectors.toList());
-		
+
 		List<PistarLink> linksToChildrenGoal = new ArrayList<PistarLink>();
-		for(PistarLink l: linksToGoal){
+		for (PistarLink l : linksToGoal) {
 			linksToChildrenGoal = model.getLinks().stream()
-				.filter(d -> ( d.getTarget().equals(l.getSource()) || d.getTarget().equals(l.getTarget()) || d.getSource().equals(l.getSource()) || d.getSource().equals(l.getTarget())) 
-							&& (d.getType().contains("TryRefinementLink") || d.getType().contains("ParalelRefinementLink")))
-				.collect(Collectors.toList());
-		}
-		
-		linksToGoal.addAll(linksToChildrenGoal);
-		for(PistarLink l: linksToGoal){
-			List<PistarNode> sourceGoals = pistarActor.getAllGoals().stream()
-					.filter(g -> l.getSource().equals(g.getId()))
+					.filter(d -> (d.getTarget().equals(l.getSource()) || d.getTarget().equals(l.getTarget())
+							|| d.getSource().equals(l.getSource()) || d.getSource().equals(l.getTarget()))
+							&& (d.getType().contains("TryRefinementLink")
+									|| d.getType().contains("ParalelRefinementLink")))
 					.collect(Collectors.toList());
+		}
+
+		linksToGoal.addAll(linksToChildrenGoal);
+		for (PistarLink l : linksToGoal) {
+			List<PistarNode> sourceGoals = pistarActor.getAllGoals().stream()
+					.filter(g -> l.getSource().equals(g.getId())).collect(Collectors.toList());
 			if (!sourceGoals.isEmpty() || !linksToChildrenGoal.isEmpty()) {
 				String type = l.getType();
 				if (type.contains("AndRefinementLink")) {
@@ -236,7 +246,7 @@ public class IntegrationService {
 		});
 		return meansToAnEndPlan;
 	}
-	
+
 	// cria relacionamentos atraves de links entre target e source
 	@SuppressWarnings("unused")
 	private static void addNotationByDecomposition(PistarLink linkCurrent, List<PistarLink> links,
@@ -244,20 +254,22 @@ public class IntegrationService {
 
 //		configNotationRetryInNodes(nodes);
 		configNotationParalelAndTryInNodes(linkCurrent, links, nodes);
-		
+
 	}
-	
+
 	@SuppressWarnings("unused")
 	private static void verifyNodeSintax(List<PistarNode> nodes, String typeModel) {
 		for (PistarNode node : nodes) {
-			//Verifica a Sintaxe para cada nó
-			//Settando o novo texto apenas para remover espaços em branco indesejados no nome do nó
-			node.setText(verifySintaxModel(node.getText(), typeModel)) ;
+			// Verifica a Sintaxe para cada nó
+			// Settando o novo texto apenas para remover espaços em branco indesejados no
+			// nome do nó
+			node.setText(verifySintaxModel(node.getText(), typeModel));
 		}
-		
+
 	}
 
-	private static void configNotationParalelAndTryInNodes(PistarLink linkCurrent, List<PistarLink> links, List<PistarNode> nodes) {
+	private static void configNotationParalelAndTryInNodes(PistarLink linkCurrent, List<PistarLink> links,
+			List<PistarNode> nodes) {
 		if ((linkCurrent.getType().contains("OrParalelRefinementLink"))
 				|| (linkCurrent.getType().contains("AndParalelRefinementLink"))
 				|| (linkCurrent.getType().contains("TryRefinementLink"))) {
@@ -297,7 +309,7 @@ public class IntegrationService {
 					String texto = handlerNameNode(node.getText());
 					if (node.getId().equals(linkFiltrado)) {
 						if (linkCurrent.getType().contains("TryRefinementLink")) {
-							texto = replaceNotationByDecomposition("[try(" + nomeDestino + ")?" + nomeOrigem  + ":skip]",
+							texto = replaceNotationByDecomposition("[try(" + nomeDestino + ")?" + nomeOrigem + ":skip]",
 									node.getText());
 							node.setText(texto);
 						} else {
@@ -310,14 +322,14 @@ public class IntegrationService {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	private static void configNotationRetryInNodes(List<PistarNode> nodes) {
 		List<PistarNode> retryNodes = new ArrayList<PistarNode>();
-		
+
 		for (PistarNode node : nodes) {
-			//Verificar se existe property do tipo Retry
-			if(node.getCustomProperties() != null && node.getCustomProperties().get("selectRetry") != null) {
+			// Verificar se existe property do tipo Retry
+			if (node.getCustomProperties() != null && node.getCustomProperties().get("selectRetry") != null) {
 				retryNodes.add(node);
 			}
 		}
@@ -331,8 +343,8 @@ public class IntegrationService {
 
 		return textoOrig;
 	}
-	
-	//	recupera apenas o nome principal do nó
+
+	// recupera apenas o nome principal do nó
 	private static String handlerNameNode(String text) {
 		int tam = (text.indexOf(":") > 0 ? text.indexOf(":") : text.length());
 		return text.substring(0, tam);
