@@ -15,6 +15,13 @@ public class RunParamAction {
     private boolean isParam;
     private String typeModel;
 
+    public RunParamAction() {
+    }
+
+    public RunParamAction(boolean isParam) {
+        this.isParam = isParam;
+    }
+    
     public RunParamAction(Set<Actor> selectedActors, Set<Goal> selectedGoals, boolean isParam, String typeModel) {
         this.selectedActors = selectedActors;
         this.selectedGoals = selectedGoals;
@@ -40,5 +47,30 @@ public class RunParamAction {
 //			throw new RuntimeException(ex.getMessage());
 		}
     }
+
+	public Set<Actor> getSelectedActors() {
+		return selectedActors;
+	}
+
+	public void setSelectedActors(Set<Actor> selectedActors) {
+		this.selectedActors = selectedActors;
+	}
+
+	public Set<Goal> getSelectedGoals() {
+		return selectedGoals;
+	}
+
+	public void setSelectedGoals(Set<Goal> selectedGoals) {
+		this.selectedGoals = selectedGoals;
+	}
+
+	public boolean isParam() {
+		return isParam;
+	}
+
+	public void setParam(boolean isParam) {
+		this.isParam = isParam;
+	}
+
 
 }
