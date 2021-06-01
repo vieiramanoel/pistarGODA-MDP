@@ -28,10 +28,10 @@ public class QueriedProperty extends PropertyModel {
 	
 	public QueriedProperty() {
 		this.setName("QueriedProperty");
-		this.setType(TypesAttributesEnum.EXPRESSION);
+		this.setType(TypesAttributesEnum.TEXT);
 
 		StringBuilder expression = new StringBuilder();
-		expression.append("$Queried Var$->select($Query Var$:$Query var Type$ | $condition$)");
+		expression.append("[Queried Var]->select([Query Var]:[Query var Type] | [condition])");
 		this.setValue(expression.toString());
 	}
 }

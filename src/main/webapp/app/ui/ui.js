@@ -9,11 +9,13 @@
 
 const regexDM = /\[DM\(.*?\)\]/g;
 const regexBrackets = /\[.*?\]/g;
+const regexExpression = /\$.*?\$/g;
 
 var ui = function() {
 	'use strict';
 
 	var selectedCell = null;
+	var selectedProperties = null;
 
 	return {
 		states: {
@@ -184,8 +186,11 @@ var ui = function() {
 				url: "/getProperties?attribute=" + type,
 				success: function(properties) {
 					$( "#MNE_properties" ).empty();
-					var htmlGen = ui.generatePropertiesModalHtml(properties);
+					var htmlGen = ui.generatePropertiesModalHtml(properties, false, null);
 					$( "#MNE_properties").append($(htmlGen));
+					
+					var elementsProp = document.getElementsByClassName("element_property");
+					ui.generateProperties(elementsProp);
 				},
 				error: function(request) {
 					ui.handleException(request.responseText);
@@ -193,24 +198,202 @@ var ui = function() {
 		
 			});
 		},
-		generatePropertiesModalHtml(properties) {
-			var htmlGen = "";
-			
+		generatePropertiesModalHtml(properties, isChildren, nameFather) {
+			var html = "";
+			this.selectedProperties = properties;
 			for(var i = 0; i < properties.length; i++){
-					console.log(properties[i].childrens)
+				var div = document.createElement("div"); 
+				var div1 = document.createElement("div"); 
+				var div2 = document.createElement("div"); 
+				var id = properties[i].name;
+				var typeInput ="";
+				var checked = "";
+				
+				// recuperar properties ja settadas 
+				var propVal = ui.getPropertyCell(id);
+				if(propVal){
+					properties[i].value = propVal;	
+				 	checked = "checked";
+				}
+				
+				if(isChildren){
+					typeInput = "radio";
+				}else{
+					nameFather = "";
+					typeInput = "checkbox";
+					div.className = "element_property";
+				}
+				
 				if(properties[i].type == "CHECKBOX"){
-					var id = properties[i].name + i;
-					htmlGen = "<input id='" + id  + "' type='checkbox' class='form-check-input' " + (properties[i].value == "true" ? "checked" : "") +  ">" +
-						"<label class='form-check-label' for='" + id  + "'>" + properties[i].name + "</label><p></p>";
+				 	checked = (properties[i].value == "true" ? "checked" : "");
+				}
+				
+				var parentInputs = properties[i].name + "_parent_inputs";
+				div1.innerHTML = "<input id='" + id  + "' type='" + typeInput + "'" +
+						"class='form-check-input' " + checked +  " name='" + nameFather + "' " + 
+						"onclick='ui.showChildrens(this)' value='" + properties[i].value + "'>" +
+						"<label class='form-check-label' for='" + id  + "'>" + properties[i].name + "</label>" +
+						"<div id='"+ parentInputs + "'></div>" ;
+						
+				div1.id = properties[i].name + "_parent";
+				
+				var input = div1.children[0];
+				var elInputs = div1.children[2];
+				input.setAttribute("propertyType", properties[i].type);
+				ui.generateByTypeProperty(input, elInputs);	
+				
+				if(properties[i].childrens.length > 0){
+					var htmlChildrens = ""; 
+					htmlChildrens += "<div style='margin-left: 20px;'>";
+					htmlChildrens += ui.generatePropertiesModalHtml(properties[i].childrens, true, properties[i].name);
+					htmlChildrens += "</div>";
 					
-					if(properties[i].childrens.length > 0){
-						htmlGen += ui.generatePropertiesModalHtml(properties[i].childrens );
+					div2.innerHTML = htmlChildrens;
+					div2.id = properties[i].name + "_childrens";
+					if( checked ){
+						div2.style.display = "block";
+					}else{
+						div2.style.display = "none";
 					}
-					htmlGen = "<div>" +  htmlGen + "</div>";
-					console.log(htmlGen)
+					div.setAttribute("hasChildren", true);	
+				}else{
+					div.setAttribute("hasChildren", false);	
+				}
+				
+				div.setAttribute("element_property", id);
+				div.id = properties[i].name + "_group";
+				div.appendChild(div1);
+				div.appendChild(div2);
+				html += div.outerHTML;
+			}
+			
+			return html;
+		},
+		showChildrens(el){
+			var display = "";
+			var childrens = el.id + "_childrens";
+			var parentInputs = el.id + "_parent_inputs";
+			var childrensEl = document.getElementById(childrens);
+			var inputsEl = document.getElementById(parentInputs);
+			
+			if( el.checked){
+				display = "block";
+				//el.setAttribute("checked", true);
+				ui.generateByTypeProperty(el, inputsEl);
+			}else{
+				el.value = "";
+				display = "none";
+				inputsEl.innerHTML = "";
+				//el.setAttribute("checked", false);
+			}
+			
+			if(childrensEl){
+				childrensEl.style.display = display;
+			}
+			
+			ui.clearPropertiesUnused(el);
+			var elementsProp = document.getElementsByClassName("element_property");
+			ui.generateProperties(elementsProp);
+		},
+		clearPropertiesUnused(el){
+			var childrens = el.name + "_childrens";
+			var childrensEl = document.getElementById(childrens);
+			
+			if(childrensEl){
+				childrensEl = childrensEl.children[0].children;
+				for(var i = 0; i < childrensEl.length; i++){
+					var input = childrensEl[i].firstElementChild.children[0];
+					var inputsDiv = childrensEl[i].firstElementChild.children[2];
+					if(!input.checked){
+						var childrensProp = input.id + "_childrens";
+						var childrensPropEl = document.getElementById(childrensProp);
+						inputsDiv.innerHTML = "";
+						
+						if(childrensPropEl){
+							childrensPropEl.style.display = "none";
+						}
+					}
 				}
 			}
-			return htmlGen;
+		},
+		generateByTypeProperty(el, inputsEl){
+			var propertytype = el.getAttribute("propertytype");
+			var value = el.value;
+			
+			if(el.checked ){
+				if(propertytype == "TEXT"){
+					inputsEl.innerHTML = "<input style='width: 80%; margin-left: 20px' type='text' class='form-check-input' " +
+					"placeholder='" + el.id + "' onkeyup='ui.updateProperty(this)' value='" + value + "'>";
+				}
+				if(propertytype == "EXPRESSION"){
+					var found;
+			        while(value.search(regexExpression) >= 0){
+				        found = value.match(regexExpression);
+				        found = found[0].replaceAll("$", "");
+	
+						value = value.replace(regexExpression, "");
+						inputsEl.innerHTML = "<input id='"+ el.id + "_" +found +"' style='width: 80%; margin-left: 20px' type='text' class='form-check-input' " +
+						"placeholder='" + found + "' onkeyup='ui.applyExpression(this)' value='" + found + "'>";
+			        }
+				}
+			}else{
+				inputsEl.innerHTML = "";
+			}
+		},
+		applyExpression(input) {
+			var id = input.id.replace("_"+ input.placeholder, "");
+			var element = document.getElementById(id);
+			var elementsProp = document.getElementsByClassName("element_property");
+			
+			element.value = element.value.replace(regexExpression, input.value);
+			ui.generateProperties(elementsProp);
+		},
+		updateProperty(input){
+			var element = document.getElementById(input.placeholder);
+			element.value = input.value;
+			
+			var elementsProp = document.getElementsByClassName("element_property");
+			ui.generateProperties(elementsProp);
+		},
+		generateProperties(elementsProp){
+			for(var i = 0; i < elementsProp.length; i++){
+				var nameElement = elementsProp[i].getAttribute("element_property");
+				var input = null;
+				
+				if(elementsProp[i].getAttribute("hasChildren") == "true"){
+					input = elementsProp[i].children[0].firstElementChild;
+					if(input.checked){
+						var childrens = elementsProp[i].children[1].firstElementChild.children;
+						for(var j = 0; j < childrens.length; j++){
+							input = childrens[j].firstElementChild.firstElementChild;
+							if(input.checked){
+								ui.setInputProperty(nameElement, input.checked, input.id);
+								break;
+							}
+						}
+						ui.generateProperties(childrens);
+					}else{
+						var childrens = elementsProp[i].children[1].firstElementChild.children;
+						for(var j = 0; j < childrens.length; j++){
+							input = childrens[j].firstElementChild.firstElementChild;
+							input.checked = false;
+							ui.setInputProperty(nameElement, input.checked, input.id);
+						}
+						ui.removePropertyCell(nameElement);
+						ui.generateProperties(childrens);
+					}
+				}else{
+					input = elementsProp[i].children[0].firstElementChild;
+					ui.setInputProperty(nameElement, input.checked, input.value);
+				}
+			}
+		},
+		setInputProperty(nameElement, checked, value){
+			if(checked){
+				ui.setPropertyCell(nameElement, value);
+			}else{
+				ui.removePropertyCell(nameElement);
+			}
 		},
 		selectDMCheckbox: function() {
 			var cell = this.getSelectedCells()[0];
@@ -1052,7 +1235,6 @@ $('#runEPMCButton').click(function() {
 			"content": model
 		},
 		success: function() {
-			debugger
 			window.location.href = 'epmc.zip';
 		},
 		error: function(request, status, error) {

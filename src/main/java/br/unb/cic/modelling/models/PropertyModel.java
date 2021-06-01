@@ -7,7 +7,7 @@ import br.unb.cic.modelling.enums.TypesAttributesEnum;
 
 public class PropertyModel {
 	private String name;
-	private String value;
+	private String value = "";
 	private TypesAttributesEnum type;
 	private List<PropertyModel> childrens = new ArrayList<PropertyModel>();
 	

@@ -19,7 +19,7 @@ public class GoalType extends PropertyModel {
 	
 	public GoalType() {
 		this.setName("GoalType");
-		this.setType(TypesAttributesEnum.CHECKBOX);
+		this.setType(TypesAttributesEnum.OBJECT);
 		this.setChildrens();
 	}
 	

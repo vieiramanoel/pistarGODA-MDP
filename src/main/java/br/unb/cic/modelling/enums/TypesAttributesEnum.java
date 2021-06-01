@@ -4,6 +4,7 @@ public enum TypesAttributesEnum {
 	CHECKBOX("CHECKBOX"),
 	EXPRESSION("EXPRESSION"),
 	LIST("LIST"),
+	OBJECT("OBJECT"),
 	TEXT("TEXT");
 	
 	private String attr;

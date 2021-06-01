@@ -26,9 +26,8 @@ import br.unb.cic.modelling.models.PropertyModel;
 public class AchieveCondition extends PropertyModel {
 	
 	public AchieveCondition() {
-		this.setValue("false");
 		this.setName("AchieveCondition");
-		this.setType(TypesAttributesEnum.CHECKBOX);
+		this.setType(TypesAttributesEnum.OBJECT);
 		this.setChildrens();
 	}
 	

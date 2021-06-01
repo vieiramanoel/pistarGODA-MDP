@@ -20,8 +20,7 @@ public class Context extends PropertyModel{
 
 	public Context() {
 		this.setName("Context");
-		this.setType(TypesAttributesEnum.CHECKBOX);
-		this.setValue("false");
+		this.setType(TypesAttributesEnum.OBJECT);
 		this.setChildrens();
 		
 	}
