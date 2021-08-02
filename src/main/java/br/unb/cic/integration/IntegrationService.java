@@ -43,13 +43,16 @@ import br.unb.cic.pistar.model.PistarNode;
 public class IntegrationService {
 
 	public List<PropertyModel> getProperties(String typeAttr) {
+		List<PropertyModel> properties = new ArrayList<PropertyModel>();
+		
  		if (AttributesEnum.GOAL.equals(typeAttr)) {
-			//return Properties.getGoalsProperties();
-		} else{
-			//return Properties.getTasksProperties();
+ 			//properties = Properties.getGoalsProperties();
+		} else if(AttributesEnum.TASK.equals(typeAttr)){
+			//properties = Properties.getTasksProperties();
 		}
-	}
 
+ 		return properties;
+	}
 	public void executePrism(String content, String typeModel, String output) {
 		Gson gson = new GsonBuilder().create();
 		PistarModel model = gson.fromJson(content, PistarModel.class);
