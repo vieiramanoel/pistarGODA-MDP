@@ -44,9 +44,9 @@ public class IntegrationService {
 
 	public List<PropertyModel> getProperties(String typeAttr) {
  		if (AttributesEnum.GOAL.equals(typeAttr)) {
-			return Properties.getGoalsProperties();
+			//return Properties.getGoalsProperties();
 		} else{
-			return Properties.getTasksProperties();
+			//return Properties.getTasksProperties();
 		}
 	}
 
